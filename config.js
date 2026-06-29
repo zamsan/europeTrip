@@ -5,14 +5,14 @@ window.TRIP_SHEET = {
 };
 
 window.TRIP_FIREBASE = {
-  enabled: false,
+  enabled: true,
   firebaseConfig: {
-    apiKey: "",
-    authDomain: "",
-    projectId: "",
-    storageBucket: "",
-    messagingSenderId: "",
-    appId: ""
+    apiKey: "AIzaSyC94FFcgCXdbjzmOAy29-L1N6fvQdxMxyk",
+    authDomain: "europetrip-eb435.firebaseapp.com",
+    projectId: "europetrip-eb435",
+    storageBucket: "europetrip-eb435.firebasestorage.app",
+    messagingSenderId: "486991174045",
+    appId: "1:486991174045:web:0a7899be8c248f9809f774"
   },
   collectionPath: "trips",
   documentId: "europe-2026",
