@@ -180,6 +180,18 @@ function sortItemsByTime(items) {
     .map((entry) => entry.item);
 }
 
+function getDayTypeLabel(type) {
+  if (type === "transfer") {
+    return "도시 이동";
+  }
+
+  if (type === "return") {
+    return "귀국/도착";
+  }
+
+  return "일반";
+}
+
 function getMapHref(value) {
   const location = String(value || "").trim();
   if (!location) {
@@ -428,6 +440,7 @@ function renderSchedule(schedule) {
     const typeClass = cardType ? ` ${cardType}` : "";
     const dateText = day.dateLabel || day.date || "날짜 미정";
     const city = day.city ? `<span class="city-tag">${escapeHtml(day.city)}</span>` : "";
+    const typeTag = `<span class="type-tag${cardType ? ` ${cardType}` : ""}">${escapeHtml(getDayTypeLabel(day.type))}</span>`;
     const items = day.items.map(renderScheduleItem).join("");
     const note = day.note ? `<p class="note">${escapeHtml(day.note)}</p>` : "";
     const editButton = canEdit()
@@ -440,6 +453,7 @@ function renderSchedule(schedule) {
           <div>
             <time datetime="${escapeHtml(day.date)}">${escapeHtml(dateText)}</time>
             ${city}
+            ${typeTag}
           </div>
           ${editButton}
         </div>

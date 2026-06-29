@@ -207,6 +207,29 @@ p {
   font-weight: 800;
 }
 
+.type-tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  margin: 0 0 10px 8px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #f4f6f8;
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.type-tag.transfer {
+  background: #e7f4f1;
+  color: var(--green);
+}
+
+.type-tag.return {
+  background: #fff0f3;
+  color: var(--rose);
+}
+
 .day-card ul,
 .check-list {
   padding-left: 20px;
