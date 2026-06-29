@@ -283,6 +283,22 @@ function renderSchedule(schedule) {
   refreshDayEditor();
 }
 
+function renderError(title, message) {
+  if (!timelineEl) {
+    return;
+  }
+
+  currentSchedule = [];
+  timelineEl.innerHTML = `
+    <article class="day-card error-card">
+      <time>오류</time>
+      <h3>${escapeHtml(title)}</h3>
+      <p class="note">${escapeHtml(message)}</p>
+    </article>
+  `;
+  refreshDayEditor();
+}
+
 function setSheetUi(message, connected) {
   if (editLinkEl) {
     if (sheetConfig.editUrl) {
@@ -484,22 +500,31 @@ async function initFirestoreSchedule() {
           renderSchedule(snapshot.data().schedule);
           setFirestoreUi(firebaseConfig.updatedLabel || "Firestore 실시간 연동 중", true);
         } else {
-          renderSchedule(fallbackSchedule);
-          setFirestoreUi("Firestore 문서가 아직 없어 기본 일정을 표시 중입니다.", true);
+          renderError(
+            "Firestore 일정 문서가 없습니다",
+            "trips/europe-2026 문서를 만들거나 로그인 후 기본 일정 저장을 눌러 초기 데이터를 저장하세요."
+          );
+          setFirestoreUi("Firestore 문서가 없어 일정을 표시할 수 없습니다.", false);
         }
       },
       (error) => {
         console.warn(error);
-        renderSchedule(fallbackSchedule);
-        setFirestoreUi("Firestore를 읽지 못해 기본 일정을 표시 중입니다.", false);
+        renderError(
+          "Firestore를 읽지 못했습니다",
+          "Firebase 설정, Firestore Rules, 네트워크 상태를 확인하세요."
+        );
+        setFirestoreUi("Firestore 읽기 오류가 발생했습니다.", false);
       }
     );
 
     return true;
   } catch (error) {
     console.warn(error);
-    renderSchedule(fallbackSchedule);
-    setFirestoreUi("Firebase 초기화에 실패해 기본 일정을 표시 중입니다.", false);
+    renderError(
+      "Firebase 초기화 실패",
+      "config.js의 window.TRIP_FIREBASE 설정값을 확인하세요."
+    );
+    setFirestoreUi("Firebase 초기화 오류가 발생했습니다.", false);
     return true;
   }
 }

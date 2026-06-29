@@ -244,6 +244,11 @@ p {
   border-left-color: var(--rose);
 }
 
+.day-card.error-card {
+  border-left-color: var(--rose);
+  background: #fff7f8;
+}
+
 .day-card time {
   display: inline-block;
   margin-bottom: 8px;
