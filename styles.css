@@ -286,6 +286,30 @@ p {
   margin: 6px 0;
 }
 
+.schedule-item {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.item-time {
+  min-width: 52px;
+  color: var(--green);
+  font-weight: 800;
+}
+
+.item-text {
+  flex: 1 1 220px;
+}
+
+.map-link {
+  color: var(--blue);
+  font-size: 0.9rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
 .note {
   margin-top: 14px;
   padding-top: 12px;
@@ -395,6 +419,32 @@ p {
   grid-column: 1 / -1;
 }
 
+.editor-section-title {
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.item-editor-list {
+  display: grid;
+  gap: 10px;
+}
+
+.item-editor-row {
+  display: grid;
+  grid-template-columns: minmax(110px, 0.45fr) minmax(180px, 1fr) minmax(220px, 1fr) auto;
+  gap: 10px;
+  align-items: end;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfaf7;
+}
+
+.item-delete-button {
+  min-height: 42px;
+}
+
 .inline-editor input,
 .inline-editor select,
 .inline-editor textarea {
@@ -501,7 +551,12 @@ p {
     grid-template-columns: 1fr;
   }
 
+  .item-editor-row {
+    grid-template-columns: 1fr;
+  }
+
   .edit-button,
+  .item-delete-button,
   .inline-editor-actions {
     width: 100%;
   }

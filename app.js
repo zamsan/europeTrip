@@ -128,13 +128,59 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+function normalizeItem(item) {
+  if (typeof item === "string") {
+    const value = item.trim();
+    const timeMatch = value.match(/^(\d{1,2}:\d{2})\s+(.+)$/);
+
+    return {
+      time: timeMatch ? timeMatch[1].padStart(5, "0") : "",
+      text: timeMatch ? timeMatch[2].trim() : value,
+      mapUrl: ""
+    };
+  }
+
+  if (!item || typeof item !== "object") {
+    return {
+      time: "",
+      text: "",
+      mapUrl: ""
+    };
+  }
+
+  return {
+    time: String(item.time || "").trim(),
+    text: String(item.text || item.title || item.label || "").trim(),
+    mapUrl: String(item.mapUrl || item.map || item.url || "").trim()
+  };
+}
+
+function normalizeItems(items) {
+  return (Array.isArray(items) ? items : [])
+    .map(normalizeItem)
+    .filter((item) => item.time || item.text || item.mapUrl);
+}
+
+function getMapHref(value) {
+  const location = String(value || "").trim();
+  if (!location) {
+    return "";
+  }
+
+  if (/^https?:\/\//i.test(location)) {
+    return location;
+  }
+
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
+}
+
 function cloneDay(day) {
   return {
     date: day.date || "",
     dateLabel: day.dateLabel || "",
     city: day.city || "",
     title: day.title || "",
-    items: Array.isArray(day.items) ? [...day.items] : [],
+    items: normalizeItems(day.items).map((item) => ({ ...item })),
     note: day.note || "",
     type: day.type || ""
   };
@@ -171,9 +217,7 @@ function normalizeSchedule(schedule) {
       dateLabel: String(day.dateLabel || "").trim(),
       city: String(day.city || "").trim(),
       title: String(day.title || "").trim(),
-      items: Array.isArray(day.items)
-        ? day.items.map((item) => String(item || "").trim()).filter(Boolean)
-        : [],
+      items: normalizeItems(day.items),
       note: String(day.note || "").trim(),
       type: ["transfer", "return"].includes(day.type) ? day.type : ""
     }))
@@ -272,6 +316,22 @@ function rowsToSchedule(csvText) {
   }).filter((item) => item.title || item.items.length);
 }
 
+function renderScheduleItem(item) {
+  const time = item.time ? `<span class="item-time">${escapeHtml(item.time)}</span>` : "";
+  const mapHref = getMapHref(item.mapUrl);
+  const mapLink = mapHref
+    ? `<a class="map-link" href="${escapeHtml(mapHref)}" target="_blank" rel="noopener">지도</a>`
+    : "";
+
+  return `
+    <li class="schedule-item">
+      ${time}
+      <span class="item-text">${escapeHtml(item.text || "일정 내용 미정")}</span>
+      ${mapLink}
+    </li>
+  `;
+}
+
 function renderSchedule(schedule) {
   if (!timelineEl) {
     return;
@@ -284,7 +344,7 @@ function renderSchedule(schedule) {
     const typeClass = cardType ? ` ${cardType}` : "";
     const dateText = day.dateLabel || day.date || "날짜 미정";
     const city = day.city ? `<span class="city-tag">${escapeHtml(day.city)}</span>` : "";
-    const items = day.items.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+    const items = day.items.map(renderScheduleItem).join("");
     const note = day.note ? `<p class="note">${escapeHtml(day.note)}</p>` : "";
     const editButton = canEdit()
       ? `<button class="card-edit-button" type="button" data-edit-index="${index}">수정</button>`
@@ -308,10 +368,36 @@ function renderSchedule(schedule) {
   }).join("");
 }
 
+function renderItemEditorRow(item = {}) {
+  const normalizedItem = normalizeItem(item);
+
+  return `
+    <div class="item-editor-row" data-item-row>
+      <label>
+        시간
+        <input name="itemTime" type="time" value="${escapeHtml(normalizedItem.time)}">
+      </label>
+      <label class="item-editor-text">
+        일정
+        <input name="itemText" type="text" value="${escapeHtml(normalizedItem.text)}" autocomplete="off">
+      </label>
+      <label class="item-editor-map">
+        위치/지도 링크
+        <input name="itemMapUrl" type="text" value="${escapeHtml(normalizedItem.mapUrl)}" placeholder="루브르 또는 https://maps.google.com/..." autocomplete="off">
+      </label>
+      <button class="card-edit-button ghost item-delete-button" type="button" data-delete-item>삭제</button>
+    </div>
+  `;
+}
+
 function renderInlineEditor(day, index) {
   if (!canEdit()) {
     return "";
   }
+
+  const itemRows = (day.items.length ? day.items : [normalizeItem("")])
+    .map(renderItemEditorRow)
+    .join("");
 
   return `
     <form class="inline-editor" data-editor-index="${index}" hidden>
@@ -327,10 +413,11 @@ function renderInlineEditor(day, index) {
         제목
         <input name="title" type="text" value="${escapeHtml(day.title)}" autocomplete="off">
       </label>
-      <label class="wide">
-        세부 일정
-        <textarea name="items" rows="5">${escapeHtml(day.items.join("\n"))}</textarea>
-      </label>
+      <div class="editor-section-title wide">세부 일정</div>
+      <div class="item-editor-list wide" data-item-list>
+        ${itemRows}
+      </div>
+      <button class="edit-button ghost wide" type="button" data-add-item>세부 일정 추가</button>
       <label class="wide">
         메모
         <textarea name="note" rows="3">${escapeHtml(day.note)}</textarea>
@@ -436,13 +523,20 @@ async function saveSelectedDay(index, form) {
 
   const nextSchedule = currentSchedule.map(cloneDay);
   const formData = new FormData(form);
+  const items = Array.from(form.querySelectorAll("[data-item-row]"))
+    .map((row) => ({
+      time: String(row.querySelector('[name="itemTime"]')?.value || "").trim(),
+      text: String(row.querySelector('[name="itemText"]')?.value || "").trim(),
+      mapUrl: String(row.querySelector('[name="itemMapUrl"]')?.value || "").trim()
+    }))
+    .filter((item) => item.time || item.text || item.mapUrl);
 
   nextSchedule[index] = {
     ...nextSchedule[index],
     dateLabel: String(formData.get("dateLabel") || "").trim(),
     city: String(formData.get("city") || "").trim(),
     title: String(formData.get("title") || "").trim(),
-    items: String(formData.get("items") || "").split("\n").map((item) => item.trim()).filter(Boolean),
+    items,
     note: String(formData.get("note") || "").trim(),
     type: String(formData.get("type") || "")
   };
@@ -472,6 +566,29 @@ function wireTimelineEditing() {
       const editor = timelineEl.querySelector(`[data-editor-index="${index}"]`);
       if (editor) {
         editor.hidden = !editor.hidden;
+      }
+      return;
+    }
+
+    const addItemButton = event.target.closest("[data-add-item]");
+    if (addItemButton) {
+      const editor = addItemButton.closest("[data-editor-index]");
+      const itemList = editor?.querySelector("[data-item-list]");
+      if (itemList) {
+        itemList.insertAdjacentHTML("beforeend", renderItemEditorRow());
+      }
+      return;
+    }
+
+    const deleteItemButton = event.target.closest("[data-delete-item]");
+    if (deleteItemButton) {
+      const row = deleteItemButton.closest("[data-item-row]");
+      const itemList = deleteItemButton.closest("[data-item-list]");
+      if (row && itemList) {
+        row.remove();
+        if (!itemList.querySelector("[data-item-row]")) {
+          itemList.insertAdjacentHTML("beforeend", renderItemEditorRow());
+        }
       }
       return;
     }
