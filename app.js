@@ -261,7 +261,12 @@ async function loadSchedule() {
 
   if (!csvUrl) {
     renderSchedule(fallbackSchedule);
-    setSheetUi("아직 Google Sheets 링크가 연결되지 않았습니다.", false);
+    setSheetUi(
+      sheetConfig.editUrl
+        ? "수정 링크는 연결됐고, CSV 게시 주소 연결 전입니다."
+        : "아직 Google Sheets 링크가 연결되지 않았습니다.",
+      Boolean(sheetConfig.editUrl)
+    );
     return;
   }
 
