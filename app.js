@@ -796,12 +796,14 @@ function getRouteCountry(point) {
 }
 
 function getRoutePointsFromSchedule() {
-  return currentSchedule.flatMap((day) => {
+  return currentSchedule.flatMap((day, dayIndex) => {
     const dayLabel = String(day.dateLabel || day.date || "").replace(/\s+/g, " ").trim();
 
     return normalizeItems(day.items)
+      .map((item, itemIndex) => ({ ...item, routeId: `${dayIndex}-${itemIndex}` }))
       .filter((item) => item.lat && item.lng)
       .map((item) => ({
+        id: item.routeId,
         country: getRouteCountry(item),
         day: dayLabel.replace(/^8월\s*/, "8/").replace(/\s*요일$/, ""),
         title: item.text || day.title || "일정",
@@ -851,6 +853,7 @@ function renderRouteMap(filter = "all") {
   const color = getRouteColor(filter);
   const layer = window.L.layerGroup().addTo(renderRouteMap.map);
   const latLngs = visiblePoints.map((point) => [point.lat, point.lng]);
+  renderRouteMap.markers = new Map();
 
   window.L.polyline(latLngs, {
     color,
@@ -873,6 +876,9 @@ function renderRouteMap(filter = "all") {
       className: "route-marker-number"
     });
     marker.bindPopup(`<strong>${escapeHtml(point.day)} ${escapeHtml(point.title)}</strong>`);
+    if (point.id) {
+      renderRouteMap.markers.set(point.id, marker);
+    }
   });
 
   renderRouteMap.layer = layer;
@@ -892,13 +898,43 @@ function wireRouteMap() {
 
   routeFilterEls.forEach((button) => {
     button.addEventListener("click", () => {
-      activeRouteFilter = button.dataset.routeFilter || "all";
-      routeFilterEls.forEach((item) => item.classList.toggle("is-active", item === button));
-      renderRouteMap(activeRouteFilter);
+      setActiveRouteFilter(button.dataset.routeFilter || "all");
     });
   });
 
   renderRouteMap(activeRouteFilter);
+}
+
+function setActiveRouteFilter(filter) {
+  activeRouteFilter = filter || "all";
+  routeFilterEls.forEach((item) => {
+    item.classList.toggle("is-active", item.dataset.routeFilter === activeRouteFilter);
+  });
+  renderRouteMap(activeRouteFilter);
+}
+
+function focusRoutePoint(routeId) {
+  if (!routeId || !routeMapEl || !window.L) {
+    return;
+  }
+
+  const point = getRoutePointsFromSchedule().find((item) => item.id === routeId);
+  if (!point) {
+    return;
+  }
+
+  setActiveRouteFilter("all");
+  routeMapEl.scrollIntoView({ behavior: "smooth", block: "center" });
+
+  window.setTimeout(() => {
+    const marker = renderRouteMap.markers?.get(routeId);
+    if (!marker) {
+      return;
+    }
+
+    renderRouteMap.map.setView([point.lat, point.lng], 15, { animate: true });
+    marker.openPopup();
+  }, 260);
 }
 
 function parseCsv(text) {
@@ -993,11 +1029,11 @@ function rowsToSchedule(csvText) {
   }).filter((item) => item.title || item.items.length);
 }
 
-function renderScheduleItem(item) {
+function renderScheduleItem(item, dayIndex, itemIndex) {
   const time = item.time ? `<span class="item-time">${escapeHtml(item.time)}</span>` : "";
-  const mapHref = getMapHref(item.mapUrl);
-  const mapLink = mapHref
-    ? `<a class="map-link" href="${escapeHtml(mapHref)}" target="_blank" rel="noopener">지도</a>`
+  const routeId = `${dayIndex}-${itemIndex}`;
+  const mapLink = item.lat && item.lng
+    ? `<button class="map-link" type="button" data-route-focus="${escapeHtml(routeId)}">지도</button>`
     : "";
 
   return `
@@ -1022,7 +1058,7 @@ function renderSchedule(schedule) {
     const dateText = day.dateLabel || day.date || "날짜 미정";
     const city = day.city ? `<span class="city-tag">${escapeHtml(day.city)}</span>` : "";
     const typeTag = `<span class="type-tag${cardType ? ` ${cardType}` : ""}">${escapeHtml(getDayTypeLabel(day.type))}</span>`;
-    const items = day.items.map(renderScheduleItem).join("");
+    const items = day.items.map((item, itemIndex) => renderScheduleItem(item, index, itemIndex)).join("");
     const note = day.note ? `<p class="note">${escapeHtml(day.note)}</p>` : "";
     const editButton = canEdit()
       ? `<button class="card-edit-button" type="button" data-edit-index="${index}">수정</button>`
@@ -1310,6 +1346,12 @@ function wireTimelineEditing() {
   }
 
   timelineEl.addEventListener("click", async (event) => {
+    const routeFocusButton = event.target.closest("[data-route-focus]");
+    if (routeFocusButton) {
+      focusRoutePoint(routeFocusButton.dataset.routeFocus);
+      return;
+    }
+
     const editButton = event.target.closest("[data-edit-index]");
     if (editButton) {
       const index = editButton.dataset.editIndex;
