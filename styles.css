@@ -146,7 +146,7 @@ p {
 .summary-grid,
 .route-grid,
 .timeline,
-.edit-panel,
+.timeline-controls,
 .booking-table,
 .check-list {
   max-width: 1080px;
@@ -236,6 +236,13 @@ p {
   border-left: 5px solid var(--blue);
 }
 
+.day-card-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: flex-start;
+}
+
 .day-card.transfer {
   border-left-color: var(--green);
 }
@@ -287,27 +294,16 @@ p {
   font-size: 0.95rem;
 }
 
-.edit-band {
-  background: #f1ece5;
-}
-
-.edit-panel {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
+.timeline-controls {
+  display: flex;
+  flex-wrap: wrap;
   gap: 16px;
   align-items: center;
-  padding: 20px;
-  border: 1px solid #d8cfc3;
-  border-radius: 8px;
-  background: #fff;
-  box-shadow: 0 12px 32px rgba(33, 40, 52, 0.08);
+  margin-bottom: 18px;
 }
 
-.edit-panel p {
-  color: var(--ink);
-}
-
-.edit-button {
+.edit-button,
+.card-edit-button {
   min-height: 44px;
   border: 0;
   display: inline-flex;
@@ -324,7 +320,15 @@ p {
   font: inherit;
 }
 
-.edit-button.ghost {
+.card-edit-button {
+  min-height: 36px;
+  padding: 7px 12px;
+  background: #1f2933;
+  font-size: 0.9rem;
+}
+
+.edit-button.ghost,
+.card-edit-button.ghost {
   border: 1px solid var(--green);
   background: #fff;
   color: var(--green);
@@ -341,21 +345,21 @@ p {
   font-weight: 800;
 }
 
-.day-editor {
-  grid-column: 1 / -1;
+.inline-editor {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
+  margin-top: 16px;
   padding-top: 16px;
   border-top: 1px solid var(--line);
 }
 
-.day-editor[hidden],
+.inline-editor[hidden],
 [hidden] {
   display: none !important;
 }
 
-.day-editor label {
+.inline-editor label {
   display: grid;
   gap: 6px;
   color: var(--muted);
@@ -363,13 +367,13 @@ p {
   font-weight: 800;
 }
 
-.day-editor .wide {
+.inline-editor .wide {
   grid-column: 1 / -1;
 }
 
-.day-editor input,
-.day-editor select,
-.day-editor textarea {
+.inline-editor input,
+.inline-editor select,
+.inline-editor textarea {
   width: 100%;
   min-height: 42px;
   padding: 9px 11px;
@@ -380,8 +384,14 @@ p {
   font: inherit;
 }
 
-.day-editor textarea {
+.inline-editor textarea {
   resize: vertical;
+}
+
+.inline-editor-actions {
+  display: flex;
+  gap: 10px;
+  align-items: end;
 }
 
 .booking-table {
@@ -459,17 +469,21 @@ p {
 
   .summary-grid,
   .route-grid,
-  .check-list,
-  .edit-panel {
+  .check-list {
     grid-template-columns: 1fr;
   }
 
-  .day-editor {
+  .inline-editor {
     grid-template-columns: 1fr;
   }
 
-  .edit-button {
+  .edit-button,
+  .inline-editor-actions {
     width: 100%;
+  }
+
+  .inline-editor-actions {
+    display: grid;
   }
 
   .city-panel {

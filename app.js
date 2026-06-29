@@ -107,20 +107,12 @@ const fallbackSchedule = [
 const sheetConfig = window.TRIP_SHEET || {};
 const firebaseConfig = window.TRIP_FIREBASE || {};
 const timelineEl = document.querySelector("#tripTimeline");
-const editLinkEl = document.querySelector("#sheetEditLink");
+const timelineControlsEl = document.querySelector("#timelineControls");
 const statusEl = document.querySelector("#sheetStatus");
-const editDescriptionEl = document.querySelector("#editDescription");
 const firebaseSignInEl = document.querySelector("#firebaseSignIn");
 const firebaseSeedEl = document.querySelector("#firebaseSeed");
-const dayEditorEl = document.querySelector("#dayEditor");
-const editDaySelectEl = document.querySelector("#editDaySelect");
-const editCityEl = document.querySelector("#editCity");
-const editTitleEl = document.querySelector("#editTitle");
-const editItemsEl = document.querySelector("#editItems");
-const editNoteEl = document.querySelector("#editNote");
-const editTypeEl = document.querySelector("#editType");
 
-let currentSchedule = fallbackSchedule.map(cloneDay);
+let currentSchedule = [];
 let firestoreApi = null;
 let firestoreDocRef = null;
 let currentUser = null;
@@ -261,26 +253,76 @@ function renderSchedule(schedule) {
 
   currentSchedule = normalizeSchedule(schedule);
 
-  timelineEl.innerHTML = currentSchedule.map((day) => {
+  timelineEl.innerHTML = currentSchedule.map((day, index) => {
     const cardType = ["transfer", "return"].includes(day.type) ? day.type : "";
     const typeClass = cardType ? ` ${cardType}` : "";
     const dateText = day.dateLabel || day.date || "날짜 미정";
     const city = day.city ? `<span class="city-tag">${escapeHtml(day.city)}</span>` : "";
     const items = day.items.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
     const note = day.note ? `<p class="note">${escapeHtml(day.note)}</p>` : "";
+    const editButton = currentUser && isFirebaseConfigured()
+      ? `<button class="card-edit-button" type="button" data-edit-index="${index}">수정</button>`
+      : "";
 
     return `
       <article class="day-card${typeClass}">
-        <time datetime="${escapeHtml(day.date)}">${escapeHtml(dateText)}</time>
-        ${city}
+        <div class="day-card-head">
+          <div>
+            <time datetime="${escapeHtml(day.date)}">${escapeHtml(dateText)}</time>
+            ${city}
+          </div>
+          ${editButton}
+        </div>
         <h3>${escapeHtml(day.title)}</h3>
         <ul>${items}</ul>
         ${note}
+        ${renderInlineEditor(day, index)}
       </article>
     `;
   }).join("");
+}
 
-  refreshDayEditor();
+function renderInlineEditor(day, index) {
+  if (!currentUser || !isFirebaseConfigured()) {
+    return "";
+  }
+
+  return `
+    <form class="inline-editor" data-editor-index="${index}" hidden>
+      <label>
+        표시 날짜
+        <input name="dateLabel" type="text" value="${escapeHtml(day.dateLabel)}" autocomplete="off">
+      </label>
+      <label>
+        도시
+        <input name="city" type="text" value="${escapeHtml(day.city)}" autocomplete="off">
+      </label>
+      <label class="wide">
+        제목
+        <input name="title" type="text" value="${escapeHtml(day.title)}" autocomplete="off">
+      </label>
+      <label class="wide">
+        세부 일정
+        <textarea name="items" rows="5">${escapeHtml(day.items.join("\n"))}</textarea>
+      </label>
+      <label class="wide">
+        메모
+        <textarea name="note" rows="3">${escapeHtml(day.note)}</textarea>
+      </label>
+      <label>
+        구분
+        <select name="type">
+          <option value=""${day.type ? "" : " selected"}>일반</option>
+          <option value="transfer"${day.type === "transfer" ? " selected" : ""}>도시 이동</option>
+          <option value="return"${day.type === "return" ? " selected" : ""}>귀국/도착</option>
+        </select>
+      </label>
+      <div class="inline-editor-actions">
+        <button class="edit-button" type="submit">저장</button>
+        <button class="edit-button ghost" type="button" data-cancel-edit>취소</button>
+      </div>
+    </form>
+  `;
 }
 
 function renderError(title, message) {
@@ -296,22 +338,19 @@ function renderError(title, message) {
       <p class="note">${escapeHtml(message)}</p>
     </article>
   `;
-  refreshDayEditor();
 }
 
 function setSheetUi(message, connected) {
-  if (editLinkEl) {
-    if (sheetConfig.editUrl) {
-      editLinkEl.href = sheetConfig.editUrl;
-      editLinkEl.textContent = "Google Sheets에서 수정하기";
-      editLinkEl.target = "_blank";
-      editLinkEl.rel = "noopener";
-    } else {
-      editLinkEl.href = "sheet-template.html";
-      editLinkEl.textContent = "샘플 표 보기";
-      editLinkEl.removeAttribute("target");
-      editLinkEl.removeAttribute("rel");
-    }
+  if (timelineControlsEl) {
+    timelineControlsEl.hidden = false;
+  }
+
+  if (firebaseSignInEl) {
+    firebaseSignInEl.hidden = true;
+  }
+
+  if (firebaseSeedEl) {
+    firebaseSeedEl.hidden = true;
   }
 
   if (statusEl) {
@@ -332,15 +371,8 @@ function isFirebaseConfigured() {
 }
 
 function setFirestoreUi(message, connected) {
-  if (editDescriptionEl) {
-    editDescriptionEl.textContent = "Firestore에 저장된 일정을 실시간으로 불러오고, Google 로그인 후 같은 화면에서 수정합니다.";
-  }
-
-  if (editLinkEl) {
-    editLinkEl.href = "FIREBASE_SETUP.md";
-    editLinkEl.textContent = "Firebase 설정 보기";
-    editLinkEl.removeAttribute("target");
-    editLinkEl.removeAttribute("rel");
+  if (timelineControlsEl) {
+    timelineControlsEl.hidden = false;
   }
 
   if (firebaseSignInEl) {
@@ -352,75 +384,28 @@ function setFirestoreUi(message, connected) {
     firebaseSeedEl.hidden = !currentUser;
   }
 
-  if (dayEditorEl) {
-    dayEditorEl.hidden = !currentUser;
-  }
-
   if (statusEl) {
     statusEl.textContent = message;
     statusEl.classList.toggle("is-connected", Boolean(connected));
   }
 }
 
-function refreshDayEditor() {
-  if (!editDaySelectEl || !dayEditorEl || dayEditorEl.hidden) {
-    return;
-  }
-
-  const selectedDate = editDaySelectEl.value;
-  editDaySelectEl.innerHTML = currentSchedule.map((day, index) => {
-    const label = `${day.dateLabel || day.date || `일정 ${index + 1}`} - ${day.title || "제목 없음"}`;
-    return `<option value="${escapeHtml(day.date || String(index))}">${escapeHtml(label)}</option>`;
-  }).join("");
-
-  if (currentSchedule.some((day) => day.date === selectedDate)) {
-    editDaySelectEl.value = selectedDate;
-  }
-
-  fillEditorFromSelectedDay();
-}
-
-function getSelectedDayIndex() {
-  if (!editDaySelectEl) {
-    return -1;
-  }
-
-  const selected = editDaySelectEl.value;
-  const byDate = currentSchedule.findIndex((day) => day.date === selected);
-  if (byDate >= 0) {
-    return byDate;
-  }
-  return Number.parseInt(selected, 10);
-}
-
-function fillEditorFromSelectedDay() {
-  const index = getSelectedDayIndex();
-  const day = currentSchedule[index];
-  if (!day) {
-    return;
-  }
-
-  editCityEl.value = day.city || "";
-  editTitleEl.value = day.title || "";
-  editItemsEl.value = (day.items || []).join("\n");
-  editNoteEl.value = day.note || "";
-  editTypeEl.value = day.type || "";
-}
-
-async function saveSelectedDay() {
-  const index = getSelectedDayIndex();
+async function saveSelectedDay(index, form) {
   if (!firestoreApi || !firestoreDocRef || index < 0) {
     return;
   }
 
   const nextSchedule = currentSchedule.map(cloneDay);
+  const formData = new FormData(form);
+
   nextSchedule[index] = {
     ...nextSchedule[index],
-    city: editCityEl.value.trim(),
-    title: editTitleEl.value.trim(),
-    items: editItemsEl.value.split("\n").map((item) => item.trim()).filter(Boolean),
-    note: editNoteEl.value.trim(),
-    type: editTypeEl.value
+    dateLabel: String(formData.get("dateLabel") || "").trim(),
+    city: String(formData.get("city") || "").trim(),
+    title: String(formData.get("title") || "").trim(),
+    items: String(formData.get("items") || "").split("\n").map((item) => item.trim()).filter(Boolean),
+    note: String(formData.get("note") || "").trim(),
+    type: String(formData.get("type") || "")
   };
 
   await firestoreApi.setDoc(firestoreDocRef, {
@@ -429,6 +414,42 @@ async function saveSelectedDay() {
   }, { merge: true });
 
   setFirestoreUi("Firestore에 저장했습니다.", true);
+}
+
+function wireTimelineEditing() {
+  if (!timelineEl) {
+    return;
+  }
+
+  timelineEl.addEventListener("click", (event) => {
+    const editButton = event.target.closest("[data-edit-index]");
+    if (editButton) {
+      const index = editButton.dataset.editIndex;
+      const editor = timelineEl.querySelector(`[data-editor-index="${index}"]`);
+      if (editor) {
+        editor.hidden = !editor.hidden;
+      }
+      return;
+    }
+
+    const cancelButton = event.target.closest("[data-cancel-edit]");
+    if (cancelButton) {
+      const editor = cancelButton.closest("[data-editor-index]");
+      if (editor) {
+        editor.hidden = true;
+      }
+    }
+  });
+
+  timelineEl.addEventListener("submit", async (event) => {
+    const form = event.target.closest("[data-editor-index]");
+    if (!form) {
+      return;
+    }
+
+    event.preventDefault();
+    await saveSelectedDay(Number.parseInt(form.dataset.editorIndex, 10), form);
+  });
 }
 
 async function seedDefaultSchedule() {
@@ -478,11 +499,7 @@ async function initFirestoreSchedule() {
     });
 
     firebaseSeedEl?.addEventListener("click", seedDefaultSchedule);
-    editDaySelectEl?.addEventListener("change", fillEditorFromSelectedDay);
-    dayEditorEl?.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      await saveSelectedDay();
-    });
+    wireTimelineEditing();
 
     authModule.onAuthStateChanged(auth, (user) => {
       currentUser = user;
@@ -490,7 +507,9 @@ async function initFirestoreSchedule() {
         user ? `${user.email || "로그인 사용자"} 계정으로 수정할 수 있습니다.` : "Google 로그인 후 일정을 수정할 수 있습니다.",
         true
       );
-      refreshDayEditor();
+      if (currentSchedule.length) {
+        renderSchedule(currentSchedule);
+      }
     });
 
     firestoreModule.onSnapshot(
