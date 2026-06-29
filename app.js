@@ -174,6 +174,56 @@ function getMapHref(value) {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
 }
 
+function splitTime(value) {
+  const match = String(value || "").match(/^(\d{1,2}):(\d{2})$/);
+  if (!match) {
+    return { hour: "", minute: "" };
+  }
+
+  return {
+    hour: match[1].padStart(2, "0"),
+    minute: match[2]
+  };
+}
+
+function renderSelectOptions(values, selectedValue, emptyLabel) {
+  return [
+    `<option value="">${escapeHtml(emptyLabel)}</option>`,
+    ...values.map((value) => {
+      const selected = value === selectedValue ? " selected" : "";
+      return `<option value="${escapeHtml(value)}"${selected}>${escapeHtml(value)}</option>`;
+    })
+  ].join("");
+}
+
+function renderTimePicker(value) {
+  const { hour, minute } = splitTime(value);
+  const hours = Array.from({ length: 24 }, (_, index) => String(index).padStart(2, "0"));
+  const minutes = Array.from({ length: 12 }, (_, index) => String(index * 5).padStart(2, "0"));
+
+  return `
+    <div class="time-picker">
+      <select name="itemHour" aria-label="시간">
+        ${renderSelectOptions(hours, hour, "시")}
+      </select>
+      <select name="itemMinute" aria-label="분">
+        ${renderSelectOptions(minutes, minute, "분")}
+      </select>
+    </div>
+  `;
+}
+
+function readItemTime(row) {
+  const hour = String(row.querySelector('[name="itemHour"]')?.value || "").trim();
+  const minute = String(row.querySelector('[name="itemMinute"]')?.value || "").trim();
+
+  if (!hour && !minute) {
+    return "";
+  }
+
+  return `${(hour || "00").padStart(2, "0")}:${(minute || "00").padStart(2, "0")}`;
+}
+
 function cloneDay(day) {
   return {
     date: day.date || "",
@@ -375,7 +425,7 @@ function renderItemEditorRow(item = {}) {
     <div class="item-editor-row" data-item-row>
       <label>
         시간
-        <input name="itemTime" type="time" value="${escapeHtml(normalizedItem.time)}">
+        ${renderTimePicker(normalizedItem.time)}
       </label>
       <label class="item-editor-text">
         일정
@@ -525,7 +575,7 @@ async function saveSelectedDay(index, form) {
   const formData = new FormData(form);
   const items = Array.from(form.querySelectorAll("[data-item-row]"))
     .map((row) => ({
-      time: String(row.querySelector('[name="itemTime"]')?.value || "").trim(),
+      time: readItemTime(row),
       text: String(row.querySelector('[name="itemText"]')?.value || "").trim(),
       mapUrl: String(row.querySelector('[name="itemMapUrl"]')?.value || "").trim()
     }))
