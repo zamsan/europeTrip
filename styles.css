@@ -302,6 +302,30 @@ p {
   margin-bottom: 18px;
 }
 
+.edit-unlock {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.edit-unlock label {
+  color: var(--muted);
+  font-size: 0.92rem;
+  font-weight: 800;
+}
+
+.edit-unlock input {
+  width: min(180px, 100%);
+  min-height: 44px;
+  padding: 9px 11px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+}
+
 .edit-button,
 .card-edit-button {
   min-height: 44px;
@@ -479,6 +503,11 @@ p {
 
   .edit-button,
   .inline-editor-actions {
+    width: 100%;
+  }
+
+  .edit-unlock,
+  .edit-unlock input {
     width: 100%;
   }
 

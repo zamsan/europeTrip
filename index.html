@@ -83,6 +83,12 @@
           <h2 id="timeline-title">날짜별 일정</h2>
         </div>
         <div class="timeline-controls" id="timelineControls" hidden>
+          <form class="edit-unlock" id="editUnlockForm">
+            <label for="editPassword">수정 비밀번호</label>
+            <input id="editPassword" type="password" autocomplete="current-password" inputmode="numeric">
+            <button class="edit-button ghost" type="submit">수정 잠금 해제</button>
+          </form>
+          <button class="edit-button ghost" id="editLock" type="button" hidden>수정 잠금</button>
           <button class="edit-button ghost" id="firebaseSeed" type="button" hidden>기본 일정 저장</button>
           <span id="sheetStatus">Firestore 연결 준비 중입니다.</span>
         </div>

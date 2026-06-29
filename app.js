@@ -111,10 +111,14 @@ const timelineControlsEl = document.querySelector("#timelineControls");
 const statusEl = document.querySelector("#sheetStatus");
 const firebaseSignInEl = document.querySelector("#firebaseSignIn");
 const firebaseSeedEl = document.querySelector("#firebaseSeed");
+const editUnlockFormEl = document.querySelector("#editUnlockForm");
+const editPasswordEl = document.querySelector("#editPassword");
+const editLockEl = document.querySelector("#editLock");
 
 let currentSchedule = [];
 let firestoreApi = null;
 let firestoreDocRef = null;
+let editUnlocked = sessionStorage.getItem("tripEditUnlocked") === "true";
 
 function escapeHtml(value) {
   return String(value || "")
@@ -135,6 +139,30 @@ function cloneDay(day) {
     note: day.note || "",
     type: day.type || ""
   };
+}
+
+function getEditPassword() {
+  return String(firebaseConfig.editPassword || "").trim();
+}
+
+function canEdit() {
+  return isFirebaseConfigured() && (!getEditPassword() || editUnlocked);
+}
+
+function setEditUnlocked(value) {
+  editUnlocked = Boolean(value);
+  if (editUnlocked) {
+    sessionStorage.setItem("tripEditUnlocked", "true");
+  } else {
+    sessionStorage.removeItem("tripEditUnlocked");
+  }
+  setFirestoreUi(
+    editUnlocked ? "수정 잠금이 해제되었습니다." : "수정하려면 비밀번호를 입력하세요.",
+    true
+  );
+  if (currentSchedule.length) {
+    renderSchedule(currentSchedule);
+  }
 }
 
 function normalizeSchedule(schedule) {
@@ -259,7 +287,7 @@ function renderSchedule(schedule) {
     const city = day.city ? `<span class="city-tag">${escapeHtml(day.city)}</span>` : "";
     const items = day.items.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
     const note = day.note ? `<p class="note">${escapeHtml(day.note)}</p>` : "";
-    const editButton = isFirebaseConfigured()
+    const editButton = canEdit()
       ? `<button class="card-edit-button" type="button" data-edit-index="${index}">수정</button>`
       : "";
 
@@ -282,7 +310,7 @@ function renderSchedule(schedule) {
 }
 
 function renderInlineEditor(day, index) {
-  if (!isFirebaseConfigured()) {
+  if (!canEdit()) {
     return "";
   }
 
@@ -386,7 +414,15 @@ function setFirestoreUi(message, connected) {
   }
 
   if (firebaseSeedEl) {
-    firebaseSeedEl.hidden = false;
+    firebaseSeedEl.hidden = !canEdit();
+  }
+
+  if (editUnlockFormEl) {
+    editUnlockFormEl.hidden = canEdit();
+  }
+
+  if (editLockEl) {
+    editLockEl.hidden = !canEdit() || !getEditPassword();
   }
 
   if (statusEl) {
@@ -397,6 +433,11 @@ function setFirestoreUi(message, connected) {
 
 async function saveSelectedDay(index, form) {
   if (!firestoreApi || !firestoreDocRef || index < 0) {
+    return;
+  }
+
+  if (!canEdit()) {
+    setFirestoreUi("수정하려면 비밀번호를 먼저 입력하세요.", false);
     return;
   }
 
@@ -469,6 +510,11 @@ async function seedDefaultSchedule() {
     return;
   }
 
+  if (!canEdit()) {
+    setFirestoreUi("기본 일정을 저장하려면 비밀번호를 먼저 입력하세요.", false);
+    return;
+  }
+
   setFirestoreUi("기본 일정을 Firestore에 저장하는 중입니다...", true);
 
   try {
@@ -507,8 +553,29 @@ async function initFirestoreSchedule() {
     firestoreDocRef = firestoreModule.doc(db, collectionPath, documentId);
 
     firebaseSeedEl?.addEventListener("click", seedDefaultSchedule);
+    editUnlockFormEl?.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const expectedPassword = getEditPassword();
+      const enteredPassword = String(editPasswordEl?.value || "").trim();
+
+      if (!expectedPassword || enteredPassword === expectedPassword) {
+        if (editPasswordEl) {
+          editPasswordEl.value = "";
+        }
+        setEditUnlocked(true);
+      } else {
+        setEditUnlocked(false);
+        setFirestoreUi("비밀번호가 맞지 않습니다.", false);
+      }
+    });
+    editLockEl?.addEventListener("click", () => {
+      setEditUnlocked(false);
+    });
     wireTimelineEditing();
-    setFirestoreUi("Firestore 연결 중입니다. 일정은 바로 수정할 수 있습니다.", true);
+    setFirestoreUi(
+      canEdit() ? "Firestore 연결 중입니다. 일정은 바로 수정할 수 있습니다." : "Firestore 연결 중입니다. 수정하려면 비밀번호를 입력하세요.",
+      true
+    );
 
     firestoreModule.onSnapshot(
       firestoreDocRef,

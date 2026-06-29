@@ -16,5 +16,6 @@ window.TRIP_FIREBASE = {
   },
   collectionPath: "trips",
   documentId: "europe-2026",
+  editPassword: "0801",
   updatedLabel: "Firestore 실시간 연동 중"
 };
