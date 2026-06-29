@@ -110,6 +110,10 @@ section {
   background: var(--paper);
 }
 
+.route-band {
+  background: #f3f0ea;
+}
+
 .booking-band {
   background: #eef4f3;
 }
@@ -143,10 +147,82 @@ p {
 
 .timeline,
 .timeline-controls,
+.route-map-shell,
 .booking-table,
 .check-list {
   max-width: 1080px;
   margin: 0 auto;
+}
+
+.route-map-shell {
+  position: relative;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  overflow: hidden;
+  box-shadow: 0 12px 32px rgba(33, 40, 52, 0.08);
+}
+
+.route-map-controls {
+  position: absolute;
+  z-index: 500;
+  top: 14px;
+  left: 14px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 6px;
+  border: 1px solid rgba(216, 222, 230, 0.86);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 8px 22px rgba(33, 40, 52, 0.12);
+}
+
+.route-filter {
+  min-height: 36px;
+  padding: 7px 12px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.route-filter.is-active {
+  background: var(--green);
+  color: #fff;
+}
+
+.route-map {
+  width: 100%;
+  height: min(68vh, 620px);
+  min-height: 430px;
+  background: #edf1f5;
+}
+
+.route-map-error {
+  min-height: 430px;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.route-marker-number {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.leaflet-popup-content {
+  margin: 10px 12px;
+  color: var(--ink);
+  font-family: "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
 }
 
 .day-card {
@@ -636,6 +712,20 @@ p {
 
   .map-input-row {
     grid-template-columns: 1fr;
+  }
+
+  .route-map {
+    height: 62vh;
+    min-height: 360px;
+  }
+
+  .route-map-controls {
+    right: 10px;
+    left: 10px;
+  }
+
+  .route-filter {
+    flex: 1 1 70px;
   }
 
   .check-url-row {

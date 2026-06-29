@@ -386,6 +386,42 @@ const editUnlockFormEl = document.querySelector("#editUnlockForm");
 const editPasswordEl = document.querySelector("#editPassword");
 const editLockEl = document.querySelector("#editLock");
 const bookingChecklistEl = document.querySelector("#bookingChecklist");
+const routeMapEl = document.querySelector("#routeMap");
+const routeFilterEls = Array.from(document.querySelectorAll("[data-route-filter]"));
+
+const routePoints = [
+  { country: "london", day: "8/1", title: "The Tower Hotel", lat: 51.5077, lng: -0.0733 },
+  { country: "london", day: "8/1", title: "Tower Bridge", lat: 51.5055, lng: -0.0754 },
+  { country: "london", day: "8/1", title: "St Katharine Docks", lat: 51.5076, lng: -0.0715 },
+  { country: "london", day: "8/2", title: "Buckingham Palace", lat: 51.5014, lng: -0.1419 },
+  { country: "london", day: "8/2", title: "Westminster / Big Ben", lat: 51.5007, lng: -0.1246 },
+  { country: "london", day: "8/2", title: "Covent Garden", lat: 51.5117, lng: -0.1240 },
+  { country: "london", day: "8/2", title: "Piccadilly Circus", lat: 51.5101, lng: -0.1340 },
+  { country: "london", day: "8/2", title: "221B Baker Street", lat: 51.5237, lng: -0.1585 },
+  { country: "london", day: "8/2", title: "KIMCHEE Pancras", lat: 51.5322, lng: -0.1251 },
+  { country: "london", day: "8/3", title: "Tower of London", lat: 51.5081, lng: -0.0759 },
+  { country: "london", day: "8/3", title: "Borough Market", lat: 51.5055, lng: -0.0910 },
+  { country: "london", day: "8/3", title: "British Museum", lat: 51.5194, lng: -0.1270 },
+  { country: "london", day: "8/3", title: "Sky Garden", lat: 51.5113, lng: -0.0836 },
+  { country: "london", day: "8/4", title: "St Pancras International", lat: 51.5315, lng: -0.1263 },
+  { country: "paris", day: "8/4", title: "Gare du Nord", lat: 48.8809, lng: 2.3553 },
+  { country: "paris", day: "8/4", title: "Hyatt Regency Paris Etoile", lat: 48.8808, lng: 2.2840 },
+  { country: "paris", day: "8/4", title: "Arc de Triomphe", lat: 48.8738, lng: 2.2950 },
+  { country: "paris", day: "8/4", title: "Champs-Elysees", lat: 48.8698, lng: 2.3076 },
+  { country: "paris", day: "8/4", title: "Bouillon Chartier", lat: 48.8718, lng: 2.3430 },
+  { country: "paris", day: "8/5", title: "Eiffel Tower", lat: 48.8584, lng: 2.2945 },
+  { country: "paris", day: "8/5", title: "Trocadero", lat: 48.8629, lng: 2.2870 },
+  { country: "paris", day: "8/5", title: "Le Relais de l'Entrecote", lat: 48.8688, lng: 2.3065 },
+  { country: "paris", day: "8/5", title: "Pont Alexandre III", lat: 48.8639, lng: 2.3136 },
+  { country: "paris", day: "8/5", title: "Montmartre", lat: 48.8867, lng: 2.3431 },
+  { country: "paris", day: "8/5", title: "Pink Mamma", lat: 48.8821, lng: 2.3335 },
+  { country: "paris", day: "8/6", title: "Louvre Museum", lat: 48.8606, lng: 2.3376 },
+  { country: "paris", day: "8/6", title: "Galeries Lafayette", lat: 48.8738, lng: 2.3321 },
+  { country: "paris", day: "8/6", title: "Palais Garnier", lat: 48.8719, lng: 2.3316 },
+  { country: "paris", day: "8/6", title: "Soon Grill Le Marais", lat: 48.8562, lng: 2.3673 },
+  { country: "paris", day: "8/7", title: "Cafe de Flore", lat: 48.8542, lng: 2.3321 },
+  { country: "paris", day: "8/7", title: "Charles de Gaulle Airport", lat: 49.0097, lng: 2.5479 }
+];
 
 const defaultChecklist = [
   { id: "flight", label: "항공", checked: true, url: "", note: "" },
@@ -696,6 +732,104 @@ function renderChecklist(checklist) {
       </li>
     `;
   }).join("");
+}
+
+function getRouteColor(filter) {
+  if (filter === "london") {
+    return "#2563eb";
+  }
+
+  if (filter === "paris") {
+    return "#be3455";
+  }
+
+  return "#0f766e";
+}
+
+function getVisibleRoutePoints(filter) {
+  if (filter === "london" || filter === "paris") {
+    return routePoints.filter((point) => point.country === filter);
+  }
+
+  return routePoints;
+}
+
+function renderRouteMap(filter = "all") {
+  if (!routeMapEl) {
+    return;
+  }
+
+  if (!window.L) {
+    routeMapEl.innerHTML = '<div class="route-map-error">지도를 불러오지 못했습니다.</div>';
+    return;
+  }
+
+  if (!renderRouteMap.map) {
+    renderRouteMap.map = window.L.map(routeMapEl, {
+      scrollWheelZoom: false
+    });
+
+    window.L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(renderRouteMap.map);
+  }
+
+  if (renderRouteMap.layer) {
+    renderRouteMap.layer.remove();
+  }
+
+  const visiblePoints = getVisibleRoutePoints(filter);
+  const color = getRouteColor(filter);
+  const layer = window.L.layerGroup().addTo(renderRouteMap.map);
+  const latLngs = visiblePoints.map((point) => [point.lat, point.lng]);
+
+  window.L.polyline(latLngs, {
+    color,
+    weight: 4,
+    opacity: 0.75
+  }).addTo(layer);
+
+  visiblePoints.forEach((point, index) => {
+    const marker = window.L.circleMarker([point.lat, point.lng], {
+      radius: 8,
+      color: "#ffffff",
+      weight: 2,
+      fillColor: point.country === "london" ? "#2563eb" : "#be3455",
+      fillOpacity: 0.95
+    }).addTo(layer);
+
+    marker.bindTooltip(String(index + 1), {
+      permanent: true,
+      direction: "center",
+      className: "route-marker-number"
+    });
+    marker.bindPopup(`<strong>${escapeHtml(point.day)} ${escapeHtml(point.title)}</strong>`);
+  });
+
+  renderRouteMap.layer = layer;
+
+  if (latLngs.length) {
+    renderRouteMap.map.fitBounds(window.L.latLngBounds(latLngs), {
+      padding: [28, 28],
+      maxZoom: filter === "all" ? 6 : 13
+    });
+  }
+}
+
+function wireRouteMap() {
+  if (!routeMapEl) {
+    return;
+  }
+
+  routeFilterEls.forEach((button) => {
+    button.addEventListener("click", () => {
+      routeFilterEls.forEach((item) => item.classList.toggle("is-active", item === button));
+      renderRouteMap(button.dataset.routeFilter || "all");
+    });
+  });
+
+  renderRouteMap("all");
 }
 
 function parseCsv(text) {
@@ -1322,4 +1456,5 @@ async function loadSchedule() {
 }
 
 renderChecklist(defaultChecklist);
+wireRouteMap();
 loadSchedule();
