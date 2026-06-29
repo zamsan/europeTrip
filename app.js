@@ -442,6 +442,7 @@ let currentChecklist = [];
 let firestoreApi = null;
 let firestoreDocRef = null;
 let editUnlocked = sessionStorage.getItem("tripEditUnlocked") === "true";
+let activeRouteFilter = "all";
 
 function escapeHtml(value) {
   return String(value || "")
@@ -452,6 +453,40 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+function normalizeCoordinate(value) {
+  if (value === null || value === undefined || value === "") {
+    return "";
+  }
+
+  const number = Number(value);
+  return Number.isFinite(number) ? String(number) : "";
+}
+
+function readCoordinate(row, name) {
+  return normalizeCoordinate(row.querySelector(`[name="${name}"]`)?.value);
+}
+
+function parseCoordinatesFromText(value) {
+  const text = String(value || "");
+  const patterns = [
+    /@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/,
+    /[?&](?:q|ll)=(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/,
+    /!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/
+  ];
+
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (match) {
+      return {
+        lat: normalizeCoordinate(match[1]),
+        lng: normalizeCoordinate(match[2])
+      };
+    }
+  }
+
+  return { lat: "", lng: "" };
+}
+
 function normalizeItem(item) {
   if (typeof item === "string") {
     const value = item.trim();
@@ -460,7 +495,9 @@ function normalizeItem(item) {
     return {
       time: timeMatch ? timeMatch[1].padStart(5, "0") : "",
       text: timeMatch ? timeMatch[2].trim() : value,
-      mapUrl: ""
+      mapUrl: "",
+      lat: "",
+      lng: ""
     };
   }
 
@@ -468,21 +505,25 @@ function normalizeItem(item) {
     return {
       time: "",
       text: "",
-      mapUrl: ""
+      mapUrl: "",
+      lat: "",
+      lng: ""
     };
   }
 
   return {
     time: String(item.time || "").trim(),
     text: String(item.text || item.title || item.label || "").trim(),
-    mapUrl: String(item.mapUrl || item.map || item.url || "").trim()
+    mapUrl: String(item.mapUrl || item.map || item.url || "").trim(),
+    lat: normalizeCoordinate(item.lat),
+    lng: normalizeCoordinate(item.lng)
   };
 }
 
 function normalizeItems(items) {
   return sortItemsByTime((Array.isArray(items) ? items : [])
     .map(normalizeItem)
-    .filter((item) => item.time || item.text || item.mapUrl));
+    .filter((item) => item.time || item.text || item.mapUrl || (item.lat && item.lng)));
 }
 
 function getItemSortMinutes(item) {
@@ -746,12 +787,39 @@ function getRouteColor(filter) {
   return "#0f766e";
 }
 
-function getVisibleRoutePoints(filter) {
-  if (filter === "london" || filter === "paris") {
-    return routePoints.filter((point) => point.country === filter);
+function getRouteCountry(point) {
+  if (point.country) {
+    return point.country;
   }
 
-  return routePoints;
+  return Number(point.lng) < 1 ? "london" : "paris";
+}
+
+function getRoutePointsFromSchedule() {
+  return currentSchedule.flatMap((day) => {
+    const dayLabel = String(day.dateLabel || day.date || "").replace(/\s+/g, " ").trim();
+
+    return normalizeItems(day.items)
+      .filter((item) => item.lat && item.lng)
+      .map((item) => ({
+        country: getRouteCountry(item),
+        day: dayLabel.replace(/^8월\s*/, "8/").replace(/\s*요일$/, ""),
+        title: item.text || day.title || "일정",
+        lat: Number(item.lat),
+        lng: Number(item.lng)
+      }));
+  });
+}
+
+function getVisibleRoutePoints(filter) {
+  const scheduleRoutePoints = getRoutePointsFromSchedule();
+  const sourcePoints = scheduleRoutePoints.length ? scheduleRoutePoints : routePoints;
+
+  if (filter === "london" || filter === "paris") {
+    return sourcePoints.filter((point) => getRouteCountry(point) === filter);
+  }
+
+  return sourcePoints;
 }
 
 function renderRouteMap(filter = "all") {
@@ -795,7 +863,7 @@ function renderRouteMap(filter = "all") {
       radius: 8,
       color: "#ffffff",
       weight: 2,
-      fillColor: point.country === "london" ? "#2563eb" : "#be3455",
+      fillColor: getRouteCountry(point) === "london" ? "#2563eb" : "#be3455",
       fillOpacity: 0.95
     }).addTo(layer);
 
@@ -824,12 +892,13 @@ function wireRouteMap() {
 
   routeFilterEls.forEach((button) => {
     button.addEventListener("click", () => {
+      activeRouteFilter = button.dataset.routeFilter || "all";
       routeFilterEls.forEach((item) => item.classList.toggle("is-active", item === button));
-      renderRouteMap(button.dataset.routeFilter || "all");
+      renderRouteMap(activeRouteFilter);
     });
   });
 
-  renderRouteMap("all");
+  renderRouteMap(activeRouteFilter);
 }
 
 function parseCsv(text) {
@@ -978,6 +1047,8 @@ function renderSchedule(schedule) {
       </article>
     `;
   }).join("");
+
+  renderRouteMap(activeRouteFilter);
 }
 
 function renderItemEditorRow(item = {}) {
@@ -999,6 +1070,10 @@ function renderItemEditorRow(item = {}) {
           <input name="itemMapUrl" type="text" value="${escapeHtml(normalizedItem.mapUrl)}" placeholder="루브르 또는 https://maps.google.com/..." autocomplete="off">
           <button class="card-edit-button ghost map-action-button" type="button" data-open-map>지도 열기</button>
           <button class="card-edit-button ghost map-action-button" type="button" data-paste-map>붙여넣기</button>
+        </div>
+        <div class="coordinate-input-row">
+          <input name="itemLat" type="number" step="any" value="${escapeHtml(normalizedItem.lat)}" placeholder="위도">
+          <input name="itemLng" type="number" step="any" value="${escapeHtml(normalizedItem.lng)}" placeholder="경도">
         </div>
       </label>
       <button class="card-edit-button ghost item-delete-button" type="button" data-delete-item>삭제</button>
@@ -1140,12 +1215,21 @@ async function saveSelectedDay(index, form) {
   const nextSchedule = currentSchedule.map(cloneDay);
   const formData = new FormData(form);
   const items = sortItemsByTime(Array.from(form.querySelectorAll("[data-item-row]"))
-    .map((row) => ({
-      time: readItemTime(row),
-      text: String(row.querySelector('[name="itemText"]')?.value || "").trim(),
-      mapUrl: String(row.querySelector('[name="itemMapUrl"]')?.value || "").trim()
-    }))
-    .filter((item) => item.time || item.text || item.mapUrl));
+    .map((row) => {
+      const mapUrl = String(row.querySelector('[name="itemMapUrl"]')?.value || "").trim();
+      const parsedCoordinates = parseCoordinatesFromText(mapUrl);
+      const lat = readCoordinate(row, "itemLat") || parsedCoordinates.lat;
+      const lng = readCoordinate(row, "itemLng") || parsedCoordinates.lng;
+
+      return {
+        time: readItemTime(row),
+        text: String(row.querySelector('[name="itemText"]')?.value || "").trim(),
+        mapUrl,
+        lat,
+        lng
+      };
+    })
+    .filter((item) => item.time || item.text || item.mapUrl || (item.lat && item.lng)));
 
   nextSchedule[index] = {
     ...nextSchedule[index],
@@ -1265,11 +1349,21 @@ function wireTimelineEditing() {
     if (pasteMapButton) {
       const row = pasteMapButton.closest("[data-item-row]");
       const mapInput = row?.querySelector('[name="itemMapUrl"]');
+      const latInput = row?.querySelector('[name="itemLat"]');
+      const lngInput = row?.querySelector('[name="itemLng"]');
 
       try {
         const clipboardText = await navigator.clipboard.readText();
         if (mapInput && clipboardText.trim()) {
-          mapInput.value = clipboardText.trim();
+          const value = clipboardText.trim();
+          const parsedCoordinates = parseCoordinatesFromText(value);
+          mapInput.value = value;
+          if (latInput && parsedCoordinates.lat) {
+            latInput.value = parsedCoordinates.lat;
+          }
+          if (lngInput && parsedCoordinates.lng) {
+            lngInput.value = parsedCoordinates.lng;
+          }
           setFirestoreUi("지도 링크를 입력했습니다. 저장을 눌러 반영하세요.", true);
         } else {
           setFirestoreUi("클립보드에 붙여넣을 지도 링크가 없습니다.", false);
