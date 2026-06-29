@@ -1,333 +1,378 @@
 const fallbackSchedule = [
   {
-    date: "2026-08-01",
-    dateLabel: "8월 1일 토요일",
-    city: "런던",
-    title: "런던 도착, 타워브릿지 주변",
-    items: [
+    "date": "2026-08-01",
+    "dateLabel": "8월 1일 토요일",
+    "city": "런던",
+    "title": "런던 도착",
+    "items": [
       {
-        time: "18:00",
-        text: "🏨 The Tower Hotel (더 타워 호텔)",
-        mapUrl: "St Katharine's Way, London E1W 1LD"
+        "time": "오후",
+        "text": "🏨 The Tower Hotel / 더 타워 호텔 체크인",
+        "mapUrl": "St Katharine's Way, London E1W 1LD"
       },
       {
-        time: "18:30",
-        text: "🌉 Tower Bridge (타워 브리지)",
-        mapUrl: "Tower Bridge Rd, London SE1 2UP"
+        "time": "18:30",
+        "text": "🌉 Tower Bridge / 타워 브리지 - 호텔에서 도보 이동, 야경 산책",
+        "mapUrl": "Tower Bridge Rd, London SE1 2UP"
       },
       {
-        time: "19:00",
-        text: "⚓ St Katharine Docks (세인트 캐서린 독스)",
-        mapUrl: "St Katharine's Way, London E1W 1LA"
+        "time": "19:00",
+        "text": "⚓ St Katharine Docks / 세인트 캐서린 독스 - 호텔 근처 가볍게 산책",
+        "mapUrl": "St Katharine's Way, London E1W 1LA"
       },
       {
-        time: "19:30",
-        text: "저녁 🍺 The Dickens Inn (더 디킨스 인)",
-        mapUrl: "Marble Quay, St Katharine's Way, London E1W 1UH"
+        "time": "19:30",
+        "text": "🍺 저녁 The Dickens Inn / 더 디킨스 인 - 추천: Fish & Chips, Pie, Beer",
+        "mapUrl": "Marble Quay, St Katharine's Way, London E1W 1UH"
+      },
+      {
+        "time": "21:00",
+        "text": "🏨 호텔 복귀",
+        "mapUrl": "The Tower Hotel, St Katharine's Way, London E1W 1LD"
       }
     ],
-    note: "장거리 비행 후라 숙소 체크인 뒤 타워브릿지와 세인트 캐서린 독스 주변만 가볍게 둘러봅니다.",
-    type: ""
+    "note": "장거리 비행 후 숙소 체크인, 타워 브리지와 세인트 캐서린 독스 주변만 가볍게 둘러봅니다.",
+    "type": ""
   },
   {
-    date: "2026-08-02",
-    dateLabel: "8월 2일 일요일",
-    city: "런던",
-    title: "런던 클래식 명소",
-    items: [
+    "date": "2026-08-02",
+    "dateLabel": "8월 2일 일요일",
+    "city": "런던",
+    "title": "런던 시내 관광",
+    "items": [
       {
-        time: "08:00",
-        text: "☕ 조식 WatchHouse Tower Bridge (워치하우스 타워브리지)",
-        mapUrl: "37 Shad Thames, London SE1 2NJ"
+        "time": "08:00",
+        "text": "☕ 조식 WatchHouse Tower Bridge / 워치하우스 타워브리지",
+        "mapUrl": "37 Shad Thames, London SE1 2NJ"
       },
       {
-        time: "09:00",
-        text: "👑 Buckingham Palace (버킹엄 궁전)",
-        mapUrl: "London SW1A 1AA"
+        "time": "09:00",
+        "text": "👑 Buckingham Palace / 버킹엄 궁전",
+        "mapUrl": "London SW1A 1AA"
       },
       {
-        time: "09:40",
-        text: "🌳 St James's Park (세인트 제임스 파크)",
-        mapUrl: "London SW1A 2BJ"
+        "time": "09:40",
+        "text": "🌳 St James's Park / 세인트 제임스 파크",
+        "mapUrl": "London SW1A 2BJ"
       },
       {
-        time: "10:30",
-        text: "⛪ Westminster Abbey (웨스트민스터 사원)",
-        mapUrl: "20 Deans Yd, London SW1P 3PA"
+        "time": "10:30",
+        "text": "⛪ Westminster Abbey / 웨스트민스터 사원",
+        "mapUrl": "20 Deans Yd, London SW1P 3PA"
       },
       {
-        time: "11:15",
-        text: "🕰 Big Ben (빅벤)",
-        mapUrl: "London SW1A 0AA"
+        "time": "11:15",
+        "text": "🕰 Big Ben / 빅벤",
+        "mapUrl": "London SW1A 0AA"
       },
       {
-        time: "12:00",
-        text: "🚖 Covent Garden 이동",
-        mapUrl: "Covent Garden, London WC2E 8RF"
+        "time": "12:30",
+        "text": "🍴 점심 The Red Lion / 더 레드 라이언 - 추천: Sunday Roast, Fish & Chips",
+        "mapUrl": "48 Parliament St, London SW1A 2NH"
       },
       {
-        time: "12:30",
-        text: "점심 🍴 The Red Lion (더 레드 라이언)",
-        mapUrl: "48 Parliament St, London SW1A 2NH"
+        "time": "14:00",
+        "text": "🎭 Covent Garden / 코벤트 가든",
+        "mapUrl": "London WC2E 8RF"
       },
       {
-        time: "14:00",
-        text: "🎭 Covent Garden (코벤트 가든)",
-        mapUrl: "London WC2E 8RF"
+        "time": "15:30",
+        "text": "📺 Piccadilly Circus / 피카딜리 서커스",
+        "mapUrl": "London W1J 9HS"
       },
       {
-        time: "15:30",
-        text: "📺 Piccadilly Circus (피카딜리 서커스)",
-        mapUrl: "London W1J 9HS"
+        "time": "16:30",
+        "text": "🕵️ 221B Baker Street / 셜록 홈즈 박물관 - 내부 입장보다는 외관/기념품샵 위주 추천",
+        "mapUrl": "221B Baker St, London NW1 6XE"
       },
       {
-        time: "16:30",
-        text: "🕵️ 221B Baker Street (셜록 홈즈 박물관)",
-        mapUrl: "221B Baker St, London NW1 6XE"
+        "time": "18:30",
+        "text": "🇰🇷 저녁 KIMCHEE Pancras / 김치 판크라스",
+        "mapUrl": "2 Pancras Square, King's Cross, London N1C 4AG"
       },
       {
-        time: "18:30",
-        text: "저녁 🇰🇷 KIMCHEE Pancras (김치 판크라스)",
-        mapUrl: "2 Pancras Square, King's Cross, London N1C 4AG"
-      },
-      {
-        time: "20:00",
-        text: "🏨 호텔 복귀",
-        mapUrl: "The Tower Hotel, St Katharine's Way, London E1W 1LD"
+        "time": "20:30",
+        "text": "🏨 호텔 복귀",
+        "mapUrl": "The Tower Hotel, St Katharine's Way, London E1W 1LD"
       }
     ],
-    note: "버킹엄 궁전, 세인트 제임스 파크, 웨스트민스터, 코벤트 가든, 피카딜리, 베이커 스트리트까지 이어지는 런던 대표 코스입니다.",
-    type: ""
+    "note": "버킹엄 궁전, 세인트 제임스 파크, 웨스트민스터, 코벤트 가든, 피카딜리, 베이커 스트리트까지 이어지는 런던 대표 코스입니다.",
+    "type": ""
   },
   {
-    date: "2026-08-03",
-    dateLabel: "8월 3일 월요일",
-    city: "런던",
-    title: "런던탑, 대영박물관, 스카이 가든",
-    items: [
+    "date": "2026-08-03",
+    "dateLabel": "8월 3일 월요일",
+    "city": "런던",
+    "title": "런던 동쪽 + 스카이 가든",
+    "items": [
       {
-        time: "07:00",
-        text: "선택 🏃 Tower Bridge Morning Run (약 5km)",
-        mapUrl: "Tower Bridge, London"
+        "time": "06:30",
+        "text": "🏃 선택 러닝 Tower Bridge Morning Run / 타워브리지 아침 러닝 - The Tower Hotel → Tower Bridge → Potters Fields Park → HMS Belfast → Tower Bridge → 호텔, 약 5km",
+        "mapUrl": "Tower Bridge, London"
       },
       {
-        time: "08:30",
-        text: "☕ 조식 The Ivy Tower Bridge (더 아이비 타워브리지)",
-        mapUrl: "One Tower Bridge, Tower Bridge Rd, London SE1 2AA"
+        "time": "08:00",
+        "text": "☕ 조식 The Ivy Tower Bridge / 더 아이비 타워브리지",
+        "mapUrl": "One Tower Bridge, Tower Bridge Rd, London SE1 2AA"
       },
       {
-        time: "10:00",
-        text: "🏰 Tower of London (런던탑)",
-        mapUrl: "London EC3N 4AB"
+        "time": "09:30",
+        "text": "🏰 Tower of London / 런던탑 - 예약 권장",
+        "mapUrl": "London EC3N 4AB"
       },
       {
-        time: "12:30",
-        text: "점심 🍴 Borough Market (버러마켓)",
-        mapUrl: "8 Southwark St, London SE1 1TL"
+        "time": "12:00",
+        "text": "🍴 점심 Borough Market / 버러마켓 - 여러 음식 가볍게 먹기",
+        "mapUrl": "8 Southwark St, London SE1 1TL"
       },
       {
-        time: "14:30",
-        text: "🏛 British Museum (대영박물관)",
-        mapUrl: "Great Russell St, London WC1B 3DG"
+        "time": "14:00",
+        "text": "🏛 British Museum / 대영박물관 - 무료 예약 권장",
+        "mapUrl": "Great Russell St, London WC1B 3DG"
       },
       {
-        time: "18:30",
-        text: "🌇 Sky Garden (스카이 가든)",
-        mapUrl: "1 Sky Garden Walk, London EC3M 8AF"
+        "time": "17:30",
+        "text": "🏨 호텔 또는 근처에서 잠시 휴식",
+        "mapUrl": "The Tower Hotel, St Katharine's Way, London E1W 1LD"
       },
       {
-        time: "19:30",
-        text: "🌅 일몰",
-        mapUrl: "Sky Garden, London"
+        "time": "18:30",
+        "text": "🌇 Sky Garden / 스카이 가든 - 무료 입장권 필요, 7월 13일 예약 오픈 확인 알림 설정 완료",
+        "mapUrl": "1 Sky Garden Walk, London EC3M 8AF"
       },
       {
-        time: "20:00",
-        text: "🌃 야경",
-        mapUrl: "Sky Garden, London"
+        "time": "20:45",
+        "text": "🌅 Sky Garden 일몰 감상",
+        "mapUrl": "1 Sky Garden Walk, London EC3M 8AF"
       },
       {
-        time: "21:00",
-        text: "🌉 Tower Bridge 야경",
-        mapUrl: "Tower Bridge, London"
+        "time": "21:00",
+        "text": "🌃 Sky Garden 야경 감상",
+        "mapUrl": "1 Sky Garden Walk, London EC3M 8AF"
+      },
+      {
+        "time": "21:15",
+        "text": "🌉 Tower Bridge / 타워 브리지 야경",
+        "mapUrl": "Tower Bridge Rd, London SE1 2UP"
+      },
+      {
+        "time": "21:40",
+        "text": "⚓ St Katharine Docks / 세인트 캐서린 독스 산책",
+        "mapUrl": "St Katharine's Way, London E1W 1LA"
+      },
+      {
+        "time": "22:00",
+        "text": "🏨 호텔 복귀",
+        "mapUrl": "The Tower Hotel, St Katharine's Way, London E1W 1LD"
       }
     ],
-    note: "Sky Garden 무료입장권 예약 예정. 7월 13일 확인. 추천 입장시간은 18:30 ~ 19:00입니다.",
-    type: ""
+    "note": "런던탑, 버러마켓, 대영박물관을 본 뒤 스카이 가든 일몰과 야경으로 마무리합니다.",
+    "type": ""
   },
   {
-    date: "2026-08-04",
-    dateLabel: "8월 4일 화요일",
-    city: "런던",
-    title: "유로스타 탑승 전 런던 마무리",
-    items: [
+    "date": "2026-08-04",
+    "dateLabel": "8월 4일 화요일",
+    "city": "런던 → 파리",
+    "title": "런던에서 파리로 이동",
+    "items": [
       {
-        time: "07:30",
-        text: "☕ 조식 The Ivy Tower Bridge (또는 호텔 조식)",
-        mapUrl: "One Tower Bridge, Tower Bridge Rd, London SE1 2AA"
+        "time": "07:30",
+        "text": "☕ 조식 호텔 조식 또는 간단한 카페",
+        "mapUrl": "The Tower Hotel, St Katharine's Way, London E1W 1LD"
       },
       {
-        time: "08:30",
-        text: "호텔 체크아웃",
-        mapUrl: "The Tower Hotel, St Katharine's Way, London E1W 1LD"
+        "time": "08:30",
+        "text": "🏨 The Tower Hotel 체크아웃",
+        "mapUrl": "The Tower Hotel, St Katharine's Way, London E1W 1LD"
       },
       {
-        time: "09:00",
-        text: "🚖 King's Cross 이동",
-        mapUrl: "King's Cross, London"
+        "time": "09:00",
+        "text": "🚖 택시로 King's Cross / St Pancras 이동",
+        "mapUrl": "King's Cross St Pancras, London"
       },
       {
-        time: "09:20",
-        text: "📚 British Library (영국 도서관) - 킹조지 컬렉션, 마그나카르타, 비틀즈 원고, 해리포터 관련 전시",
-        mapUrl: "British Library, 96 Euston Rd, London NW1 2DB"
+        "time": "09:30",
+        "text": "📚 British Library / 영국 도서관 - 시간이 부족하면 생략 가능",
+        "mapUrl": "96 Euston Rd, London NW1 2DB"
       },
       {
-        time: "10:00",
-        text: "🚶 St Pancras International",
-        mapUrl: "St Pancras International, Euston Rd, London N1C 4QP"
+        "time": "10:15",
+        "text": "🚉 St Pancras International / 세인트 판크라스 인터내셔널역",
+        "mapUrl": "Euston Rd, London N1C 4QP"
       },
       {
-        time: "10:10",
-        text: "사진 - St Pancras 역사, 9¾ 승강장, Harry Potter Shop",
-        mapUrl: "Harry Potter Shop at Platform 9 3/4, London"
+        "time": "10:45",
+        "text": "Eurostar 체크인",
+        "mapUrl": "St Pancras International, Euston Rd, London N1C 4QP"
       },
       {
-        time: "10:45",
-        text: "Eurostar 체크인",
-        mapUrl: "St Pancras International, Euston Rd, London N1C 4QP"
+        "time": "12:00",
+        "text": "🚄 Eurostar 런던 출발",
+        "mapUrl": "St Pancras International, Euston Rd, London N1C 4QP"
       },
       {
-        time: "12:00",
-        text: "🚄 유로스타 출발",
-        mapUrl: "St Pancras International, Euston Rd, London N1C 4QP"
+        "time": "오후",
+        "text": "🇫🇷 Paris 도착",
+        "mapUrl": "Paris"
+      },
+      {
+        "time": "16:00",
+        "text": "🏨 Hyatt Regency Paris Étoile / 하얏트 리젠시 파리 에투알 체크인",
+        "mapUrl": "3 Place du Général Kœnig, 75017 Paris"
+      },
+      {
+        "time": "17:30",
+        "text": "🏛 Arc de Triomphe / 개선문",
+        "mapUrl": "Place Charles de Gaulle, 75008 Paris"
+      },
+      {
+        "time": "18:30",
+        "text": "🛍 Champs-Élysées / 샹젤리제 거리",
+        "mapUrl": "Avenue des Champs-Élysées, 75008 Paris"
+      },
+      {
+        "time": "19:30",
+        "text": "🍽 저녁 Bouillon Chartier / 부이용 샤르티에 - 추천: Onion Soup, Beef Bourguignon, Escargot",
+        "mapUrl": "7 Rue du Faubourg Montmartre, 75009 Paris"
       }
     ],
-    note: "영국 도서관은 킹조지 컬렉션, 마그나카르타, 비틀즈 원고, 해리포터 관련 전시를 시간 여유에 따라 가볍게 봅니다.",
-    type: "transfer"
+    "note": "12:00 유로스타로 런던에서 파리로 이동하고, 파리 도착 후 숙소 체크인과 개선문, 샹젤리제, 저녁 식사로 가볍게 시작합니다.",
+    "type": "transfer"
   },
   {
-    date: "2026-08-04",
-    dateLabel: "8월 4일 화요일",
-    city: "파리",
-    title: "파리 도착, 개선문과 샹젤리제",
-    items: [
+    "date": "2026-08-05",
+    "dateLabel": "8월 5일 수요일",
+    "city": "파리",
+    "title": "에펠탑 + 몽마르트",
+    "items": [
       {
-        time: "",
-        text: "🏨 Hyatt Regency Paris Étoile (하얏트 리젠시 파리 에투알)",
-        mapUrl: "3 Place du Général Kœnig, 75017 Paris"
+        "time": "08:30",
+        "text": "☕ 조식 호텔 조식 또는 근처 카페",
+        "mapUrl": "Hyatt Regency Paris Étoile, 3 Place du Général Kœnig, 75017 Paris"
       },
       {
-        time: "",
-        text: "🏛 Arc de Triomphe (개선문)",
-        mapUrl: "Place Charles de Gaulle, 75008 Paris"
+        "time": "09:30",
+        "text": "🗼 Eiffel Tower / 에펠탑 - 예약 권장",
+        "mapUrl": "Champ de Mars, 5 Avenue Anatole France, 75007 Paris"
       },
       {
-        time: "",
-        text: "🛍 Champs-Élysées (샹젤리제 거리)",
-        mapUrl: "Avenue des Champs-Élysées, 75008 Paris"
+        "time": "11:30",
+        "text": "📸 Trocadéro / 트로카데로 - 에펠탑 사진 포인트",
+        "mapUrl": "Place du Trocadéro et du 11 Novembre, 75016 Paris"
       },
       {
-        time: "",
-        text: "저녁 🍽 Bouillon Chartier (부이용 샤르티에)",
-        mapUrl: "7 Rue du Faubourg Montmartre, 75009 Paris"
+        "time": "12:30",
+        "text": "🥩 점심 Le Relais de l'Entrecôte / 르 를레 드 랑트르코트 - 추천: 스테이크 프리츠",
+        "mapUrl": "15 Rue Marbeuf, 75008 Paris"
+      },
+      {
+        "time": "15:00",
+        "text": "🌉 Pont Alexandre III / 알렉상드르 3세 다리",
+        "mapUrl": "Pont Alexandre III, 75008 Paris"
+      },
+      {
+        "time": "16:00",
+        "text": "🏛 Place de la Concorde / 콩코르드 광장",
+        "mapUrl": "75008 Paris"
+      },
+      {
+        "time": "18:00",
+        "text": "🎨 Montmartre / 몽마르트",
+        "mapUrl": "75018 Paris"
+      },
+      {
+        "time": "19:30",
+        "text": "🍽 저녁 Pink Mamma / 핑크 마마 - 예약 강력 권장, 대체: La Jacobine / 라 자코빈",
+        "mapUrl": "20bis Rue de Douai, 75009 Paris"
       }
     ],
-    note: "파리 숙소 체크인 후 개선문, 샹젤리제, 저녁 식사 중심으로 가볍게 이동합니다.",
-    type: "transfer"
+    "note": "에펠탑과 트로카데로, 알렉상드르 3세 다리, 몽마르트까지 이어지는 파리 대표 일정입니다.",
+    "type": ""
   },
   {
-    date: "2026-08-05",
-    dateLabel: "8월 5일 수요일",
-    city: "파리",
-    title: "에펠탑, 알렉상드르 3세 다리, 몽마르트",
-    items: [
+    "date": "2026-08-06",
+    "dateLabel": "8월 6일 목요일",
+    "city": "파리",
+    "title": "루브르 + 쇼핑 + 순그릴",
+    "items": [
       {
-        time: "",
-        text: "🗼 Eiffel Tower (에펠탑)",
-        mapUrl: "Champ de Mars, 5 Avenue Anatole France, 75007 Paris"
+        "time": "08:30",
+        "text": "☕ 조식 호텔 조식 또는 근처 카페",
+        "mapUrl": "Hyatt Regency Paris Étoile, 3 Place du Général Kœnig, 75017 Paris"
       },
       {
-        time: "",
-        text: "점심 🥩 Le Relais de l'Entrecôte (르 를레 드 랑트르코트)",
-        mapUrl: "15 Rue Marbeuf, 75008 Paris"
+        "time": "09:30",
+        "text": "🖼 Louvre Museum / 루브르 박물관 - 예약 권장",
+        "mapUrl": "Rue de Rivoli, 75001 Paris"
       },
       {
-        time: "",
-        text: "🌉 Pont Alexandre III (알렉상드르 3세 다리)",
-        mapUrl: "Pont Alexandre III, 75008 Paris"
+        "time": "13:00",
+        "text": "🍴 점심 Café Marly / 카페 마를리 - 루브르 근처, 피라미드 전망",
+        "mapUrl": "93 Rue de Rivoli, 75001 Paris"
       },
       {
-        time: "",
-        text: "🎨 Montmartre (몽마르트)",
-        mapUrl: "75018 Paris"
+        "time": "15:00",
+        "text": "🛍 Galeries Lafayette Haussmann / 갤러리 라파예트 오스만 - 쇼핑 + 무료 전망대",
+        "mapUrl": "40 Boulevard Haussmann, 75009 Paris"
       },
       {
-        time: "",
-        text: "저녁 🍽 Pink Mamma (핑크 마마)",
-        mapUrl: "20bis Rue de Douai, 75009 Paris"
+        "time": "16:30",
+        "text": "🎭 Palais Garnier / 오페라 가르니에",
+        "mapUrl": "Place de l'Opéra, 75009 Paris"
+      },
+      {
+        "time": "19:00",
+        "text": "🇰🇷 저녁 Soon Grill Le Marais / 순그릴 마레 - 예약 권장, 파리 한식, 마지막 저녁으로 적합",
+        "mapUrl": "78 Rue des Tournelles, 75003 Paris"
       }
     ],
-    note: "에펠탑과 핑크 마마는 예약 여부를 우선 확인합니다.",
-    type: ""
+    "note": "루브르 관람 후 카페 마를리, 갤러리 라파예트, 오페라 가르니에, 순그릴로 이어지는 파리 시내 일정입니다.",
+    "type": ""
   },
   {
-    date: "2026-08-06",
-    dateLabel: "8월 6일 목요일",
-    city: "파리",
-    title: "루브르, 갤러리 라파예트, 오페라 가르니에",
-    items: [
+    "date": "2026-08-07",
+    "dateLabel": "8월 7일 금요일",
+    "city": "파리",
+    "title": "귀국일",
+    "items": [
       {
-        time: "",
-        text: "🖼 Louvre Museum (루브르 박물관)",
-        mapUrl: "Rue de Rivoli, 75001 Paris"
+        "time": "09:30",
+        "text": "🏨 호텔 체크아웃 준비 또는 짐 보관",
+        "mapUrl": "Hyatt Regency Paris Étoile, 3 Place du Général Kœnig, 75017 Paris"
       },
       {
-        time: "",
-        text: "🛍 Galeries Lafayette Haussmann (갤러리 라파예트)",
-        mapUrl: "40 Boulevard Haussmann, 75009 Paris"
+        "time": "10:30",
+        "text": "☕ 브런치 Café de Flore / 카페 드 플로르",
+        "mapUrl": "172 Boulevard Saint-Germain, 75006 Paris"
       },
       {
-        time: "",
-        text: "🎭 Palais Garnier (오페라 가르니에)",
-        mapUrl: "Place de l'Opéra, 75009 Paris"
+        "time": "12:00",
+        "text": "🚶 Saint-Germain-des-Prés / 생제르맹 데 프레 산책",
+        "mapUrl": "75006 Paris"
       },
       {
-        time: "",
-        text: "저녁 🇰🇷 Soon Grill Le Marais (순그릴 마레)",
-        mapUrl: "78 Rue des Tournelles, 75003 Paris"
+        "time": "14:00",
+        "text": "🛍 기념품 구매 또는 자유시간",
+        "mapUrl": "Paris"
+      },
+      {
+        "time": "15:30",
+        "text": "🏨 호텔 복귀 / 짐 찾기",
+        "mapUrl": "Hyatt Regency Paris Étoile, 3 Place du Général Kœnig, 75017 Paris"
+      },
+      {
+        "time": "16:00",
+        "text": "🚖 공항 이동 - 택시 권장",
+        "mapUrl": "Paris Charles de Gaulle Airport"
+      },
+      {
+        "time": "20:35",
+        "text": "✈️ 파리 출발 / 한국 귀국",
+        "mapUrl": "Paris Charles de Gaulle Airport"
       }
     ],
-    note: "루브르 박물관과 순그릴 예약 여부를 확인합니다.",
-    type: ""
-  },
-  {
-    date: "2026-08-07",
-    dateLabel: "8월 7일 금요일",
-    city: "파리",
-    title: "파리 마무리, 귀국",
-    items: [
-      {
-        time: "10:30",
-        text: "브런치 ☕ Café de Flore (카페 드 플로르)",
-        mapUrl: "172 Boulevard Saint-Germain, 75006 Paris"
-      },
-      {
-        time: "13:00",
-        text: "🛍 자유시간",
-        mapUrl: "Paris"
-      },
-      {
-        time: "16:30",
-        text: "🚖 공항 이동",
-        mapUrl: "Paris Charles de Gaulle Airport"
-      },
-      {
-        time: "20:35",
-        text: "✈️ KE902 귀국",
-        mapUrl: "Paris Charles de Gaulle Airport"
-      }
-    ],
-    note: "금요일 저녁 정체를 고려해 공항 이동 시간을 넉넉히 잡습니다.",
-    type: "return"
+    "note": "귀국일은 교통 변수를 고려해서 공항 이동 시간을 여유 있게 잡습니다.",
+    "type": "return"
   }
 ];
 
