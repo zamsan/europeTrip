@@ -385,8 +385,24 @@ const firebaseSignInEl = document.querySelector("#firebaseSignIn");
 const editUnlockFormEl = document.querySelector("#editUnlockForm");
 const editPasswordEl = document.querySelector("#editPassword");
 const editLockEl = document.querySelector("#editLock");
+const bookingChecklistEl = document.querySelector("#bookingChecklist");
+
+const defaultChecklist = [
+  { id: "flight", label: "항공", checked: true },
+  { id: "hotel", label: "호텔", checked: true },
+  { id: "eurostar", label: "Eurostar", checked: true },
+  { id: "tower-of-london", label: "Tower of London", checked: false },
+  { id: "british-museum", label: "British Museum", checked: false },
+  { id: "sky-garden", label: "Sky Garden 무료입장권", checked: false },
+  { id: "sky-garden-reminder", label: "7월 13일 Sky Garden 무료입장권 확인 알림 설정 완료", checked: true },
+  { id: "eiffel-tower", label: "Eiffel Tower", checked: false },
+  { id: "louvre", label: "Louvre Museum", checked: false },
+  { id: "pink-mamma", label: "Pink Mamma (예약 권장)", checked: false },
+  { id: "soon-grill", label: "Soon Grill (예약 권장)", checked: false }
+];
 
 let currentSchedule = [];
+let currentChecklist = [];
 let firestoreApi = null;
 let firestoreDocRef = null;
 let editUnlocked = sessionStorage.getItem("tripEditUnlocked") === "true";
@@ -576,6 +592,7 @@ function setEditUnlocked(value) {
   if (currentSchedule.length) {
     renderSchedule(currentSchedule);
   }
+  renderChecklist(currentChecklist.length ? currentChecklist : defaultChecklist);
 }
 
 function normalizeSchedule(schedule) {
@@ -590,6 +607,58 @@ function normalizeSchedule(schedule) {
       type: ["transfer", "return"].includes(day.type) ? day.type : ""
     }))
     .filter((day) => day.title || day.items.length);
+}
+
+function normalizeChecklist(checklist) {
+  const incoming = Array.isArray(checklist) ? checklist : [];
+  const incomingById = new Map(incoming
+    .filter((item) => item && typeof item === "object")
+    .map((item) => [String(item.id || "").trim(), item]));
+
+  const merged = defaultChecklist.map((item) => {
+    const saved = incomingById.get(item.id);
+    return {
+      id: item.id,
+      label: String(saved?.label || item.label).trim(),
+      checked: typeof saved?.checked === "boolean" ? saved.checked : Boolean(item.checked)
+    };
+  });
+
+  incoming.forEach((item) => {
+    const id = String(item?.id || "").trim();
+    if (!id || merged.some((saved) => saved.id === id)) {
+      return;
+    }
+
+    merged.push({
+      id,
+      label: String(item.label || id).trim(),
+      checked: Boolean(item.checked)
+    });
+  });
+
+  return merged;
+}
+
+function renderChecklist(checklist) {
+  if (!bookingChecklistEl) {
+    return;
+  }
+
+  currentChecklist = normalizeChecklist(checklist);
+  bookingChecklistEl.innerHTML = currentChecklist.map((item) => {
+    const checked = item.checked ? " checked" : "";
+    const disabled = canEdit() ? "" : " disabled";
+
+    return `
+      <li>
+        <label class="check-item">
+          <input type="checkbox" data-checklist-id="${escapeHtml(item.id)}"${checked}${disabled}>
+          <span>${escapeHtml(item.label)}</span>
+        </label>
+      </li>
+    `;
+  }).join("");
 }
 
 function parseCsv(text) {
@@ -930,6 +999,53 @@ async function saveSelectedDay(index, form) {
   }
 }
 
+async function saveChecklistItem(id, checked) {
+  if (!firestoreApi || !firestoreDocRef) {
+    return;
+  }
+
+  if (!canEdit()) {
+    renderChecklist(currentChecklist.length ? currentChecklist : defaultChecklist);
+    setFirestoreUi("체크리스트를 수정하려면 비밀번호를 먼저 입력하세요.", false);
+    return;
+  }
+
+  const nextChecklist = normalizeChecklist(currentChecklist.length ? currentChecklist : defaultChecklist)
+    .map((item) => item.id === id ? { ...item, checked } : item);
+
+  currentChecklist = nextChecklist;
+  renderChecklist(nextChecklist);
+  setFirestoreUi("체크리스트를 저장하는 중입니다...", true);
+
+  try {
+    await firestoreApi.setDoc(firestoreDocRef, {
+      checklist: nextChecklist,
+      updatedAt: firestoreApi.serverTimestamp()
+    }, { merge: true });
+
+    setFirestoreUi("체크리스트를 저장했습니다.", true);
+  } catch (error) {
+    console.warn(error);
+    renderChecklist(currentChecklist);
+    setFirestoreUi("체크리스트 저장 실패: Firestore Rules 쓰기 권한을 확인하세요.", false);
+  }
+}
+
+function wireChecklistEditing() {
+  if (!bookingChecklistEl) {
+    return;
+  }
+
+  bookingChecklistEl.addEventListener("change", async (event) => {
+    const checkbox = event.target.closest("[data-checklist-id]");
+    if (!checkbox) {
+      return;
+    }
+
+    await saveChecklistItem(checkbox.dataset.checklistId, checkbox.checked);
+  });
+}
+
 function wireTimelineEditing() {
   if (!timelineEl) {
     return;
@@ -1080,6 +1196,7 @@ async function initFirestoreSchedule() {
       setEditUnlocked(false);
     });
     wireTimelineEditing();
+    wireChecklistEditing();
     setFirestoreUi(
       canEdit() ? "Firestore 연결 중입니다. 일정은 바로 수정할 수 있습니다." : "Firestore 연결 중입니다. 수정하려면 비밀번호를 입력하세요.",
       true
@@ -1088,8 +1205,11 @@ async function initFirestoreSchedule() {
     firestoreModule.onSnapshot(
       firestoreDocRef,
       (snapshot) => {
-        if (snapshot.exists() && Array.isArray(snapshot.data().schedule)) {
-          const schedule = normalizeSchedule(snapshot.data().schedule);
+        const data = snapshot.exists() ? snapshot.data() : {};
+        renderChecklist(normalizeChecklist(data.checklist));
+
+        if (snapshot.exists() && Array.isArray(data.schedule)) {
+          const schedule = normalizeSchedule(data.schedule);
           if (schedule.length) {
             renderSchedule(schedule);
             setFirestoreUi(firebaseConfig.updatedLabel || "Firestore 실시간 연동 중", true);
@@ -1161,4 +1281,5 @@ async function loadSchedule() {
   }
 }
 
+renderChecklist(defaultChecklist);
 loadSchedule();
