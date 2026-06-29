@@ -105,9 +105,25 @@ const fallbackSchedule = [
 ];
 
 const sheetConfig = window.TRIP_SHEET || {};
+const firebaseConfig = window.TRIP_FIREBASE || {};
 const timelineEl = document.querySelector("#tripTimeline");
 const editLinkEl = document.querySelector("#sheetEditLink");
 const statusEl = document.querySelector("#sheetStatus");
+const editDescriptionEl = document.querySelector("#editDescription");
+const firebaseSignInEl = document.querySelector("#firebaseSignIn");
+const firebaseSeedEl = document.querySelector("#firebaseSeed");
+const dayEditorEl = document.querySelector("#dayEditor");
+const editDaySelectEl = document.querySelector("#editDaySelect");
+const editCityEl = document.querySelector("#editCity");
+const editTitleEl = document.querySelector("#editTitle");
+const editItemsEl = document.querySelector("#editItems");
+const editNoteEl = document.querySelector("#editNote");
+const editTypeEl = document.querySelector("#editType");
+
+let currentSchedule = fallbackSchedule.map(cloneDay);
+let firestoreApi = null;
+let firestoreDocRef = null;
+let currentUser = null;
 
 function escapeHtml(value) {
   return String(value || "")
@@ -116,6 +132,34 @@ function escapeHtml(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+}
+
+function cloneDay(day) {
+  return {
+    date: day.date || "",
+    dateLabel: day.dateLabel || "",
+    city: day.city || "",
+    title: day.title || "",
+    items: Array.isArray(day.items) ? [...day.items] : [],
+    note: day.note || "",
+    type: day.type || ""
+  };
+}
+
+function normalizeSchedule(schedule) {
+  return (Array.isArray(schedule) ? schedule : [])
+    .map((day) => ({
+      date: String(day.date || "").trim(),
+      dateLabel: String(day.dateLabel || "").trim(),
+      city: String(day.city || "").trim(),
+      title: String(day.title || "").trim(),
+      items: Array.isArray(day.items)
+        ? day.items.map((item) => String(item || "").trim()).filter(Boolean)
+        : [],
+      note: String(day.note || "").trim(),
+      type: ["transfer", "return"].includes(day.type) ? day.type : ""
+    }))
+    .filter((day) => day.title || day.items.length);
 }
 
 function parseCsv(text) {
@@ -215,7 +259,9 @@ function renderSchedule(schedule) {
     return;
   }
 
-  timelineEl.innerHTML = schedule.map((day) => {
+  currentSchedule = normalizeSchedule(schedule);
+
+  timelineEl.innerHTML = currentSchedule.map((day) => {
     const cardType = ["transfer", "return"].includes(day.type) ? day.type : "";
     const typeClass = cardType ? ` ${cardType}` : "";
     const dateText = day.dateLabel || day.date || "날짜 미정";
@@ -233,6 +279,8 @@ function renderSchedule(schedule) {
       </article>
     `;
   }).join("");
+
+  refreshDayEditor();
 }
 
 function setSheetUi(message, connected) {
@@ -256,7 +304,211 @@ function setSheetUi(message, connected) {
   }
 }
 
+function isFirebaseConfigured() {
+  const config = firebaseConfig.firebaseConfig || {};
+  return Boolean(
+    firebaseConfig.enabled
+      && config.apiKey
+      && config.authDomain
+      && config.projectId
+      && config.appId
+  );
+}
+
+function setFirestoreUi(message, connected) {
+  if (editDescriptionEl) {
+    editDescriptionEl.textContent = "Firestore에 저장된 일정을 실시간으로 불러오고, Google 로그인 후 같은 화면에서 수정합니다.";
+  }
+
+  if (editLinkEl) {
+    editLinkEl.href = "FIREBASE_SETUP.md";
+    editLinkEl.textContent = "Firebase 설정 보기";
+    editLinkEl.removeAttribute("target");
+    editLinkEl.removeAttribute("rel");
+  }
+
+  if (firebaseSignInEl) {
+    firebaseSignInEl.hidden = false;
+    firebaseSignInEl.textContent = currentUser ? "로그아웃" : "Google 로그인";
+  }
+
+  if (firebaseSeedEl) {
+    firebaseSeedEl.hidden = !currentUser;
+  }
+
+  if (dayEditorEl) {
+    dayEditorEl.hidden = !currentUser;
+  }
+
+  if (statusEl) {
+    statusEl.textContent = message;
+    statusEl.classList.toggle("is-connected", Boolean(connected));
+  }
+}
+
+function refreshDayEditor() {
+  if (!editDaySelectEl || !dayEditorEl || dayEditorEl.hidden) {
+    return;
+  }
+
+  const selectedDate = editDaySelectEl.value;
+  editDaySelectEl.innerHTML = currentSchedule.map((day, index) => {
+    const label = `${day.dateLabel || day.date || `일정 ${index + 1}`} - ${day.title || "제목 없음"}`;
+    return `<option value="${escapeHtml(day.date || String(index))}">${escapeHtml(label)}</option>`;
+  }).join("");
+
+  if (currentSchedule.some((day) => day.date === selectedDate)) {
+    editDaySelectEl.value = selectedDate;
+  }
+
+  fillEditorFromSelectedDay();
+}
+
+function getSelectedDayIndex() {
+  if (!editDaySelectEl) {
+    return -1;
+  }
+
+  const selected = editDaySelectEl.value;
+  const byDate = currentSchedule.findIndex((day) => day.date === selected);
+  if (byDate >= 0) {
+    return byDate;
+  }
+  return Number.parseInt(selected, 10);
+}
+
+function fillEditorFromSelectedDay() {
+  const index = getSelectedDayIndex();
+  const day = currentSchedule[index];
+  if (!day) {
+    return;
+  }
+
+  editCityEl.value = day.city || "";
+  editTitleEl.value = day.title || "";
+  editItemsEl.value = (day.items || []).join("\n");
+  editNoteEl.value = day.note || "";
+  editTypeEl.value = day.type || "";
+}
+
+async function saveSelectedDay() {
+  const index = getSelectedDayIndex();
+  if (!firestoreApi || !firestoreDocRef || index < 0) {
+    return;
+  }
+
+  const nextSchedule = currentSchedule.map(cloneDay);
+  nextSchedule[index] = {
+    ...nextSchedule[index],
+    city: editCityEl.value.trim(),
+    title: editTitleEl.value.trim(),
+    items: editItemsEl.value.split("\n").map((item) => item.trim()).filter(Boolean),
+    note: editNoteEl.value.trim(),
+    type: editTypeEl.value
+  };
+
+  await firestoreApi.setDoc(firestoreDocRef, {
+    schedule: nextSchedule,
+    updatedAt: firestoreApi.serverTimestamp()
+  }, { merge: true });
+
+  setFirestoreUi("Firestore에 저장했습니다.", true);
+}
+
+async function seedDefaultSchedule() {
+  if (!firestoreApi || !firestoreDocRef) {
+    return;
+  }
+
+  await firestoreApi.setDoc(firestoreDocRef, {
+    schedule: fallbackSchedule.map(cloneDay),
+    updatedAt: firestoreApi.serverTimestamp()
+  }, { merge: true });
+
+  setFirestoreUi("기본 일정을 Firestore에 저장했습니다.", true);
+}
+
+async function initFirestoreSchedule() {
+  if (!isFirebaseConfigured()) {
+    return false;
+  }
+
+  try {
+    const [
+      appModule,
+      firestoreModule,
+      authModule
+    ] = await Promise.all([
+      import("https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js"),
+      import("https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js"),
+      import("https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js")
+    ]);
+
+    const firebaseApp = appModule.initializeApp(firebaseConfig.firebaseConfig);
+    const db = firestoreModule.getFirestore(firebaseApp);
+    const auth = authModule.getAuth(firebaseApp);
+    const collectionPath = firebaseConfig.collectionPath || "trips";
+    const documentId = firebaseConfig.documentId || "europe-2026";
+
+    firestoreApi = firestoreModule;
+    firestoreDocRef = firestoreModule.doc(db, collectionPath, documentId);
+
+    firebaseSignInEl?.addEventListener("click", async () => {
+      if (currentUser) {
+        await authModule.signOut(auth);
+      } else {
+        await authModule.signInWithPopup(auth, new authModule.GoogleAuthProvider());
+      }
+    });
+
+    firebaseSeedEl?.addEventListener("click", seedDefaultSchedule);
+    editDaySelectEl?.addEventListener("change", fillEditorFromSelectedDay);
+    dayEditorEl?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await saveSelectedDay();
+    });
+
+    authModule.onAuthStateChanged(auth, (user) => {
+      currentUser = user;
+      setFirestoreUi(
+        user ? `${user.email || "로그인 사용자"} 계정으로 수정할 수 있습니다.` : "Google 로그인 후 일정을 수정할 수 있습니다.",
+        true
+      );
+      refreshDayEditor();
+    });
+
+    firestoreModule.onSnapshot(
+      firestoreDocRef,
+      (snapshot) => {
+        if (snapshot.exists() && Array.isArray(snapshot.data().schedule)) {
+          renderSchedule(snapshot.data().schedule);
+          setFirestoreUi(firebaseConfig.updatedLabel || "Firestore 실시간 연동 중", true);
+        } else {
+          renderSchedule(fallbackSchedule);
+          setFirestoreUi("Firestore 문서가 아직 없어 기본 일정을 표시 중입니다.", true);
+        }
+      },
+      (error) => {
+        console.warn(error);
+        renderSchedule(fallbackSchedule);
+        setFirestoreUi("Firestore를 읽지 못해 기본 일정을 표시 중입니다.", false);
+      }
+    );
+
+    return true;
+  } catch (error) {
+    console.warn(error);
+    renderSchedule(fallbackSchedule);
+    setFirestoreUi("Firebase 초기화에 실패해 기본 일정을 표시 중입니다.", false);
+    return true;
+  }
+}
+
 async function loadSchedule() {
+  if (await initFirestoreSchedule()) {
+    return;
+  }
+
   const csvUrl = (sheetConfig.csvUrl || "").trim();
 
   if (!csvUrl) {

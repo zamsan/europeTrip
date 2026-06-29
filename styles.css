@@ -288,7 +288,7 @@ p {
 
 .edit-panel {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   gap: 16px;
   align-items: center;
   padding: 20px;
@@ -304,6 +304,7 @@ p {
 
 .edit-button {
   min-height: 44px;
+  border: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -314,6 +315,14 @@ p {
   font-weight: 800;
   text-decoration: none;
   white-space: nowrap;
+  cursor: pointer;
+  font: inherit;
+}
+
+.edit-button.ghost {
+  border: 1px solid var(--green);
+  background: #fff;
+  color: var(--green);
 }
 
 #sheetStatus {
@@ -325,6 +334,49 @@ p {
 #sheetStatus.is-connected {
   color: var(--green);
   font-weight: 800;
+}
+
+.day-editor {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.day-editor[hidden],
+[hidden] {
+  display: none !important;
+}
+
+.day-editor label {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.day-editor .wide {
+  grid-column: 1 / -1;
+}
+
+.day-editor input,
+.day-editor select,
+.day-editor textarea {
+  width: 100%;
+  min-height: 42px;
+  padding: 9px 11px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+}
+
+.day-editor textarea {
+  resize: vertical;
 }
 
 .booking-table {
@@ -404,6 +456,10 @@ p {
   .route-grid,
   .check-list,
   .edit-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .day-editor {
     grid-template-columns: 1fr;
   }
 

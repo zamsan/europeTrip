@@ -98,9 +98,42 @@
           <h2 id="edit-title">일정 같이 수정하기</h2>
         </div>
         <div class="edit-panel">
-          <p>일정 원본은 Google Sheets에서 같이 수정하고, 이 페이지는 Sheets 내용을 불러와 보여주는 방식입니다.</p>
+          <p id="editDescription">Firestore 설정 전에는 Google Sheets 수정 링크를 사용하고, 설정 후에는 이 화면에서 로그인 후 직접 수정합니다.</p>
           <a class="edit-button" id="sheetEditLink" href="sheet-template.csv">샘플 표 보기</a>
+          <button class="edit-button ghost" id="firebaseSignIn" type="button" hidden>Google 로그인</button>
+          <button class="edit-button ghost" id="firebaseSeed" type="button" hidden>기본 일정 저장</button>
           <span id="sheetStatus">아직 Google Sheets 링크가 연결되지 않았습니다.</span>
+          <form class="day-editor" id="dayEditor" hidden>
+            <label>
+              수정할 날짜
+              <select id="editDaySelect"></select>
+            </label>
+            <label>
+              도시
+              <input id="editCity" type="text" autocomplete="off">
+            </label>
+            <label>
+              제목
+              <input id="editTitle" type="text" autocomplete="off">
+            </label>
+            <label class="wide">
+              세부 일정
+              <textarea id="editItems" rows="5"></textarea>
+            </label>
+            <label class="wide">
+              메모
+              <textarea id="editNote" rows="3"></textarea>
+            </label>
+            <label>
+              구분
+              <select id="editType">
+                <option value="">일반</option>
+                <option value="transfer">도시 이동</option>
+                <option value="return">귀국/도착</option>
+              </select>
+            </label>
+            <button class="edit-button" type="submit">선택 일정 저장</button>
+          </form>
         </div>
       </section>
 
