@@ -156,9 +156,28 @@ function normalizeItem(item) {
 }
 
 function normalizeItems(items) {
-  return (Array.isArray(items) ? items : [])
+  return sortItemsByTime((Array.isArray(items) ? items : [])
     .map(normalizeItem)
-    .filter((item) => item.time || item.text || item.mapUrl);
+    .filter((item) => item.time || item.text || item.mapUrl));
+}
+
+function getItemSortMinutes(item) {
+  const match = String(item?.time || "").match(/^(\d{1,2}):(\d{2})$/);
+  if (!match) {
+    return Number.POSITIVE_INFINITY;
+  }
+
+  return Number.parseInt(match[1], 10) * 60 + Number.parseInt(match[2], 10);
+}
+
+function sortItemsByTime(items) {
+  return items
+    .map((item, index) => ({ item, index }))
+    .sort((left, right) => {
+      const diff = getItemSortMinutes(left.item) - getItemSortMinutes(right.item);
+      return diff || left.index - right.index;
+    })
+    .map((entry) => entry.item);
 }
 
 function getMapHref(value) {
@@ -222,6 +241,21 @@ function readItemTime(row) {
   }
 
   return `${(hour || "00").padStart(2, "0")}:${(minute || "00").padStart(2, "0")}`;
+}
+
+function sortEditorRowsByTime(itemList) {
+  const rows = Array.from(itemList.querySelectorAll("[data-item-row]"));
+  rows
+    .map((row, index) => ({
+      row,
+      index,
+      time: readItemTime(row)
+    }))
+    .sort((left, right) => {
+      const diff = getItemSortMinutes({ time: left.time }) - getItemSortMinutes({ time: right.time });
+      return diff || left.index - right.index;
+    })
+    .forEach(({ row }) => itemList.append(row));
 }
 
 function cloneDay(day) {
@@ -577,13 +611,13 @@ async function saveSelectedDay(index, form) {
 
   const nextSchedule = currentSchedule.map(cloneDay);
   const formData = new FormData(form);
-  const items = Array.from(form.querySelectorAll("[data-item-row]"))
+  const items = sortItemsByTime(Array.from(form.querySelectorAll("[data-item-row]"))
     .map((row) => ({
       time: readItemTime(row),
       text: String(row.querySelector('[name="itemText"]')?.value || "").trim(),
       mapUrl: String(row.querySelector('[name="itemMapUrl"]')?.value || "").trim()
     }))
-    .filter((item) => item.time || item.text || item.mapUrl);
+    .filter((item) => item.time || item.text || item.mapUrl));
 
   nextSchedule[index] = {
     ...nextSchedule[index],
@@ -696,6 +730,18 @@ function wireTimelineEditing() {
 
     event.preventDefault();
     await saveSelectedDay(Number.parseInt(form.dataset.editorIndex, 10), form);
+  });
+
+  timelineEl.addEventListener("change", (event) => {
+    const timeSelect = event.target.closest('[name="itemHour"], [name="itemMinute"]');
+    if (!timeSelect) {
+      return;
+    }
+
+    const itemList = timeSelect.closest("[data-item-list]");
+    if (itemList) {
+      sortEditorRowsByTime(itemList);
+    }
   });
 }
 
