@@ -388,17 +388,17 @@ const editLockEl = document.querySelector("#editLock");
 const bookingChecklistEl = document.querySelector("#bookingChecklist");
 
 const defaultChecklist = [
-  { id: "flight", label: "항공", checked: true },
-  { id: "hotel", label: "호텔", checked: true },
-  { id: "eurostar", label: "Eurostar", checked: true },
-  { id: "tower-of-london", label: "Tower of London", checked: false },
-  { id: "british-museum", label: "British Museum", checked: false },
-  { id: "sky-garden", label: "Sky Garden 무료입장권", checked: false },
-  { id: "sky-garden-reminder", label: "7월 13일 Sky Garden 무료입장권 확인 알림 설정 완료", checked: true },
-  { id: "eiffel-tower", label: "Eiffel Tower", checked: false },
-  { id: "louvre", label: "Louvre Museum", checked: false },
-  { id: "pink-mamma", label: "Pink Mamma (예약 권장)", checked: false },
-  { id: "soon-grill", label: "Soon Grill (예약 권장)", checked: false }
+  { id: "flight", label: "항공", checked: true, url: "", note: "" },
+  { id: "hotel", label: "호텔", checked: true, url: "", note: "" },
+  { id: "eurostar", label: "Eurostar", checked: true, url: "", note: "" },
+  { id: "tower-of-london", label: "Tower of London", checked: false, url: "", note: "" },
+  { id: "british-museum", label: "British Museum", checked: false, url: "", note: "" },
+  { id: "sky-garden", label: "Sky Garden 무료입장권", checked: false, url: "", note: "" },
+  { id: "sky-garden-reminder", label: "7월 13일 Sky Garden 무료입장권 확인 알림 설정 완료", checked: true, url: "", note: "" },
+  { id: "eiffel-tower", label: "Eiffel Tower", checked: false, url: "", note: "" },
+  { id: "louvre", label: "Louvre Museum", checked: false, url: "", note: "" },
+  { id: "pink-mamma", label: "Pink Mamma (예약 권장)", checked: false, url: "", note: "" },
+  { id: "soon-grill", label: "Soon Grill (예약 권장)", checked: false, url: "", note: "" }
 ];
 
 let currentSchedule = [];
@@ -620,7 +620,9 @@ function normalizeChecklist(checklist) {
     return {
       id: item.id,
       label: String(saved?.label || item.label).trim(),
-      checked: typeof saved?.checked === "boolean" ? saved.checked : Boolean(item.checked)
+      checked: typeof saved?.checked === "boolean" ? saved.checked : Boolean(item.checked),
+      url: String(saved?.url || item.url || "").trim(),
+      note: String(saved?.note || item.note || "").trim()
     };
   });
 
@@ -633,11 +635,26 @@ function normalizeChecklist(checklist) {
     merged.push({
       id,
       label: String(item.label || id).trim(),
-      checked: Boolean(item.checked)
+      checked: Boolean(item.checked),
+      url: String(item.url || "").trim(),
+      note: String(item.note || "").trim()
     });
   });
 
   return merged;
+}
+
+function getChecklistLinkHref(value) {
+  const url = String(value || "").trim();
+  if (!url) {
+    return "";
+  }
+
+  if (/^https?:\/\//i.test(url)) {
+    return url;
+  }
+
+  return `https://${url}`;
 }
 
 function renderChecklist(checklist) {
@@ -649,13 +666,33 @@ function renderChecklist(checklist) {
   bookingChecklistEl.innerHTML = currentChecklist.map((item) => {
     const checked = item.checked ? " checked" : "";
     const disabled = canEdit() ? "" : " disabled";
+    const linkHref = getChecklistLinkHref(item.url);
+    const linkButton = linkHref
+      ? `<a class="check-link" href="${escapeHtml(linkHref)}" target="_blank" rel="noopener">열기</a>`
+      : "";
 
     return `
       <li>
-        <label class="check-item">
-          <input type="checkbox" data-checklist-id="${escapeHtml(item.id)}"${checked}${disabled}>
-          <span>${escapeHtml(item.label)}</span>
-        </label>
+        <div class="check-item">
+          <label class="check-label">
+            <input type="checkbox" data-checklist-id="${escapeHtml(item.id)}" data-checklist-field="checked"${checked}${disabled}>
+            <span>${escapeHtml(item.label)}</span>
+          </label>
+          ${item.note ? `<p class="check-note">${escapeHtml(item.note)}</p>` : ""}
+          <div class="check-fields">
+            <label>
+              예약 링크
+              <div class="check-url-row">
+                <input type="url" data-checklist-id="${escapeHtml(item.id)}" data-checklist-field="url" value="${escapeHtml(item.url)}" placeholder="https://..."${disabled}>
+                ${linkButton}
+              </div>
+            </label>
+            <label>
+              메모
+              <input type="text" data-checklist-id="${escapeHtml(item.id)}" data-checklist-field="note" value="${escapeHtml(item.note)}" placeholder="예약 시간, 가격, 참고사항"${disabled}>
+            </label>
+          </div>
+        </div>
       </li>
     `;
   }).join("");
@@ -999,7 +1036,7 @@ async function saveSelectedDay(index, form) {
   }
 }
 
-async function saveChecklistItem(id, checked) {
+async function saveChecklistItem(id, updates) {
   if (!firestoreApi || !firestoreDocRef) {
     return;
   }
@@ -1011,7 +1048,7 @@ async function saveChecklistItem(id, checked) {
   }
 
   const nextChecklist = normalizeChecklist(currentChecklist.length ? currentChecklist : defaultChecklist)
-    .map((item) => item.id === id ? { ...item, checked } : item);
+    .map((item) => item.id === id ? { ...item, ...updates } : item);
 
   currentChecklist = nextChecklist;
   renderChecklist(nextChecklist);
@@ -1037,12 +1074,15 @@ function wireChecklistEditing() {
   }
 
   bookingChecklistEl.addEventListener("change", async (event) => {
-    const checkbox = event.target.closest("[data-checklist-id]");
-    if (!checkbox) {
+    const field = event.target.closest("[data-checklist-id][data-checklist-field]");
+    if (!field) {
       return;
     }
 
-    await saveChecklistItem(checkbox.dataset.checklistId, checkbox.checked);
+    const fieldName = field.dataset.checklistField;
+    const value = fieldName === "checked" ? field.checked : String(field.value || "").trim();
+
+    await saveChecklistItem(field.dataset.checklistId, { [fieldName]: value });
   });
 }
 

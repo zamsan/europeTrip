@@ -493,37 +493,99 @@ p {
 
 .check-item {
   display: grid;
-  grid-template-columns: 22px 1fr;
   gap: 10px;
-  align-items: start;
   min-height: 42px;
-  padding: 9px 10px;
+  padding: 12px;
   border-radius: 8px;
-  cursor: pointer;
 }
 
 .check-item:hover {
   background: #f4f6f8;
 }
 
-.check-item input {
+.check-label {
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  gap: 10px;
+  align-items: start;
+  cursor: pointer;
+}
+
+.check-label input {
   width: 18px;
   height: 18px;
   margin: 3px 0 0;
   accent-color: var(--green);
 }
 
-.check-item input:disabled {
+.check-label input:disabled {
   cursor: not-allowed;
 }
 
-.check-item input:disabled + span {
+.check-label input:disabled + span {
   color: var(--muted);
 }
 
-.check-item input:checked + span {
+.check-label input:checked + span {
   color: var(--green);
   font-weight: 800;
+}
+
+.check-note {
+  margin-left: 32px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.check-fields {
+  display: grid;
+  gap: 8px;
+  margin-left: 32px;
+}
+
+.check-fields label {
+  display: grid;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.check-fields input {
+  min-height: 38px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.92rem;
+}
+
+.check-fields input:disabled {
+  background: #f4f6f8;
+  color: var(--muted);
+}
+
+.check-url-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+}
+
+.check-link {
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #e7f4f1;
+  color: var(--green);
+  font-size: 0.88rem;
+  font-weight: 800;
+  text-decoration: none;
 }
 
 .footer {
@@ -574,6 +636,15 @@ p {
 
   .map-input-row {
     grid-template-columns: 1fr;
+  }
+
+  .check-url-row {
+    grid-template-columns: 1fr;
+  }
+
+  .check-fields,
+  .check-note {
+    margin-left: 0;
   }
 
   .edit-button,
