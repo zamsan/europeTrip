@@ -225,6 +225,18 @@ p {
   font-family: "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
 }
 
+.route-popup-link {
+  display: inline-block;
+  color: var(--blue);
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.route-popup-link:hover,
+.route-popup-link:focus-visible {
+  text-decoration: underline;
+}
+
 .day-card {
   border: 1px solid var(--line);
   border-radius: 8px;

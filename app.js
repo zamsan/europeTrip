@@ -807,10 +807,24 @@ function getRoutePointsFromSchedule() {
         country: getRouteCountry(item),
         day: dayLabel.replace(/^8월\s*/, "8/").replace(/\s*요일$/, ""),
         title: item.text || day.title || "일정",
+        mapUrl: item.mapUrl,
         lat: Number(item.lat),
         lng: Number(item.lng)
       }));
   });
+}
+
+function getRoutePointMapHref(point) {
+  const mapHref = getMapHref(point?.mapUrl);
+  if (mapHref) {
+    return mapHref;
+  }
+
+  if (Number.isFinite(point?.lat) && Number.isFinite(point?.lng)) {
+    return `https://www.google.com/maps/search/?api=1&query=${point.lat},${point.lng}`;
+  }
+
+  return "";
 }
 
 function getVisibleRoutePoints(filter) {
@@ -875,7 +889,18 @@ function renderRouteMap(filter = "all") {
       direction: "center",
       className: "route-marker-number"
     });
-    marker.bindPopup(`<strong>${escapeHtml(point.day)} ${escapeHtml(point.title)}</strong>`);
+    const mapHref = getRoutePointMapHref(point);
+    const popupTitle = `${escapeHtml(point.day)} ${escapeHtml(point.title)}`;
+    const popupContent = mapHref
+      ? `<a class="route-popup-link" href="${escapeHtml(mapHref)}" target="_blank" rel="noopener">${popupTitle}</a>`
+      : `<strong>${popupTitle}</strong>`;
+
+    marker.bindPopup(popupContent);
+    if (mapHref) {
+      marker.on("click", () => {
+        window.open(mapHref, "_blank", "noopener");
+      });
+    }
     if (point.id) {
       renderRouteMap.markers.set(point.id, marker);
     }
