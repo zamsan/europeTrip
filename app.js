@@ -639,9 +639,11 @@ function renderSchedule(schedule) {
           </div>
           ${editButton}
         </div>
-        <h3>${escapeHtml(day.title)}</h3>
-        <ul>${items}</ul>
-        ${note}
+        <div class="day-card-view">
+          <h3>${escapeHtml(day.title)}</h3>
+          <ul>${items}</ul>
+          ${note}
+        </div>
         ${renderInlineEditor(day, index)}
       </article>
     `;
@@ -848,8 +850,11 @@ function wireTimelineEditing() {
     if (editButton) {
       const index = editButton.dataset.editIndex;
       const editor = timelineEl.querySelector(`[data-editor-index="${index}"]`);
+      const card = editButton.closest(".day-card");
       if (editor) {
         editor.hidden = !editor.hidden;
+        card?.classList.toggle("is-editing", !editor.hidden);
+        editButton.textContent = editor.hidden ? "수정" : "보기";
       }
       return;
     }
@@ -912,8 +917,11 @@ function wireTimelineEditing() {
     const cancelButton = event.target.closest("[data-cancel-edit]");
     if (cancelButton) {
       const editor = cancelButton.closest("[data-editor-index]");
+      const card = cancelButton.closest(".day-card");
       if (editor) {
         editor.hidden = true;
+        card?.classList.remove("is-editing");
+        card?.querySelector("[data-edit-index]")?.replaceChildren("수정");
       }
     }
   });

@@ -182,6 +182,10 @@ p {
   border-left-color: var(--rose);
 }
 
+.day-card.is-editing .day-card-view {
+  display: none;
+}
+
 .day-card.error-card {
   border-left-color: var(--rose);
   background: #fff7f8;
@@ -354,6 +358,10 @@ p {
   margin-top: 16px;
   padding-top: 16px;
   border-top: 1px solid var(--line);
+}
+
+.day-card.is-editing .inline-editor {
+  margin-top: 10px;
 }
 
 .inline-editor[hidden],
