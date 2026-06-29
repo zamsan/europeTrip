@@ -146,6 +146,7 @@ p {
 .summary-grid,
 .route-grid,
 .timeline,
+.edit-panel,
 .booking-table,
 .check-list {
   max-width: 1080px;
@@ -250,6 +251,19 @@ p {
   font-weight: 800;
 }
 
+.city-tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  margin: 0 0 10px 10px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #edf7f5;
+  color: var(--green);
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
 .day-card ul,
 .check-list {
   padding-left: 20px;
@@ -266,6 +280,51 @@ p {
   border-top: 1px solid var(--line);
   color: var(--muted);
   font-size: 0.95rem;
+}
+
+.edit-band {
+  background: #f1ece5;
+}
+
+.edit-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  padding: 20px;
+  border: 1px solid #d8cfc3;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 12px 32px rgba(33, 40, 52, 0.08);
+}
+
+.edit-panel p {
+  color: var(--ink);
+}
+
+.edit-button {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 16px;
+  border-radius: 8px;
+  background: var(--green);
+  color: #fff;
+  font-weight: 800;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+#sheetStatus {
+  grid-column: 1 / -1;
+  color: var(--muted);
+  font-size: 0.94rem;
+}
+
+#sheetStatus.is-connected {
+  color: var(--green);
+  font-weight: 800;
 }
 
 .booking-table {
@@ -343,8 +402,13 @@ p {
 
   .summary-grid,
   .route-grid,
-  .check-list {
+  .check-list,
+  .edit-panel {
     grid-template-columns: 1fr;
+  }
+
+  .edit-button {
+    width: 100%;
   }
 
   .city-panel {

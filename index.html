@@ -6,6 +6,8 @@
     <meta name="description" content="2026년 8월 런던·파리 유럽 여행 일정">
     <title>런던·파리 2026 여행 일정</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="config.js" defer></script>
+    <script src="app.js" defer></script>
   </head>
   <body>
     <header class="hero" id="top">
@@ -13,6 +15,7 @@
         <a href="#summary">요약</a>
         <a href="#timeline">일정</a>
         <a href="#booking">예약</a>
+        <a href="#edit">수정</a>
         <a href="#todo">확인</a>
       </nav>
       <div class="hero-copy">
@@ -80,95 +83,24 @@
           <p class="eyebrow">Daily Plan</p>
           <h2 id="timeline-title">날짜별 일정</h2>
         </div>
-        <div class="timeline">
+        <div class="timeline" id="tripTimeline" aria-live="polite">
           <article class="day-card">
-            <time datetime="2026-08-01">8월 1일 토요일</time>
-            <h3>한국 출발, 런던 도착</h3>
-            <ul>
-              <li>10:55 KE907 탑승</li>
-              <li>입국, 수하물 수령 후 택시/호출차로 숙소 이동</li>
-              <li>타워브릿지, 런던탑 외관, 템스강변 산책</li>
-            </ul>
-            <p class="note">첫날은 장거리 비행 후라 숙소 주변 야경만 가볍게 봅니다.</p>
+            <time>불러오는 중</time>
+            <h3>일정을 준비하고 있습니다</h3>
+            <p class="note">Google Sheets 연동이 없으면 기본 일정이 표시됩니다.</p>
           </article>
+        </div>
+      </section>
 
-          <article class="day-card">
-            <time datetime="2026-08-02">8월 2일 일요일</time>
-            <h3>런던 클래식 코스</h3>
-            <ul>
-              <li>웨스트민스터 사원, 빅벤, 국회의사당</li>
-              <li>세인트 제임스 파크, 버킹엄 궁전</li>
-              <li>트라팔가 광장, 내셔널 갤러리, 코벤트가든</li>
-            </ul>
-            <p class="note">내부 관람은 웨스트민스터 사원 여부만 먼저 결정하면 됩니다.</p>
-          </article>
-
-          <article class="day-card">
-            <time datetime="2026-08-03">8월 3일 월요일</time>
-            <h3>런던탑, 타워브릿지, 시티</h3>
-            <ul>
-              <li>런던탑 입장 관람</li>
-              <li>타워브릿지 전시 또는 다리 산책</li>
-              <li>스카이 가든, 세인트 폴 대성당, 버로우 마켓 후보</li>
-            </ul>
-            <p class="note">다음 날 유로스타 이동을 위해 티켓, 여권, 역 이동 시간을 확인합니다.</p>
-          </article>
-
-          <article class="day-card transfer">
-            <time datetime="2026-08-04">8월 4일 화요일</time>
-            <h3>유로스타로 파리 이동</h3>
-            <ul>
-              <li>택시/호출차로 세인트 판크라스 역 이동</li>
-              <li>12:05 유로스타 탑승</li>
-              <li>파리 도착 후 하얏트 리젠시 체크인</li>
-              <li>저녁에는 에펠탑, 트로카데로, 센강변 산책</li>
-            </ul>
-            <p class="note">화요일은 루브르 휴관일이라 야경 중심으로 가볍게 둡니다.</p>
-          </article>
-
-          <article class="day-card">
-            <time datetime="2026-08-05">8월 5일 수요일</time>
-            <h3>루브르와 파리 중심부</h3>
-            <ul>
-              <li>루브르 박물관 핵심 작품 중심 관람</li>
-              <li>튈르리 정원, 콩코르드 광장</li>
-              <li>오랑주리 또는 오르세 미술관</li>
-              <li>생제르맹 데 프레, 센강 산책</li>
-            </ul>
-            <p class="note">루브르는 시간대 예약을 우선 검토합니다.</p>
-          </article>
-
-          <article class="day-card">
-            <time datetime="2026-08-06">8월 6일 목요일</time>
-            <h3>베르사유 또는 파리 시내 여유형</h3>
-            <ul>
-              <li>추천안 A: 베르사유 궁전, 정원, 트리아농</li>
-              <li>추천안 B: 몽마르트르, 마레 지구, 개선문</li>
-              <li>저녁에는 샹젤리제 또는 에펠탑 재방문</li>
-            </ul>
-            <p class="note">더위와 체력에 따라 베르사유 여부를 결정합니다.</p>
-          </article>
-
-          <article class="day-card return">
-            <time datetime="2026-08-07">8월 7일 금요일</time>
-            <h3>파리 마무리, 귀국</h3>
-            <ul>
-              <li>오페라 가르니에, 갤러리 라파예트</li>
-              <li>점심 이후 숙소 복귀, 짐 정리</li>
-              <li>택시/호출차로 공항 이동</li>
-              <li>20:35 KE902 탑승</li>
-            </ul>
-            <p class="note">금요일 저녁 정체를 고려해 공항 이동 시간을 넉넉히 잡습니다.</p>
-          </article>
-
-          <article class="day-card">
-            <time datetime="2026-08-08">8월 8일 토요일</time>
-            <h3>한국 도착</h3>
-            <ul>
-              <li>입국, 귀가</li>
-              <li>사진 백업 및 영수증 정리</li>
-            </ul>
-          </article>
+      <section class="edit-band" id="edit" aria-labelledby="edit-title">
+        <div class="section-head">
+          <p class="eyebrow">Edit Together</p>
+          <h2 id="edit-title">일정 같이 수정하기</h2>
+        </div>
+        <div class="edit-panel">
+          <p>일정 원본은 Google Sheets에서 같이 수정하고, 이 페이지는 Sheets 내용을 불러와 보여주는 방식입니다.</p>
+          <a class="edit-button" id="sheetEditLink" href="sheet-template.csv">샘플 표 보기</a>
+          <span id="sheetStatus">아직 Google Sheets 링크가 연결되지 않았습니다.</span>
         </div>
       </section>
 
