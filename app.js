@@ -115,7 +115,6 @@ const firebaseSeedEl = document.querySelector("#firebaseSeed");
 let currentSchedule = [];
 let firestoreApi = null;
 let firestoreDocRef = null;
-let currentUser = null;
 
 function escapeHtml(value) {
   return String(value || "")
@@ -260,7 +259,7 @@ function renderSchedule(schedule) {
     const city = day.city ? `<span class="city-tag">${escapeHtml(day.city)}</span>` : "";
     const items = day.items.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
     const note = day.note ? `<p class="note">${escapeHtml(day.note)}</p>` : "";
-    const editButton = currentUser && isFirebaseConfigured()
+    const editButton = isFirebaseConfigured()
       ? `<button class="card-edit-button" type="button" data-edit-index="${index}">수정</button>`
       : "";
 
@@ -283,7 +282,7 @@ function renderSchedule(schedule) {
 }
 
 function renderInlineEditor(day, index) {
-  if (!currentUser || !isFirebaseConfigured()) {
+  if (!isFirebaseConfigured()) {
     return "";
   }
 
@@ -343,7 +342,7 @@ function renderError(title, message) {
 function renderInvalidScheduleError() {
   renderError(
     "Firestore 일정 데이터가 비어 있습니다",
-    "로그인 후 기본 일정 저장을 눌러 trips/europe-2026 문서의 schedule 값을 초기 일정으로 덮어쓰세요."
+    "기본 일정 저장을 눌러 trips/europe-2026 문서의 schedule 값을 초기 일정으로 덮어쓰세요."
   );
 }
 
@@ -383,12 +382,11 @@ function setFirestoreUi(message, connected) {
   }
 
   if (firebaseSignInEl) {
-    firebaseSignInEl.hidden = false;
-    firebaseSignInEl.textContent = currentUser ? "로그아웃" : "Google 로그인";
+    firebaseSignInEl.hidden = true;
   }
 
   if (firebaseSeedEl) {
-    firebaseSeedEl.hidden = !currentUser;
+    firebaseSeedEl.hidden = false;
   }
 
   if (statusEl) {
@@ -426,7 +424,7 @@ async function saveSelectedDay(index, form) {
     setFirestoreUi("Firestore에 저장했습니다.", true);
   } catch (error) {
     console.warn(error);
-    setFirestoreUi("Firestore 저장 실패: 로그인 계정과 Rules 권한을 확인하세요.", false);
+    setFirestoreUi("Firestore 저장 실패: Firestore Rules 쓰기 권한을 확인하세요.", false);
   }
 }
 
@@ -482,7 +480,7 @@ async function seedDefaultSchedule() {
     setFirestoreUi("기본 일정을 Firestore에 저장했습니다.", true);
   } catch (error) {
     console.warn(error);
-    setFirestoreUi("기본 일정 저장 실패: 로그인 계정과 Firestore Rules를 확인하세요.", false);
+    setFirestoreUi("기본 일정 저장 실패: Firestore Rules 쓰기 권한을 확인하세요.", false);
   }
 }
 
@@ -494,44 +492,23 @@ async function initFirestoreSchedule() {
   try {
     const [
       appModule,
-      firestoreModule,
-      authModule
+      firestoreModule
     ] = await Promise.all([
       import("https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js"),
-      import("https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js"),
-      import("https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js")
+      import("https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js")
     ]);
 
     const firebaseApp = appModule.initializeApp(firebaseConfig.firebaseConfig);
     const db = firestoreModule.getFirestore(firebaseApp);
-    const auth = authModule.getAuth(firebaseApp);
     const collectionPath = firebaseConfig.collectionPath || "trips";
     const documentId = firebaseConfig.documentId || "europe-2026";
 
     firestoreApi = firestoreModule;
     firestoreDocRef = firestoreModule.doc(db, collectionPath, documentId);
 
-    firebaseSignInEl?.addEventListener("click", async () => {
-      if (currentUser) {
-        await authModule.signOut(auth);
-      } else {
-        await authModule.signInWithPopup(auth, new authModule.GoogleAuthProvider());
-      }
-    });
-
     firebaseSeedEl?.addEventListener("click", seedDefaultSchedule);
     wireTimelineEditing();
-
-    authModule.onAuthStateChanged(auth, (user) => {
-      currentUser = user;
-      setFirestoreUi(
-        user ? `${user.email || "로그인 사용자"} 계정으로 수정할 수 있습니다.` : "Google 로그인 후 일정을 수정할 수 있습니다.",
-        true
-      );
-      if (currentSchedule.length) {
-        renderSchedule(currentSchedule);
-      }
-    });
+    setFirestoreUi("Firestore 연결 중입니다. 일정은 바로 수정할 수 있습니다.", true);
 
     firestoreModule.onSnapshot(
       firestoreDocRef,
@@ -548,7 +525,7 @@ async function initFirestoreSchedule() {
         } else {
           renderError(
             "Firestore 일정 문서가 없습니다",
-            "trips/europe-2026 문서를 만들거나 로그인 후 기본 일정 저장을 눌러 초기 데이터를 저장하세요."
+            "trips/europe-2026 문서를 만들거나 기본 일정 저장을 눌러 초기 데이터를 저장하세요."
           );
           setFirestoreUi("Firestore 문서가 없어 일정을 표시할 수 없습니다.", false);
         }
