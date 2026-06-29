@@ -110,7 +110,6 @@ const timelineEl = document.querySelector("#tripTimeline");
 const timelineControlsEl = document.querySelector("#timelineControls");
 const statusEl = document.querySelector("#sheetStatus");
 const firebaseSignInEl = document.querySelector("#firebaseSignIn");
-const firebaseSeedEl = document.querySelector("#firebaseSeed");
 const editUnlockFormEl = document.querySelector("#editUnlockForm");
 const editPasswordEl = document.querySelector("#editPassword");
 const editLockEl = document.querySelector("#editLock");
@@ -370,7 +369,7 @@ function renderError(title, message) {
 function renderInvalidScheduleError() {
   renderError(
     "Firestore 일정 데이터가 비어 있습니다",
-    "기본 일정 저장을 눌러 trips/europe-2026 문서의 schedule 값을 초기 일정으로 덮어쓰세요."
+    "Firestore 콘솔에서 trips/europe-2026 문서의 schedule 값을 확인하세요."
   );
 }
 
@@ -381,10 +380,6 @@ function setSheetUi(message, connected) {
 
   if (firebaseSignInEl) {
     firebaseSignInEl.hidden = true;
-  }
-
-  if (firebaseSeedEl) {
-    firebaseSeedEl.hidden = true;
   }
 
   if (statusEl) {
@@ -411,10 +406,6 @@ function setFirestoreUi(message, connected) {
 
   if (firebaseSignInEl) {
     firebaseSignInEl.hidden = true;
-  }
-
-  if (firebaseSeedEl) {
-    firebaseSeedEl.hidden = !canEdit();
   }
 
   if (editUnlockFormEl) {
@@ -505,31 +496,6 @@ function wireTimelineEditing() {
   });
 }
 
-async function seedDefaultSchedule() {
-  if (!firestoreApi || !firestoreDocRef) {
-    return;
-  }
-
-  if (!canEdit()) {
-    setFirestoreUi("기본 일정을 저장하려면 비밀번호를 먼저 입력하세요.", false);
-    return;
-  }
-
-  setFirestoreUi("기본 일정을 Firestore에 저장하는 중입니다...", true);
-
-  try {
-    await firestoreApi.setDoc(firestoreDocRef, {
-      schedule: fallbackSchedule.map(cloneDay),
-      updatedAt: firestoreApi.serverTimestamp()
-    }, { merge: true });
-
-    setFirestoreUi("기본 일정을 Firestore에 저장했습니다.", true);
-  } catch (error) {
-    console.warn(error);
-    setFirestoreUi("기본 일정 저장 실패: Firestore Rules 쓰기 권한을 확인하세요.", false);
-  }
-}
-
 async function initFirestoreSchedule() {
   if (!isFirebaseConfigured()) {
     return false;
@@ -552,7 +518,6 @@ async function initFirestoreSchedule() {
     firestoreApi = firestoreModule;
     firestoreDocRef = firestoreModule.doc(db, collectionPath, documentId);
 
-    firebaseSeedEl?.addEventListener("click", seedDefaultSchedule);
     editUnlockFormEl?.addEventListener("submit", (event) => {
       event.preventDefault();
       const expectedPassword = getEditPassword();
@@ -592,7 +557,7 @@ async function initFirestoreSchedule() {
         } else {
           renderError(
             "Firestore 일정 문서가 없습니다",
-            "trips/europe-2026 문서를 만들거나 기본 일정 저장을 눌러 초기 데이터를 저장하세요."
+            "Firestore 콘솔에서 trips/europe-2026 문서와 schedule 배열을 만들어 주세요."
           );
           setFirestoreUi("Firestore 문서가 없어 일정을 표시할 수 없습니다.", false);
         }
