@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>런던·파리 일정 샘플 표</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #1f2933;
+        --muted: #64707d;
+        --line: #d8dee6;
+        --paper: #fbfaf7;
+        --green: #0f766e;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+        line-height: 1.6;
+      }
+
+      main {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 36px 0;
+      }
+
+      h1 {
+        margin: 0 0 10px;
+        font-size: clamp(1.8rem, 4vw, 3rem);
+        line-height: 1.1;
+      }
+
+      p {
+        margin: 0 0 20px;
+        color: var(--muted);
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+      }
+
+      table {
+        width: 100%;
+        min-width: 1080px;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--line);
+        border-right: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+        font-size: 0.94rem;
+      }
+
+      th {
+        position: sticky;
+        top: 0;
+        background: #1f2933;
+        color: #fff;
+        white-space: nowrap;
+      }
+
+      td:last-child,
+      th:last-child {
+        border-right: 0;
+      }
+
+      tr:last-child td {
+        border-bottom: 0;
+      }
+
+      .actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin: 22px 0 0;
+      }
+
+      a {
+        min-height: 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 14px;
+        border-radius: 8px;
+        background: var(--green);
+        color: #fff;
+        font-weight: 800;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>런던·파리 일정 샘플 표</h1>
+      <p>Google Sheets에 같은 열 이름으로 만들면 웹페이지 일정 카드에 반영됩니다. CSV 파일은 가져오기용이고, 이 화면은 한글 확인용입니다.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>date</th>
+              <th>dateLabel</th>
+              <th>city</th>
+              <th>title</th>
+              <th>item1</th>
+              <th>item2</th>
+              <th>item3</th>
+              <th>item4</th>
+              <th>note</th>
+              <th>type</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>2026-08-01</td>
+              <td>8월 1일 토요일</td>
+              <td>런던</td>
+              <td>한국 출발, 런던 도착</td>
+              <td>10:55 KE907 탑승</td>
+              <td>입국, 수하물 수령 후 택시/호출차로 숙소 이동</td>
+              <td>타워브릿지, 런던탑 외관, 템스강변 산책</td>
+              <td></td>
+              <td>첫날은 장거리 비행 후라 숙소 주변 야경만 가볍게 봅니다.</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>2026-08-02</td>
+              <td>8월 2일 일요일</td>
+              <td>런던</td>
+              <td>런던 클래식 코스</td>
+              <td>웨스트민스터 사원, 빅벤, 국회의사당</td>
+              <td>버킹엄 궁전과 세인트 제임스 파크</td>
+              <td>소호 또는 코벤트가든 저녁</td>
+              <td></td>
+              <td>내부 관람은 웨스트민스터 사원 여부만 먼저 결정하면 됩니다.</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>2026-08-03</td>
+              <td>8월 3일 월요일</td>
+              <td>런던</td>
+              <td>런던탑, 타워브릿지, 시티</td>
+              <td>런던탑 내부 관람</td>
+              <td>타워브릿지 전망 또는 브리지 산책</td>
+              <td>스카이 가든, 버로우 마켓, 세인트폴 대성당 중 선택</td>
+              <td></td>
+              <td>다음 날 유로스타 이동을 위해 티켓, 여권, 역 이동 시간을 확인합니다.</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>2026-08-04</td>
+              <td>8월 4일 화요일</td>
+              <td>파리</td>
+              <td>유로스타로 파리 이동</td>
+              <td>오전 호텔 체크아웃 후 택시로 세인트판크라스역 이동</td>
+              <td>12:05 유로스타 탑승, 파리 도착</td>
+              <td>하얏트 리젠시 체크인 후 개선문, 샹젤리제, 에펠탑 야경</td>
+              <td></td>
+              <td>화요일은 루브르 휴관일이라 야경 중심으로 가볍게 둡니다.</td>
+              <td>transfer</td>
+            </tr>
+            <tr>
+              <td>2026-08-05</td>
+              <td>8월 5일 수요일</td>
+              <td>파리</td>
+              <td>루브르와 파리 중심부</td>
+              <td>루브르 박물관</td>
+              <td>튈르리 정원, 콩코르드 광장</td>
+              <td>오페라 가르니에, 갤러리 라파예트 또는 센강 유람선</td>
+              <td></td>
+              <td>루브르는 시간대 예약을 우선 검토합니다.</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>2026-08-06</td>
+              <td>8월 6일 목요일</td>
+              <td>파리</td>
+              <td>베르사유 또는 파리 시내 여유형</td>
+              <td>선택 1: 베르사유 궁전 반나절</td>
+              <td>선택 2: 오르세 미술관, 생제르맹, 몽마르트르</td>
+              <td>저녁은 에펠탑 또는 몽마르트르 야경</td>
+              <td></td>
+              <td>더위와 체력에 따라 베르사유 여부를 결정합니다.</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>2026-08-07</td>
+              <td>8월 7일 금요일</td>
+              <td>파리</td>
+              <td>파리 마무리, 귀국</td>
+              <td>느린 아침과 체크아웃</td>
+              <td>마레, 노트르담 주변, 쇼핑 중 선택</td>
+              <td>택시로 공항 이동 후 20:35 KE902 탑승</td>
+              <td></td>
+              <td>금요일 저녁 정체를 고려해 공항 이동 시간을 넉넉히 잡습니다.</td>
+              <td>return</td>
+            </tr>
+            <tr>
+              <td>2026-08-08</td>
+              <td>8월 8일 토요일</td>
+              <td>한국</td>
+              <td>한국 도착</td>
+              <td>입국, 귀가</td>
+              <td>사진 백업 및 영수증 정리</td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td>return</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="actions">
+        <a href="sheet-template.csv">CSV 파일 열기</a>
+        <a href="index.html">일정 페이지로 돌아가기</a>
+      </div>
+    </main>
+  </body>
+</html>

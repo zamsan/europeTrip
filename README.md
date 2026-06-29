@@ -9,6 +9,7 @@
 - `app.js`: Google Sheets CSV를 읽어 일정 카드를 표시하는 스크립트
 - `config.js`: Google Sheets 게시 CSV 주소와 수정 링크 설정
 - `sheet-template.csv`: Google Sheets로 가져올 수 있는 일정 샘플
+- `sheet-template.html`: 브라우저에서 한글이 깨지지 않는 샘플 표
 - `GOOGLE_SHEETS_SETUP.md`: Google Sheets 연동 절차
 - `여행_기본정보.md`: 여행 기본 정보 원본
 - `전체_일정.md`: 날짜별 전체 일정 원본

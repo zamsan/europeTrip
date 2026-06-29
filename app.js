@@ -243,7 +243,7 @@ function setSheetUi(message, connected) {
       editLinkEl.target = "_blank";
       editLinkEl.rel = "noopener";
     } else {
-      editLinkEl.href = "sheet-template.csv";
+      editLinkEl.href = "sheet-template.html";
       editLinkEl.textContent = "샘플 표 보기";
       editLinkEl.removeAttribute("target");
       editLinkEl.removeAttribute("rel");

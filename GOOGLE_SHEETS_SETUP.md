@@ -4,7 +4,9 @@
 
 ## 1. Google Sheets 만들기
 
-`sheet-template.csv`를 Google Sheets로 가져오거나, 아래 열 이름으로 새 시트를 만듭니다.
+샘플 표를 브라우저에서 확인하려면 `sheet-template.html`을 열면 됩니다.
+
+Google Sheets에는 `sheet-template.csv`를 가져오거나, 아래 열 이름으로 새 시트를 만듭니다.
 
 ```text
 date,dateLabel,city,title,item1,item2,item3,item4,note,type
