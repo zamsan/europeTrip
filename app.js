@@ -340,6 +340,13 @@ function renderError(title, message) {
   `;
 }
 
+function renderInvalidScheduleError() {
+  renderError(
+    "Firestore 일정 데이터가 비어 있습니다",
+    "로그인 후 기본 일정 저장을 눌러 trips/europe-2026 문서의 schedule 값을 초기 일정으로 덮어쓰세요."
+  );
+}
+
 function setSheetUi(message, connected) {
   if (timelineControlsEl) {
     timelineControlsEl.hidden = false;
@@ -395,6 +402,8 @@ async function saveSelectedDay(index, form) {
     return;
   }
 
+  setFirestoreUi("Firestore에 저장하는 중입니다...", true);
+
   const nextSchedule = currentSchedule.map(cloneDay);
   const formData = new FormData(form);
 
@@ -408,12 +417,17 @@ async function saveSelectedDay(index, form) {
     type: String(formData.get("type") || "")
   };
 
-  await firestoreApi.setDoc(firestoreDocRef, {
-    schedule: nextSchedule,
-    updatedAt: firestoreApi.serverTimestamp()
-  }, { merge: true });
+  try {
+    await firestoreApi.setDoc(firestoreDocRef, {
+      schedule: nextSchedule,
+      updatedAt: firestoreApi.serverTimestamp()
+    }, { merge: true });
 
-  setFirestoreUi("Firestore에 저장했습니다.", true);
+    setFirestoreUi("Firestore에 저장했습니다.", true);
+  } catch (error) {
+    console.warn(error);
+    setFirestoreUi("Firestore 저장 실패: 로그인 계정과 Rules 권한을 확인하세요.", false);
+  }
 }
 
 function wireTimelineEditing() {
@@ -457,12 +471,19 @@ async function seedDefaultSchedule() {
     return;
   }
 
-  await firestoreApi.setDoc(firestoreDocRef, {
-    schedule: fallbackSchedule.map(cloneDay),
-    updatedAt: firestoreApi.serverTimestamp()
-  }, { merge: true });
+  setFirestoreUi("기본 일정을 Firestore에 저장하는 중입니다...", true);
 
-  setFirestoreUi("기본 일정을 Firestore에 저장했습니다.", true);
+  try {
+    await firestoreApi.setDoc(firestoreDocRef, {
+      schedule: fallbackSchedule.map(cloneDay),
+      updatedAt: firestoreApi.serverTimestamp()
+    }, { merge: true });
+
+    setFirestoreUi("기본 일정을 Firestore에 저장했습니다.", true);
+  } catch (error) {
+    console.warn(error);
+    setFirestoreUi("기본 일정 저장 실패: 로그인 계정과 Firestore Rules를 확인하세요.", false);
+  }
 }
 
 async function initFirestoreSchedule() {
@@ -516,8 +537,14 @@ async function initFirestoreSchedule() {
       firestoreDocRef,
       (snapshot) => {
         if (snapshot.exists() && Array.isArray(snapshot.data().schedule)) {
-          renderSchedule(snapshot.data().schedule);
-          setFirestoreUi(firebaseConfig.updatedLabel || "Firestore 실시간 연동 중", true);
+          const schedule = normalizeSchedule(snapshot.data().schedule);
+          if (schedule.length) {
+            renderSchedule(schedule);
+            setFirestoreUi(firebaseConfig.updatedLabel || "Firestore 실시간 연동 중", true);
+          } else {
+            renderInvalidScheduleError();
+            setFirestoreUi("Firestore 문서는 있지만 일정 데이터가 비어 있습니다.", false);
+          }
         } else {
           renderError(
             "Firestore 일정 문서가 없습니다",
