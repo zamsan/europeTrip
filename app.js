@@ -158,15 +158,50 @@ const fallbackSchedule = [
     date: "2026-08-04",
     dateLabel: "8월 4일 화요일",
     city: "런던",
-    title: "Eurostar로 파리 이동",
+    title: "유로스타 탑승 전 런던 마무리",
     items: [
       {
+        time: "07:30",
+        text: "☕ 조식 The Ivy Tower Bridge (또는 호텔 조식)",
+        mapUrl: "One Tower Bridge, Tower Bridge Rd, London SE1 2AA"
+      },
+      {
+        time: "08:30",
+        text: "호텔 체크아웃",
+        mapUrl: "The Tower Hotel, St Katharine's Way, London E1W 1LD"
+      },
+      {
+        time: "09:00",
+        text: "🚖 King's Cross 이동",
+        mapUrl: "King's Cross, London"
+      },
+      {
+        time: "09:20",
+        text: "📚 British Library (영국 도서관) - 킹조지 컬렉션, 마그나카르타, 비틀즈 원고, 해리포터 관련 전시",
+        mapUrl: "British Library, 96 Euston Rd, London NW1 2DB"
+      },
+      {
+        time: "10:00",
+        text: "🚶 St Pancras International",
+        mapUrl: "St Pancras International, Euston Rd, London N1C 4QP"
+      },
+      {
+        time: "10:10",
+        text: "사진 - St Pancras 역사, 9¾ 승강장, Harry Potter Shop",
+        mapUrl: "Harry Potter Shop at Platform 9 3/4, London"
+      },
+      {
+        time: "10:45",
+        text: "Eurostar 체크인",
+        mapUrl: "St Pancras International, Euston Rd, London N1C 4QP"
+      },
+      {
         time: "12:00",
-        text: "🚄 Eurostar 출발",
+        text: "🚄 유로스타 출발",
         mapUrl: "St Pancras International, Euston Rd, London N1C 4QP"
       }
     ],
-    note: "St Pancras International, Euston Rd, London N1C 4QP",
+    note: "영국 도서관은 킹조지 컬렉션, 마그나카르타, 비틀즈 원고, 해리포터 관련 전시를 시간 여유에 따라 가볍게 봅니다.",
     type: "transfer"
   },
   {
