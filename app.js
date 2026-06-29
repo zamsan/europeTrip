@@ -36,54 +36,64 @@ const fallbackSchedule = [
     title: "런던 클래식 명소",
     items: [
       {
-        time: "",
+        time: "08:00",
         text: "☕ 조식 WatchHouse Tower Bridge (워치하우스 타워브리지)",
         mapUrl: "37 Shad Thames, London SE1 2NJ"
       },
       {
-        time: "",
+        time: "09:00",
         text: "👑 Buckingham Palace (버킹엄 궁전)",
         mapUrl: "London SW1A 1AA"
       },
       {
-        time: "",
+        time: "09:40",
         text: "🌳 St James's Park (세인트 제임스 파크)",
         mapUrl: "London SW1A 2BJ"
       },
       {
-        time: "",
+        time: "10:30",
         text: "⛪ Westminster Abbey (웨스트민스터 사원)",
         mapUrl: "20 Deans Yd, London SW1P 3PA"
       },
       {
-        time: "",
+        time: "11:15",
         text: "🕰 Big Ben (빅벤)",
         mapUrl: "London SW1A 0AA"
       },
       {
-        time: "",
+        time: "12:00",
+        text: "🚖 Covent Garden 이동",
+        mapUrl: "Covent Garden, London WC2E 8RF"
+      },
+      {
+        time: "12:30",
         text: "점심 🍴 The Red Lion (더 레드 라이언)",
         mapUrl: "48 Parliament St, London SW1A 2NH"
       },
       {
-        time: "",
+        time: "14:00",
         text: "🎭 Covent Garden (코벤트 가든)",
         mapUrl: "London WC2E 8RF"
       },
       {
-        time: "",
+        time: "15:30",
         text: "📺 Piccadilly Circus (피카딜리 서커스)",
         mapUrl: "London W1J 9HS"
       },
       {
-        time: "",
+        time: "16:30",
         text: "🕵️ 221B Baker Street (셜록 홈즈 박물관)",
         mapUrl: "221B Baker St, London NW1 6XE"
       },
       {
-        time: "",
+        time: "18:30",
         text: "저녁 🇰🇷 KIMCHEE Pancras (김치 판크라스)",
         mapUrl: "2 Pancras Square, King's Cross, London N1C 4AG"
+      },
+      {
+        time: "20:00",
+        text: "🏨 호텔 복귀",
+        mapUrl: "The Tower Hotel, St Katharine's Way, London E1W 1LD"
       }
     ],
     note: "버킹엄 궁전, 세인트 제임스 파크, 웨스트민스터, 코벤트 가든, 피카딜리, 베이커 스트리트까지 이어지는 런던 대표 코스입니다.",
