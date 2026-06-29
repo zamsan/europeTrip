@@ -433,7 +433,11 @@ function renderItemEditorRow(item = {}) {
       </label>
       <label class="item-editor-map">
         위치/지도 링크
-        <input name="itemMapUrl" type="text" value="${escapeHtml(normalizedItem.mapUrl)}" placeholder="루브르 또는 https://maps.google.com/..." autocomplete="off">
+        <div class="map-input-row">
+          <input name="itemMapUrl" type="text" value="${escapeHtml(normalizedItem.mapUrl)}" placeholder="루브르 또는 https://maps.google.com/..." autocomplete="off">
+          <button class="card-edit-button ghost map-action-button" type="button" data-open-map>지도 열기</button>
+          <button class="card-edit-button ghost map-action-button" type="button" data-paste-map>붙여넣기</button>
+        </div>
       </label>
       <button class="card-edit-button ghost item-delete-button" type="button" data-delete-item>삭제</button>
     </div>
@@ -609,7 +613,7 @@ function wireTimelineEditing() {
     return;
   }
 
-  timelineEl.addEventListener("click", (event) => {
+  timelineEl.addEventListener("click", async (event) => {
     const editButton = event.target.closest("[data-edit-index]");
     if (editButton) {
       const index = editButton.dataset.editIndex;
@@ -626,6 +630,38 @@ function wireTimelineEditing() {
       const itemList = editor?.querySelector("[data-item-list]");
       if (itemList) {
         itemList.insertAdjacentHTML("beforeend", renderItemEditorRow());
+      }
+      return;
+    }
+
+    const openMapButton = event.target.closest("[data-open-map]");
+    if (openMapButton) {
+      const row = openMapButton.closest("[data-item-row]");
+      const mapInput = row?.querySelector('[name="itemMapUrl"]');
+      const textInput = row?.querySelector('[name="itemText"]');
+      const mapValue = String(mapInput?.value || "").trim();
+      const textValue = String(textInput?.value || "").trim();
+      const mapHref = getMapHref(mapValue || textValue) || "https://www.google.com/maps";
+      window.open(mapHref, "_blank", "noopener");
+      return;
+    }
+
+    const pasteMapButton = event.target.closest("[data-paste-map]");
+    if (pasteMapButton) {
+      const row = pasteMapButton.closest("[data-item-row]");
+      const mapInput = row?.querySelector('[name="itemMapUrl"]');
+
+      try {
+        const clipboardText = await navigator.clipboard.readText();
+        if (mapInput && clipboardText.trim()) {
+          mapInput.value = clipboardText.trim();
+          setFirestoreUi("지도 링크를 입력했습니다. 저장을 눌러 반영하세요.", true);
+        } else {
+          setFirestoreUi("클립보드에 붙여넣을 지도 링크가 없습니다.", false);
+        }
+      } catch (error) {
+        console.warn(error);
+        setFirestoreUi("클립보드 권한이 막혔습니다. 지도 링크를 직접 붙여넣어 주세요.", false);
       }
       return;
     }

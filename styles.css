@@ -363,7 +363,7 @@ p {
 
 .item-editor-row {
   display: grid;
-  grid-template-columns: minmax(110px, 0.45fr) minmax(180px, 1fr) minmax(220px, 1fr) auto;
+  grid-template-columns: minmax(110px, 0.45fr) minmax(180px, 1fr) minmax(320px, 1.35fr) auto;
   gap: 10px;
   align-items: end;
   padding: 12px;
@@ -374,6 +374,17 @@ p {
 
 .item-delete-button {
   min-height: 42px;
+}
+
+.map-input-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 8px;
+}
+
+.map-action-button {
+  min-height: 42px;
+  padding: 7px 10px;
 }
 
 .time-picker {
@@ -490,7 +501,12 @@ p {
     grid-template-columns: 1fr;
   }
 
+  .map-input-row {
+    grid-template-columns: 1fr;
+  }
+
   .edit-button,
+  .map-action-button,
   .item-delete-button,
   .inline-editor-actions {
     width: 100%;
