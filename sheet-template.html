@@ -71,7 +71,13 @@
         top: 0;
         background: #1f2933;
         color: #fff;
-        white-space: nowrap;
+      }
+
+      th span {
+        display: block;
+        color: rgba(255, 255, 255, 0.72);
+        font-size: 0.78rem;
+        font-weight: 700;
       }
 
       td:last-child,
@@ -112,16 +118,16 @@
         <table>
           <thead>
             <tr>
-              <th>date</th>
-              <th>dateLabel</th>
-              <th>city</th>
-              <th>title</th>
-              <th>item1</th>
-              <th>item2</th>
-              <th>item3</th>
-              <th>item4</th>
-              <th>note</th>
-              <th>type</th>
+              <th>date<span>날짜</span></th>
+              <th>dateLabel<span>표시 날짜</span></th>
+              <th>city<span>도시</span></th>
+              <th>title<span>일정 제목</span></th>
+              <th>item1<span>일정 1</span></th>
+              <th>item2<span>일정 2</span></th>
+              <th>item3<span>일정 3</span></th>
+              <th>item4<span>일정 4</span></th>
+              <th>note<span>메모</span></th>
+              <th>type<span>구분</span></th>
             </tr>
           </thead>
           <tbody>

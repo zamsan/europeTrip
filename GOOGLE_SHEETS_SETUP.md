@@ -6,7 +6,7 @@
 
 샘플 표를 브라우저에서 확인하려면 `sheet-template.html`을 열면 됩니다.
 
-Google Sheets에는 `sheet-template.csv`를 가져오거나, 아래 열 이름으로 새 시트를 만듭니다.
+Google Sheets에는 `sheet-template.csv`를 가져오거나, 아래 열 이름으로 새 시트를 만듭니다. 웹페이지는 영문 열 이름과 한글 열 이름을 둘 다 인식합니다.
 
 ```text
 date,dateLabel,city,title,item1,item2,item3,item4,note,type
@@ -19,6 +19,16 @@ date,dateLabel,city,title,item1,item2,item3,item4,note,type
 ```
 
 `type` 또는 `구분`에는 비워두거나 `transfer`, `return`을 넣으면 카드 왼쪽 색이 바뀝니다.
+
+열 의미:
+
+- `date` / `날짜`: 정렬과 HTML 날짜값에 쓰는 날짜입니다. 예: `2026-08-01`
+- `dateLabel` / `날짜표시`: 화면에 보이는 날짜입니다. 예: `8월 1일 토요일`
+- `city` / `도시`: 도시 태그입니다. 예: `런던`, `파리`
+- `title` / `제목`: 일정 카드 제목입니다.
+- `item1`-`item4` / `일정1`-`일정4`: 카드 안에 목록으로 보이는 세부 일정입니다.
+- `note` / `메모`: 카드 하단의 참고 문구입니다.
+- `type` / `구분`: `transfer` 또는 `return`을 넣으면 강조 색이 바뀝니다.
 
 ## 2. 같이 수정할 사람 초대
 
