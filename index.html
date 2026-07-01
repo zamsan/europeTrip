@@ -6,10 +6,10 @@
     <meta name="description" content="2026년 8월 런던·파리 유럽 여행 일정">
     <title>런던·파리 2026 여행 일정</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-    <link rel="stylesheet" href="styles.css?v=24">
+    <link rel="stylesheet" href="styles.css?v=27">
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
-    <script src="config.js?v=24" defer></script>
-    <script src="app.js?v=24" defer></script>
+    <script src="config.js?v=27" defer></script>
+    <script src="app.js?v=27" defer></script>
   </head>
   <body>
     <header class="hero" id="top">
@@ -70,31 +70,265 @@
           <p class="eyebrow">Bookings</p>
           <h2 id="booking-title">예약 정보</h2>
         </div>
-        <div class="booking-table" role="table" aria-label="예약 정보">
-          <div role="row" class="table-head">
-            <span role="columnheader">구분</span>
-            <span role="columnheader">내용</span>
-            <span role="columnheader">상태</span>
+        <div class="booking-tabs" role="tablist" aria-label="예약 정보 분류">
+          <button class="booking-tab is-active" id="booking-tab-core" type="button" role="tab" aria-selected="true" aria-controls="booking-panel-core" data-booking-tab="core">기본 예약</button>
+          <button class="booking-tab" id="booking-tab-restaurants" type="button" role="tab" aria-selected="false" aria-controls="booking-panel-restaurants" data-booking-tab="restaurants">식당 예약</button>
+        </div>
+        <div class="booking-panel" id="booking-panel-core" role="tabpanel" aria-labelledby="booking-tab-core" data-booking-panel="core">
+          <div class="booking-table" role="table" aria-label="예약 정보">
+            <div role="row" class="table-head">
+              <span role="columnheader">구분</span>
+              <span role="columnheader">내용</span>
+              <span role="columnheader">상태</span>
+            </div>
+            <div role="row">
+              <span role="cell">항공</span>
+              <span role="cell">KE907 · KE902</span>
+              <span role="cell">예약 완료</span>
+            </div>
+            <div role="row">
+              <span role="cell">Eurostar</span>
+              <span role="cell">8월 4일 12:00 런던 -> 파리</span>
+              <span role="cell">예약 완료</span>
+            </div>
+            <div role="row">
+              <span role="cell">런던 숙소</span>
+              <span role="cell">The Tower Hotel</span>
+              <span role="cell">예약 완료</span>
+            </div>
+            <div role="row">
+              <span role="cell">파리 숙소</span>
+              <span role="cell">Hyatt Regency Paris Étoile</span>
+              <span role="cell">예약 완료</span>
+            </div>
           </div>
-          <div role="row">
-            <span role="cell">항공</span>
-            <span role="cell">KE907 · KE902</span>
-            <span role="cell">예약 완료</span>
-          </div>
-          <div role="row">
-            <span role="cell">Eurostar</span>
-            <span role="cell">8월 4일 12:00 런던 -> 파리</span>
-            <span role="cell">예약 완료</span>
-          </div>
-          <div role="row">
-            <span role="cell">런던 숙소</span>
-            <span role="cell">The Tower Hotel</span>
-            <span role="cell">예약 완료</span>
-          </div>
-          <div role="row">
-            <span role="cell">파리 숙소</span>
-            <span role="cell">Hyatt Regency Paris Étoile</span>
-            <span role="cell">예약 완료</span>
+        </div>
+        <div class="booking-panel" id="booking-panel-restaurants" role="tabpanel" aria-labelledby="booking-tab-restaurants" data-booking-panel="restaurants" hidden>
+          <div class="restaurant-list" aria-label="날짜별 추천 예약 식당">
+            <section class="restaurant-day" aria-labelledby="restaurant-day-1">
+              <div class="restaurant-day-head">
+                <h3 id="restaurant-day-1" class="restaurant-date">8월 1일 토 · 런던 도착</h3>
+                <p class="restaurant-day-note">타워 호텔 도보권, 첫날은 이동 부담 낮은 곳 우선</p>
+              </div>
+              <div class="restaurant-options">
+                <article class="restaurant-card" id="restaurant-dickens-inn">
+                  <h4><span class="restaurant-rank">1순위</span>The Dickens Inn</h4>
+                  <p>세인트 캐서린 독스 안쪽의 펍형 레스토랑. 장거리 비행 첫날 19:30 전후로 가장 무난합니다.</p>
+                  <div class="restaurant-actions">
+                    <a href="https://www.dickensinn.co.uk/" target="_blank" rel="noopener">공식 예약</a>
+                    <a href="https://www.google.com/maps/search/?api=1&query=The%20Dickens%20Inn%20St%20Katharine%20Docks%20London" target="_blank" rel="noopener">지도</a>
+                  </div>
+                </article>
+                <article class="restaurant-card" id="restaurant-ivy-tower-bridge">
+                  <h4><span class="restaurant-rank">대안</span>The Ivy Tower Bridge</h4>
+                  <p>타워브리지 쪽 브라세리 분위기. 첫날 저녁을 조금 더 차분하게 잡고 싶을 때 좋습니다.</p>
+                  <div class="restaurant-actions">
+                    <a href="https://theivycollection.com/restaurants/the-ivy-tower-bridge/" target="_blank" rel="noopener">공식 예약</a>
+                    <a href="https://www.google.com/maps/search/?api=1&query=The%20Ivy%20Tower%20Bridge%20London" target="_blank" rel="noopener">지도</a>
+                  </div>
+                </article>
+                <article class="restaurant-card" id="restaurant-coppa-club-tower-bridge">
+                  <h4><span class="restaurant-rank">가볍게</span>Coppa Club Tower Bridge</h4>
+                  <p>강변 산책 후 가볍게 먹기 좋은 선택지. 컨디션이 애매하면 이쪽이 편합니다.</p>
+                  <div class="restaurant-actions">
+                    <a href="https://www.coppaclub.co.uk/towerbridge/" target="_blank" rel="noopener">공식 예약</a>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Coppa%20Club%20Tower%20Bridge%20London" target="_blank" rel="noopener">지도</a>
+                  </div>
+                </article>
+              </div>
+            </section>
+            <section class="restaurant-day" aria-labelledby="restaurant-day-2">
+              <div class="restaurant-day-head">
+                <h3 id="restaurant-day-2" class="restaurant-date">8월 2일 일 · 런던 시내</h3>
+                <p class="restaurant-day-note">킹스크로스/세인트판크라스 쪽으로 저녁 동선 정리</p>
+              </div>
+              <div class="restaurant-options">
+                <article class="restaurant-card" id="restaurant-german-gymnasium">
+                  <h4><span class="restaurant-rank">1순위</span>German Gymnasium</h4>
+                  <p>예약형 레스토랑으로 일정 마무리가 안정적입니다. 역 근처라 복귀 동선도 깔끔합니다.</p>
+                  <div class="restaurant-actions">
+                    <a href="https://germangymnasium.com/" target="_blank" rel="noopener">공식 예약</a>
+                    <a href="https://www.google.com/maps/search/?api=1&query=German%20Gymnasium%20King%27s%20Cross%20London" target="_blank" rel="noopener">지도</a>
+                  </div>
+                </article>
+                <article class="restaurant-card" id="restaurant-caravan-kings-cross">
+                  <h4><span class="restaurant-rank">대안</span>Caravan King's Cross</h4>
+                  <p>그라너리 스퀘어의 캐주얼 올데이 다이닝. 메뉴 폭이 넓어 취향 맞추기가 쉽습니다.</p>
+                  <div class="restaurant-actions">
+                    <a href="https://www.caravanrestaurants.co.uk/kings-cross.html" target="_blank" rel="noopener">공식 예약</a>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Caravan%20King%27s%20Cross%20London" target="_blank" rel="noopener">지도</a>
+                  </div>
+                </article>
+                <article class="restaurant-card" id="restaurant-dishoom-kings-cross">
+                  <h4><span class="restaurant-rank">인기</span>Dishoom King's Cross</h4>
+                  <p>분위기 좋은 인기 식당. 저녁은 인원수별 예약 조건이 달라서 공식 페이지 확인이 필요합니다.</p>
+                  <div class="restaurant-actions">
+                    <a href="https://www.dishoom.com/kings-cross/" target="_blank" rel="noopener">공식 예약</a>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Dishoom%20King%27s%20Cross%20London" target="_blank" rel="noopener">지도</a>
+                  </div>
+                </article>
+              </div>
+            </section>
+            <section class="restaurant-day" aria-labelledby="restaurant-day-3">
+              <div class="restaurant-day-head">
+                <h3 id="restaurant-day-3" class="restaurant-date">8월 3일 월 · 스카이 가든</h3>
+                <p class="restaurant-day-note">전망대 입장과 저녁 예약을 한 번에 묶는 날</p>
+              </div>
+              <div class="restaurant-options">
+                <article class="restaurant-card" id="restaurant-darwin-brasserie">
+                  <h4><span class="restaurant-rank">1순위</span>Darwin Brasserie</h4>
+                  <p>스카이 가든 안에서 식사까지 해결. 무료입장권 실패 시에도 대체 동선이 단순합니다.</p>
+                  <div class="restaurant-actions">
+                    <a href="https://skygarden.london/restaurants/darwin-brasserie/" target="_blank" rel="noopener">공식 예약</a>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Darwin%20Brasserie%20Sky%20Garden%20London" target="_blank" rel="noopener">지도</a>
+                  </div>
+                </article>
+                <article class="restaurant-card" id="restaurant-fenchurch">
+                  <h4><span class="restaurant-rank">전망</span>Fenchurch Restaurant</h4>
+                  <p>더 포멀한 전망 디너 후보. 기념일 느낌을 살리고 싶으면 이쪽을 먼저 봅니다.</p>
+                  <div class="restaurant-actions">
+                    <a href="https://skygarden.london/restaurants/fenchurch/" target="_blank" rel="noopener">공식 예약</a>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Fenchurch%20Restaurant%20Sky%20Garden%20London" target="_blank" rel="noopener">지도</a>
+                  </div>
+                </article>
+                <article class="restaurant-card" id="restaurant-larch">
+                  <h4><span class="restaurant-rank">캐주얼</span>Larch Restaurant</h4>
+                  <p>스카이 가든 계열의 캐주얼 이탈리안. 가볍게 예약하고 전망 일정을 유지하기 좋습니다.</p>
+                  <div class="restaurant-actions">
+                    <a href="https://skygarden.london/restaurants/larch-restaurant/" target="_blank" rel="noopener">공식 예약</a>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Larch%20Restaurant%20Sky%20Garden%20London" target="_blank" rel="noopener">지도</a>
+                  </div>
+                </article>
+              </div>
+            </section>
+            <section class="restaurant-day" aria-labelledby="restaurant-day-4">
+              <div class="restaurant-day-head">
+                <h3 id="restaurant-day-4" class="restaurant-date">8월 4일 화 · 파리 도착</h3>
+                <p class="restaurant-day-note">개선문과 샹젤리제 산책 후 20:00 전후 후보</p>
+              </div>
+              <div class="restaurant-options">
+                <article class="restaurant-card" id="restaurant-fouquets-paris">
+                  <h4><span class="restaurant-rank">1순위</span>Fouquet's Paris</h4>
+                  <p>샹젤리제 대표 브라세리. 파리 첫 저녁을 상징적으로 잡고 싶을 때 가장 잘 맞습니다.</p>
+                  <div class="restaurant-actions">
+                    <a href="https://www.hotelsbarriere.com/en/paris/le-fouquets/restaurants-and-bars/fouquets.html" target="_blank" rel="noopener">공식 예약</a>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Fouquet%27s%20Paris%20Champs-Elysees" target="_blank" rel="noopener">지도</a>
+                  </div>
+                </article>
+                <article class="restaurant-card" id="restaurant-lalsace">
+                  <h4><span class="restaurant-rank">대안</span>L'Alsace</h4>
+                  <p>샹젤리제에 바로 붙는 프렌치 브라세리 후보. 해산물/브라세리 메뉴로 무난합니다.</p>
+                  <div class="restaurant-actions">
+                    <a href="https://www.lalsace-paris.com/" target="_blank" rel="noopener">공식 예약</a>
+                    <a href="https://www.google.com/maps/search/?api=1&query=L%27Alsace%20Champs-Elysees%20Paris" target="_blank" rel="noopener">지도</a>
+                  </div>
+                </article>
+                <article class="restaurant-card" id="restaurant-girafe-day4">
+                  <h4><span class="restaurant-rank">전망</span>Girafe</h4>
+                  <p>트로카데로 쪽 에펠탑 전망 후보. 파리 첫날을 뷰 중심으로 바꾸고 싶을 때 선택합니다.</p>
+                  <div class="restaurant-actions">
+                    <a href="https://girafe-restaurant.com/" target="_blank" rel="noopener">공식 예약</a>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Girafe%20Restaurant%20Paris" target="_blank" rel="noopener">지도</a>
+                  </div>
+                </article>
+              </div>
+            </section>
+            <section class="restaurant-day" aria-labelledby="restaurant-day-5">
+              <div class="restaurant-day-head">
+                <h3 id="restaurant-day-5" class="restaurant-date">8월 5일 수 · 에펠탑/몽마르트르</h3>
+                <p class="restaurant-day-note">몽마르트르 이후 Pigalle 또는 에펠탑 전망 중 선택</p>
+              </div>
+              <div class="restaurant-options">
+                <article class="restaurant-card" id="restaurant-pink-mamma">
+                  <h4><span class="restaurant-rank">1순위</span>Pink Mamma</h4>
+                  <p>몽마르트르 일정 뒤 Pigalle에서 마무리하기 좋은 인기 이탈리안. 예약 우선순위가 높습니다.</p>
+                  <div class="restaurant-actions">
+                    <a href="https://www.bigmammagroup.com/italian-restaurants/pink-mamma" target="_blank" rel="noopener">공식 예약</a>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Pink%20Mamma%20Paris" target="_blank" rel="noopener">지도</a>
+                  </div>
+                </article>
+                <article class="restaurant-card" id="restaurant-girafe-day5">
+                  <h4><span class="restaurant-rank">전망</span>Girafe</h4>
+                  <p>에펠탑 쪽 시간을 늘리고 싶을 때 좋은 뷰 레스토랑. 분위기는 더 포멀합니다.</p>
+                  <div class="restaurant-actions">
+                    <a href="https://girafe-restaurant.com/" target="_blank" rel="noopener">공식 예약</a>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Girafe%20Restaurant%20Paris" target="_blank" rel="noopener">지도</a>
+                  </div>
+                </article>
+                <article class="restaurant-card" id="restaurant-relais-entrecote">
+                  <h4><span class="restaurant-rank">클래식</span>Le Relais de l'Entrecôte</h4>
+                  <p>스테이크 프리트 중심의 단순한 선택지. 예약/대기 조건은 방문 전 공식 안내를 확인합니다.</p>
+                  <div class="restaurant-actions">
+                    <a href="https://www.relaisentrecote.fr/?lang=en" target="_blank" rel="noopener">공식 사이트</a>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Le%20Relais%20de%20l%27Entrecote%20Marbeuf%20Paris" target="_blank" rel="noopener">지도</a>
+                  </div>
+                </article>
+              </div>
+            </section>
+            <section class="restaurant-day" aria-labelledby="restaurant-day-6">
+              <div class="restaurant-day-head">
+                <h3 id="restaurant-day-6" class="restaurant-date">8월 6일 목 · 루브르/오페라</h3>
+                <p class="restaurant-day-note">여행 후반 컨디션 회복 또는 루브르 근처 분위기 선택</p>
+              </div>
+              <div class="restaurant-options">
+                <article class="restaurant-card" id="restaurant-soon-grill">
+                  <h4><span class="restaurant-rank">1순위</span>Soon Grill Le Marais</h4>
+                  <p>후반부에 부담 없는 한식 바비큐로 회복하는 저녁. 택시 이동으로 잡기 좋습니다.</p>
+                  <div class="restaurant-actions">
+                    <a href="https://www.soongrill.fr/" target="_blank" rel="noopener">공식 예약</a>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Soon%20Grill%20Le%20Marais%20Paris" target="_blank" rel="noopener">지도</a>
+                  </div>
+                </article>
+                <article class="restaurant-card" id="restaurant-cafe-marly">
+                  <h4><span class="restaurant-rank">루브르</span>Café Marly</h4>
+                  <p>루브르 안뜰 분위기를 살리는 후보. 가격대는 높지만 위치와 장면감이 좋습니다.</p>
+                  <div class="restaurant-actions">
+                    <a href="https://beaumarly.com/en/addresses/cafe-marly/" target="_blank" rel="noopener">공식 예약</a>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Cafe%20Marly%20Paris" target="_blank" rel="noopener">지도</a>
+                  </div>
+                </article>
+                <article class="restaurant-card" id="restaurant-bouillon-republique">
+                  <h4><span class="restaurant-rank">가성비</span>Bouillon République</h4>
+                  <p>캐주얼 프렌치로 부담을 낮추는 선택. 대기/예약 상황에 따라 유연하게 보기 좋습니다.</p>
+                  <div class="restaurant-actions">
+                    <a href="https://bouillonlesite.com/bouillon-republique" target="_blank" rel="noopener">공식 사이트</a>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Bouillon%20Republique%20Paris" target="_blank" rel="noopener">지도</a>
+                  </div>
+                </article>
+              </div>
+            </section>
+            <section class="restaurant-day" aria-labelledby="restaurant-day-7">
+              <div class="restaurant-day-head">
+                <h3 id="restaurant-day-7" class="restaurant-date">8월 7일 금 · 귀국일</h3>
+                <p class="restaurant-day-note">생제르맹 브런치/카페 중심, 일정은 가볍게</p>
+              </div>
+              <div class="restaurant-options">
+                <article class="restaurant-card" id="restaurant-cafe-de-flore">
+                  <h4><span class="restaurant-rank">1순위</span>Café de Flore</h4>
+                  <p>생제르맹 산책용 브런치 후보. 귀국일은 긴 식사보다 오픈 시간대 방문이 편합니다.</p>
+                  <div class="restaurant-actions">
+                    <a href="https://cafedeflore.fr/" target="_blank" rel="noopener">공식 사이트</a>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Cafe%20de%20Flore%20Paris" target="_blank" rel="noopener">지도</a>
+                  </div>
+                </article>
+                <article class="restaurant-card" id="restaurant-les-deux-magots">
+                  <h4><span class="restaurant-rank">대안</span>Les Deux Magots</h4>
+                  <p>바로 근처의 생제르맹 클래식 카페. Café de Flore가 붐비면 자연스럽게 대체합니다.</p>
+                  <div class="restaurant-actions">
+                    <a href="https://www.lesdeuxmagots.fr/" target="_blank" rel="noopener">공식 사이트</a>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Les%20Deux%20Magots%20Paris" target="_blank" rel="noopener">지도</a>
+                  </div>
+                </article>
+                <article class="restaurant-card" id="restaurant-brasserie-lipp">
+                  <h4><span class="restaurant-rank">식사</span>Brasserie Lipp</h4>
+                  <p>카페보다 제대로 식사하고 싶을 때 좋은 생제르맹 브라세리. 늦은 시간까지 여유가 있습니다.</p>
+                  <div class="restaurant-actions">
+                    <a href="https://www.brasserielipp.fr/en/" target="_blank" rel="noopener">공식 예약</a>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Brasserie%20Lipp%20Paris" target="_blank" rel="noopener">지도</a>
+                  </div>
+                </article>
+              </div>
+            </section>
           </div>
         </div>
       </section>
@@ -114,8 +348,13 @@
           <li>☑ 7월 13일 Sky Garden 무료입장권 확인 알림 설정 완료</li>
           <li>□ Eiffel Tower</li>
           <li>□ Louvre Museum</li>
+          <li>□ 8월 1일 The Dickens Inn</li>
+          <li>□ 8월 2일 German Gymnasium</li>
+          <li>□ 8월 3일 Darwin Brasserie</li>
+          <li>□ 8월 4일 Fouquet's Paris</li>
           <li>□ Pink Mamma (예약 권장)</li>
           <li>□ Soon Grill (예약 권장)</li>
+          <li>□ 8월 7일 Café de Flore 운영시간 확인</li>
         </ul>
       </section>
     </main>

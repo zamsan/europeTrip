@@ -386,6 +386,8 @@ const editUnlockFormEl = document.querySelector("#editUnlockForm");
 const editPasswordEl = document.querySelector("#editPassword");
 const editLockEl = document.querySelector("#editLock");
 const bookingChecklistEl = document.querySelector("#bookingChecklist");
+const bookingTabEls = Array.from(document.querySelectorAll("[data-booking-tab]"));
+const bookingPanelEls = Array.from(document.querySelectorAll("[data-booking-panel]"));
 const routeMapEl = document.querySelector("#routeMap");
 const routeFilterEls = Array.from(document.querySelectorAll("[data-route-filter]"));
 
@@ -423,6 +425,21 @@ const routePoints = [
   { country: "paris", day: "8/7", title: "Charles de Gaulle Airport", lat: 49.0097, lng: 2.5479 }
 ];
 
+const restaurantLinks = [
+  { match: ["The Dickens Inn", "더 디킨스 인"], targetId: "restaurant-dickens-inn", label: "식당 예약" },
+  { match: ["The Ivy Tower Bridge", "더 아이비 타워브리지"], targetId: "restaurant-ivy-tower-bridge", label: "식당 예약" },
+  { match: ["German Gymnasium"], targetId: "restaurant-german-gymnasium", label: "식당 예약" },
+  { match: ["KIMCHEE Pancras", "김치 판크라스"], targetId: "restaurant-german-gymnasium", label: "추천 예약" },
+  { match: ["Sky Garden", "스카이 가든"], targetId: "restaurant-darwin-brasserie", label: "식당 예약" },
+  { match: ["Bouillon Chartier", "부이용 샤르티에"], targetId: "restaurant-fouquets-paris", label: "추천 예약" },
+  { match: ["Fouquet"], targetId: "restaurant-fouquets-paris", label: "식당 예약" },
+  { match: ["Le Relais de l'Entrecote", "Le Relais de l'Entrecôte", "르 를레 드 랑트르코트"], targetId: "restaurant-relais-entrecote", label: "식당 예약" },
+  { match: ["Pink Mamma", "핑크 마마"], targetId: "restaurant-pink-mamma", label: "식당 예약" },
+  { match: ["Café Marly", "Cafe Marly", "카페 마를리"], targetId: "restaurant-cafe-marly", label: "식당 예약" },
+  { match: ["Soon Grill", "순그릴"], targetId: "restaurant-soon-grill", label: "식당 예약" },
+  { match: ["Café de Flore", "Cafe de Flore", "카페 드 플로르"], targetId: "restaurant-cafe-de-flore", label: "식당 예약" }
+];
+
 const defaultChecklist = [
   { id: "flight", label: "항공", checked: true, url: "", note: "" },
   { id: "hotel", label: "호텔", checked: true, url: "", note: "" },
@@ -433,8 +450,13 @@ const defaultChecklist = [
   { id: "sky-garden-reminder", label: "7월 13일 Sky Garden 무료입장권 확인 알림 설정 완료", checked: true, url: "", note: "" },
   { id: "eiffel-tower", label: "Eiffel Tower", checked: false, url: "", note: "" },
   { id: "louvre", label: "Louvre Museum", checked: false, url: "", note: "" },
-  { id: "pink-mamma", label: "Pink Mamma (예약 권장)", checked: false, url: "", note: "" },
-  { id: "soon-grill", label: "Soon Grill (예약 권장)", checked: false, url: "", note: "" }
+  { id: "dickens-inn", label: "8월 1일 The Dickens Inn", checked: false, url: "https://www.dickensinn.co.uk/", note: "런던 도착일 19:30 후보" },
+  { id: "german-gymnasium", label: "8월 2일 German Gymnasium", checked: false, url: "https://germangymnasium.com/", note: "킹스크로스 저녁 후보" },
+  { id: "darwin-brasserie", label: "8월 3일 Darwin Brasserie", checked: false, url: "https://skygarden.london/", note: "스카이 가든 방문과 저녁 묶기" },
+  { id: "fouquets-paris", label: "8월 4일 Fouquet's Paris", checked: false, url: "https://www.hotelsbarriere.com/en/paris/le-fouquets/restaurants-and-bars/fouquets.html", note: "파리 도착일 20:00 전후 후보" },
+  { id: "pink-mamma", label: "8월 5일 Pink Mamma", checked: false, url: "https://www.bigmammagroup.com/italian-restaurants/pink-mamma", note: "몽마르트르 이후 예약 우선" },
+  { id: "soon-grill", label: "8월 6일 Soon Grill Le Marais", checked: false, url: "https://www.soongrill.fr/", note: "루브르/쇼핑 후 저녁 후보" },
+  { id: "cafe-de-flore", label: "8월 7일 Café de Flore 운영시간 확인", checked: false, url: "https://cafedeflore.fr/", note: "귀국일 브런치 후보" }
 ];
 
 let currentSchedule = [];
@@ -568,6 +590,49 @@ function getMapHref(value) {
   }
 
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
+}
+
+function getRestaurantLink(item) {
+  const text = String(item?.text || "");
+  const date = String(item?.date || "");
+
+  return restaurantLinks.find((link) => {
+    if (link.date && link.date !== date) {
+      return false;
+    }
+
+    return link.match.some((keyword) => text.includes(keyword));
+  });
+}
+
+function openBookingTab(selectedTab) {
+  if (!bookingTabEls.length || !bookingPanelEls.length) {
+    return;
+  }
+
+  bookingTabEls.forEach((item) => {
+    const isSelected = item.dataset.bookingTab === selectedTab;
+    item.classList.toggle("is-active", isSelected);
+    item.setAttribute("aria-selected", String(isSelected));
+  });
+
+  bookingPanelEls.forEach((panel) => {
+    panel.hidden = panel.dataset.bookingPanel !== selectedTab;
+  });
+}
+
+function focusRestaurantCard(targetId) {
+  openBookingTab("restaurants");
+
+  const target = document.getElementById(targetId);
+  if (!target) {
+    return;
+  }
+
+  target.scrollIntoView({ behavior: "smooth", block: "center" });
+  target.classList.remove("is-targeted");
+  window.setTimeout(() => target.classList.add("is-targeted"), 0);
+  window.setTimeout(() => target.classList.remove("is-targeted"), 1800);
 }
 
 function splitTime(value) {
@@ -1054,11 +1119,15 @@ function rowsToSchedule(csvText) {
   }).filter((item) => item.title || item.items.length);
 }
 
-function renderScheduleItem(item, dayIndex, itemIndex) {
+function renderScheduleItem(item, dayIndex, itemIndex, day) {
   const time = item.time ? `<span class="item-time">${escapeHtml(item.time)}</span>` : "";
   const routeId = `${dayIndex}-${itemIndex}`;
   const mapLink = item.lat && item.lng
     ? `<button class="map-link" type="button" data-route-focus="${escapeHtml(routeId)}">지도</button>`
+    : "";
+  const restaurantLink = getRestaurantLink({ ...item, date: day?.date });
+  const restaurantButton = restaurantLink
+    ? `<button class="restaurant-jump-link" type="button" data-restaurant-target="${escapeHtml(restaurantLink.targetId)}">${escapeHtml(restaurantLink.label)}</button>`
     : "";
 
   return `
@@ -1066,6 +1135,7 @@ function renderScheduleItem(item, dayIndex, itemIndex) {
       ${time}
       <span class="item-text">${escapeHtml(item.text || "일정 내용 미정")}</span>
       ${mapLink}
+      ${restaurantButton}
     </li>
   `;
 }
@@ -1083,7 +1153,7 @@ function renderSchedule(schedule) {
     const dateText = day.dateLabel || day.date || "날짜 미정";
     const city = day.city ? `<span class="city-tag">${escapeHtml(day.city)}</span>` : "";
     const typeTag = `<span class="type-tag${cardType ? ` ${cardType}` : ""}">${escapeHtml(getDayTypeLabel(day.type))}</span>`;
-    const items = day.items.map((item, itemIndex) => renderScheduleItem(item, index, itemIndex)).join("");
+    const items = day.items.map((item, itemIndex) => renderScheduleItem(item, index, itemIndex, day)).join("");
     const note = day.note ? `<p class="note">${escapeHtml(day.note)}</p>` : "";
     const editButton = canEdit()
       ? `<button class="card-edit-button" type="button" data-edit-index="${index}">수정</button>`
@@ -1365,6 +1435,18 @@ function wireChecklistEditing() {
   });
 }
 
+function wireBookingTabs() {
+  if (!bookingTabEls.length || !bookingPanelEls.length) {
+    return;
+  }
+
+  bookingTabEls.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      openBookingTab(tab.dataset.bookingTab);
+    });
+  });
+}
+
 function wireTimelineEditing() {
   if (!timelineEl) {
     return;
@@ -1374,6 +1456,12 @@ function wireTimelineEditing() {
     const routeFocusButton = event.target.closest("[data-route-focus]");
     if (routeFocusButton) {
       focusRoutePoint(routeFocusButton.dataset.routeFocus);
+      return;
+    }
+
+    const restaurantTargetButton = event.target.closest("[data-restaurant-target]");
+    if (restaurantTargetButton) {
+      focusRestaurantCard(restaurantTargetButton.dataset.restaurantTarget);
       return;
     }
 
@@ -1617,5 +1705,6 @@ async function loadSchedule() {
 }
 
 renderChecklist(defaultChecklist);
+wireBookingTabs();
 wireRouteMap();
 loadSchedule();
