@@ -46,18 +46,13 @@ const fallbackSchedule = [
         "mapUrl": "37 Shad Thames, London SE1 2NJ"
       },
       {
-        "time": "09:00",
-        "text": "👑 Buckingham Palace / 버킹엄 궁전",
-        "mapUrl": "London SW1A 1AA"
-      },
-      {
-        "time": "09:40",
-        "text": "🌳 St James's Park / 세인트 제임스 파크",
+        "time": "09:30",
+        "text": "🌳 St James's Park / 세인트 제임스 파크 산책",
         "mapUrl": "London SW1A 2BJ"
       },
       {
         "time": "10:30",
-        "text": "⛪ Westminster Abbey / 웨스트민스터 사원",
+        "text": "⛪ Westminster Abbey / 웨스트민스터 사원 - 일요일은 내부 관광 대신 외관 중심",
         "mapUrl": "20 Deans Yd, London SW1P 3PA"
       },
       {
@@ -96,18 +91,18 @@ const fallbackSchedule = [
         "mapUrl": "The Tower Hotel, St Katharine's Way, London E1W 1LD"
       }
     ],
-    "note": "버킹엄 궁전, 세인트 제임스 파크, 웨스트민스터, 코벤트 가든, 피카딜리, 베이커 스트리트까지 이어지는 런던 대표 코스입니다.",
+    "note": "버킹엄 궁전은 월요일 내부 관람으로 옮기고, 일요일은 세인트 제임스 파크와 웨스트민스터 외관, 코벤트 가든 중심으로 여유 있게 봅니다.",
     "type": ""
   },
   {
     "date": "2026-08-03",
     "dateLabel": "8월 3일 월요일",
     "city": "런던",
-    "title": "런던 동쪽 + 스카이 가든",
+    "title": "버킹엄 궁전 + 런던탑",
     "items": [
       {
         "time": "06:30",
-        "text": "🏃 선택 러닝 Tower Bridge Morning Run / 타워브리지 아침 러닝 - The Tower Hotel → Tower Bridge → Potters Fields Park → HMS Belfast → Tower Bridge → 호텔, 약 5km",
+        "text": "🏃 선택 러닝 Tower Bridge Morning Run / 약 10km 코스",
         "mapUrl": "Tower Bridge, London"
       },
       {
@@ -117,37 +112,37 @@ const fallbackSchedule = [
       },
       {
         "time": "09:30",
-        "text": "🏰 Tower of London / 런던탑 - 예약 권장",
-        "mapUrl": "London EC3N 4AB"
+        "text": "👑 Buckingham Palace / 버킹엄 궁전 State Rooms 내부 관람 - 사전 예약 권장",
+        "mapUrl": "London SW1A 1AA"
       },
       {
         "time": "12:00",
-        "text": "🍴 점심 Borough Market / 버러마켓 - 여러 음식 가볍게 먹기",
-        "mapUrl": "8 Southwark St, London SE1 1TL"
+        "text": "🚖 Tower of London 이동",
+        "mapUrl": "London EC3N 4AB"
+      },
+      {
+        "time": "12:30",
+        "text": "🍴 점심 Coppa Club Tower Bridge 또는 런던탑 근처 식사",
+        "mapUrl": "3 Three Quays Walk, Lower Thames St, London EC3R 6AH"
       },
       {
         "time": "14:00",
-        "text": "🏛 British Museum / 대영박물관 - 무료 예약 권장",
+        "text": "🏰 Tower of London / 런던탑 - 월요일 10:00 이후 운영, 예약 권장",
+        "mapUrl": "London EC3N 4AB"
+      },
+      {
+        "time": "16:30",
+        "text": "🏛 British Museum / 대영박물관 - 시간이 부족하면 짧게 보거나 생략",
         "mapUrl": "Great Russell St, London WC1B 3DG"
       },
       {
-        "time": "17:30",
+        "time": "18:30",
         "text": "🏨 호텔 또는 근처에서 잠시 휴식",
         "mapUrl": "The Tower Hotel, St Katharine's Way, London E1W 1LD"
       },
       {
-        "time": "18:30",
-        "text": "🌇 Sky Garden / 스카이 가든 - 무료 입장권 필요, 7월 13일 예약 오픈 확인 알림 설정 완료",
-        "mapUrl": "1 Sky Garden Walk, London EC3M 8AF"
-      },
-      {
-        "time": "20:45",
-        "text": "🌅 Sky Garden 일몰 감상",
-        "mapUrl": "1 Sky Garden Walk, London EC3M 8AF"
-      },
-      {
-        "time": "21:00",
-        "text": "🌃 Sky Garden 야경 감상",
+        "time": "19:30",
+        "text": "🍽 저녁 후보 Sky Garden 레스토랑 또는 호텔 근처 식사 - 8/3은 점검일이라 정원 자유 관람은 확인 필요",
         "mapUrl": "1 Sky Garden Walk, London EC3M 8AF"
       },
       {
@@ -166,7 +161,7 @@ const fallbackSchedule = [
         "mapUrl": "The Tower Hotel, St Katharine's Way, London E1W 1LD"
       }
     ],
-    "note": "런던탑, 버러마켓, 대영박물관을 본 뒤 스카이 가든 일몰과 야경으로 마무리합니다.",
+    "note": "버킹엄 궁전 내부 관람을 월요일 오전으로 옮기고, 월요일 휴무인 Borough Market은 제외했습니다. Sky Garden은 점검일이라 정원 관람은 확정 일정이 아닌 저녁 대체 후보로만 둡니다.",
     "type": ""
   },
   {
@@ -293,7 +288,7 @@ const fallbackSchedule = [
     "date": "2026-08-06",
     "dateLabel": "8월 6일 목요일",
     "city": "파리",
-    "title": "루브르 + 쇼핑 + 순그릴",
+    "title": "루브르 + 오페라 + 쇼핑 + 순그릴",
     "items": [
       {
         "time": "08:30",
@@ -312,13 +307,13 @@ const fallbackSchedule = [
       },
       {
         "time": "15:00",
-        "text": "🛍 Galeries Lafayette Haussmann / 갤러리 라파예트 오스만 - 쇼핑 + 무료 전망대",
-        "mapUrl": "40 Boulevard Haussmann, 75009 Paris"
+        "text": "🎭 Palais Garnier / 오페라 가르니에 - 15:30 이전 입장 추천",
+        "mapUrl": "Place de l'Opéra, 75009 Paris"
       },
       {
         "time": "16:30",
-        "text": "🎭 Palais Garnier / 오페라 가르니에",
-        "mapUrl": "Place de l'Opéra, 75009 Paris"
+        "text": "🛍 Galeries Lafayette Haussmann / 갤러리 라파예트 오스만 - 쇼핑 + 무료 전망대",
+        "mapUrl": "40 Boulevard Haussmann, 75009 Paris"
       },
       {
         "time": "19:00",
@@ -326,7 +321,7 @@ const fallbackSchedule = [
         "mapUrl": "78 Rue des Tournelles, 75003 Paris"
       }
     ],
-    "note": "루브르 관람 후 카페 마를리, 갤러리 라파예트, 오페라 가르니에, 순그릴로 이어지는 파리 시내 일정입니다.",
+    "note": "오페라 가르니에는 늦은 오후 입장이 위험해서 갤러리 라파예트보다 먼저 배치했습니다.",
     "type": ""
   },
   {
@@ -395,14 +390,14 @@ const routePoints = [
   { country: "london", day: "8/1", title: "The Tower Hotel", lat: 51.5077, lng: -0.0733 },
   { country: "london", day: "8/1", title: "Tower Bridge", lat: 51.5055, lng: -0.0754 },
   { country: "london", day: "8/1", title: "St Katharine Docks", lat: 51.5076, lng: -0.0715 },
-  { country: "london", day: "8/2", title: "Buckingham Palace", lat: 51.5014, lng: -0.1419 },
   { country: "london", day: "8/2", title: "Westminster / Big Ben", lat: 51.5007, lng: -0.1246 },
   { country: "london", day: "8/2", title: "Covent Garden", lat: 51.5117, lng: -0.1240 },
   { country: "london", day: "8/2", title: "Piccadilly Circus", lat: 51.5101, lng: -0.1340 },
   { country: "london", day: "8/2", title: "221B Baker Street", lat: 51.5237, lng: -0.1585 },
   { country: "london", day: "8/2", title: "KIMCHEE Pancras", lat: 51.5322, lng: -0.1251 },
+  { country: "london", day: "8/3", title: "Buckingham Palace", lat: 51.5014, lng: -0.1419 },
   { country: "london", day: "8/3", title: "Tower of London", lat: 51.5081, lng: -0.0759 },
-  { country: "london", day: "8/3", title: "Borough Market", lat: 51.5055, lng: -0.0910 },
+  { country: "london", day: "8/3", title: "Coppa Club Tower Bridge", lat: 51.5094, lng: -0.0801 },
   { country: "london", day: "8/3", title: "British Museum", lat: 51.5194, lng: -0.1270 },
   { country: "london", day: "8/3", title: "Sky Garden", lat: 51.5113, lng: -0.0836 },
   { country: "london", day: "8/4", title: "St Pancras International", lat: 51.5315, lng: -0.1263 },
@@ -470,8 +465,8 @@ const defaultChecklist = [
   { id: "eurostar", label: "Eurostar", checked: true, url: "", note: "" },
   { id: "tower-of-london", label: "Tower of London", checked: false, url: "", note: "" },
   { id: "british-museum", label: "British Museum", checked: false, url: "", note: "" },
-  { id: "sky-garden", label: "Sky Garden 무료입장권", checked: false, url: "", note: "" },
-  { id: "sky-garden-reminder", label: "7월 13일 Sky Garden 무료입장권 확인 알림 설정 완료", checked: true, url: "", note: "" },
+  { id: "sky-garden", label: "Sky Garden / 식당 예약 또는 무료입장권", checked: false, url: "", note: "8월 3일은 점검일이라 정원 자유 관람 가능 여부 확인 필요" },
+  { id: "sky-garden-reminder", label: "Sky Garden 무료입장권 재확인", checked: false, url: "", note: "무료 방문 슬롯이 없으면 식당 예약 또는 다른 야경 장소로 대체" },
   { id: "eiffel-tower", label: "Eiffel Tower", checked: false, url: "", note: "" },
   { id: "louvre", label: "Louvre Museum", checked: false, url: "", note: "" },
   { id: "dickens-inn", label: "8월 1일 The Dickens Inn", checked: false, url: "https://www.dickensinn.co.uk/", note: "런던 도착일 19:30 후보" },
