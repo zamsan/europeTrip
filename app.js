@@ -425,6 +425,30 @@ const routePoints = [
   { country: "paris", day: "8/7", title: "Charles de Gaulle Airport", lat: 49.0097, lng: 2.5479 }
 ];
 
+const runningRoutePoints = [
+  { country: "running", day: "10km", title: "The Tower Hotel 출발", lat: 51.5077, lng: -0.0733 },
+  { country: "running", day: "10km", title: "Tower Bridge 남단", lat: 51.5055, lng: -0.0754 },
+  { country: "running", day: "10km", title: "Potters Fields Park", lat: 51.5046, lng: -0.0788 },
+  { country: "running", day: "10km", title: "HMS Belfast", lat: 51.5066, lng: -0.0815 },
+  { country: "running", day: "10km", title: "London Bridge", lat: 51.5079, lng: -0.0877 },
+  { country: "running", day: "10km", title: "Borough Market", lat: 51.5055, lng: -0.0910 },
+  { country: "running", day: "10km", title: "Shakespeare's Globe", lat: 51.5081, lng: -0.0972 },
+  { country: "running", day: "10km", title: "Tate Modern", lat: 51.5076, lng: -0.0994 },
+  { country: "running", day: "10km", title: "Southbank Centre", lat: 51.5061, lng: -0.1162 },
+  { country: "running", day: "10km", title: "London Eye", lat: 51.5033, lng: -0.1195 },
+  { country: "running", day: "10km", title: "Westminster Bridge", lat: 51.5009, lng: -0.1217 },
+  { country: "running", day: "10km", title: "Big Ben", lat: 51.5007, lng: -0.1246 },
+  { country: "running", day: "10km", title: "St James's Park 동쪽", lat: 51.5029, lng: -0.1301 },
+  { country: "running", day: "10km", title: "Horse Guards", lat: 51.5048, lng: -0.1269 },
+  { country: "running", day: "10km", title: "Victoria Embankment", lat: 51.5075, lng: -0.1226 },
+  { country: "running", day: "10km", title: "Blackfriars Bridge", lat: 51.5098, lng: -0.1040 },
+  { country: "running", day: "10km", title: "St Paul's Cathedral", lat: 51.5138, lng: -0.0984 },
+  { country: "running", day: "10km", title: "Bank", lat: 51.5133, lng: -0.0886 },
+  { country: "running", day: "10km", title: "Monument", lat: 51.5101, lng: -0.0860 },
+  { country: "running", day: "10km", title: "Tower of London", lat: 51.5081, lng: -0.0759 },
+  { country: "running", day: "10km", title: "The Tower Hotel 복귀", lat: 51.5077, lng: -0.0733 }
+];
+
 const restaurantLinks = [
   { match: ["The Dickens Inn", "더 디킨스 인"], targetId: "restaurant-dickens-inn", label: "식당 예약" },
   { match: ["The Ivy Tower Bridge", "더 아이비 타워브리지"], targetId: "restaurant-ivy-tower-bridge", label: "식당 예약" },
@@ -849,6 +873,10 @@ function getRouteColor(filter) {
     return "#be3455";
   }
 
+  if (filter === "running") {
+    return "#ea580c";
+  }
+
   return "#0f766e";
 }
 
@@ -893,6 +921,10 @@ function getRoutePointMapHref(point) {
 }
 
 function getVisibleRoutePoints(filter) {
+  if (filter === "running") {
+    return runningRoutePoints;
+  }
+
   const scheduleRoutePoints = getRoutePointsFromSchedule();
   const sourcePoints = scheduleRoutePoints.length ? scheduleRoutePoints : routePoints;
 
@@ -901,6 +933,14 @@ function getVisibleRoutePoints(filter) {
   }
 
   return sourcePoints;
+}
+
+function getRouteMarkerColor(point, filter) {
+  if (filter === "running" || getRouteCountry(point) === "running") {
+    return "#ea580c";
+  }
+
+  return getRouteCountry(point) === "london" ? "#2563eb" : "#be3455";
 }
 
 function renderRouteMap(filter = "all") {
@@ -945,7 +985,7 @@ function renderRouteMap(filter = "all") {
       radius: 8,
       color: "#ffffff",
       weight: 2,
-      fillColor: getRouteCountry(point) === "london" ? "#2563eb" : "#be3455",
+      fillColor: getRouteMarkerColor(point, filter),
       fillOpacity: 0.95
     }).addTo(layer);
 
@@ -976,7 +1016,7 @@ function renderRouteMap(filter = "all") {
   if (latLngs.length) {
     renderRouteMap.map.fitBounds(window.L.latLngBounds(latLngs), {
       padding: [28, 28],
-      maxZoom: filter === "all" ? 6 : 13
+      maxZoom: filter === "all" ? 6 : 14
     });
   }
 }
