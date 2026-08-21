@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import vm from "node:vm";
 
 const projectId = "europetrip-eb435";
 const documentPath = `projects/${projectId}/databases/(default)/documents/trips/europe-2026`;
@@ -39,9 +40,11 @@ function readJsonConst(source, constName, nextToken) {
   return JSON.parse(literal);
 }
 
-const appSource = readFileSync("app.js", "utf8");
-const schedule = readJsonConst(appSource, "fallbackSchedule", "const sheetConfig");
-const checklist = readJsonConst(appSource, "defaultChecklist", "let currentSchedule");
+const scheduleDataSource = readFileSync("schedule-data.js", "utf8");
+const scheduleContext = { window: {} };
+vm.runInNewContext(scheduleDataSource, scheduleContext);
+const schedule = scheduleContext.window.ACTUAL_TRIP_SCHEDULE;
+const checklist = scheduleContext.window.ACTUAL_TRIP_CHECKLIST;
 
 const body = {
   fields: {

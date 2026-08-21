@@ -8,8 +8,9 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <link rel="stylesheet" href="styles.css?v=30">
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
-    <script src="config.js?v=30" defer></script>
-    <script src="app.js?v=30" defer></script>
+    <script src="config.js?v=31" defer></script>
+    <script src="schedule-data.js?v=31" defer></script>
+    <script src="app.js?v=31" defer></script>
   </head>
   <body>
     <header class="hero" id="top">
@@ -21,8 +22,8 @@
       </nav>
       <div class="hero-copy">
         <p class="eyebrow">2026.08.01 - 2026.08.08</p>
-        <h1><span>런던·파리</span><span>여행 일정</span></h1>
-        <p>KE907로 런던에 도착해 유로스타로 파리로 이동하고, KE902로 귀국하는 6박 8일 일정입니다.</p>
+        <h1><span>런던·파리</span><span>여행 기록</span></h1>
+        <p>2026년 8월, 런던 3박과 파리 3박 동안 직접 다녀온 6박 8일의 실제 동선과 식사 기록입니다.</p>
       </div>
     </header>
 
@@ -45,8 +46,8 @@
 
       <section class="timeline-band" id="timeline" aria-labelledby="timeline-title">
         <div class="section-head">
-          <p class="eyebrow">Daily Plan</p>
-          <h2 id="timeline-title">날짜별 일정</h2>
+          <p class="eyebrow">Travel Log</p>
+          <h2 id="timeline-title">날짜별 실제 여행 기록</h2>
         </div>
         <div class="timeline-controls" id="timelineControls" hidden>
           <form class="edit-unlock" id="editUnlockForm">
@@ -69,11 +70,11 @@
       <section class="booking-band" id="booking" aria-labelledby="booking-title">
         <div class="section-head">
           <p class="eyebrow">Bookings</p>
-          <h2 id="booking-title">예약 정보</h2>
+          <h2 id="booking-title">이용·방문 정보</h2>
         </div>
         <div class="booking-tabs" role="tablist" aria-label="예약 정보 분류">
           <button class="booking-tab is-active" id="booking-tab-core" type="button" role="tab" aria-selected="true" aria-controls="booking-panel-core" data-booking-tab="core">기본 예약</button>
-          <button class="booking-tab" id="booking-tab-restaurants" type="button" role="tab" aria-selected="false" aria-controls="booking-panel-restaurants" data-booking-tab="restaurants">식당 예약</button>
+          <button class="booking-tab" id="booking-tab-restaurants" type="button" role="tab" aria-selected="false" aria-controls="booking-panel-restaurants" data-booking-tab="restaurants">방문 식당</button>
         </div>
         <div class="booking-panel" id="booking-panel-core" role="tabpanel" aria-labelledby="booking-tab-core" data-booking-panel="core">
           <div class="booking-table" role="table" aria-label="예약 정보">
@@ -84,33 +85,33 @@
             </div>
             <div role="row">
               <span role="cell">항공</span>
-              <span role="cell">KE907 · KE902</span>
-              <span role="cell">예약 완료</span>
+              <span role="cell">대한항공 런던행 · 인천행</span>
+              <span role="cell">이용 완료</span>
             </div>
             <div role="row">
               <span role="cell">Eurostar</span>
-              <span role="cell">8월 4일 12:01 런던 -> 파리</span>
-              <span role="cell">예약 완료</span>
+              <span role="cell">8월 4일 12:00 London St Pancras → Paris Gare du Nord</span>
+              <span role="cell">이용 완료</span>
             </div>
             <div role="row">
-              <span role="cell">공항 리무진</span>
-              <span role="cell">8월 1일 06:15</span>
-              <span role="cell">확인 필요</span>
+              <span role="cell">런던 공항 이동</span>
+              <span role="cell">히스로공항 → The Tower Hotel · 택시</span>
+              <span role="cell">이용 완료</span>
             </div>
             <div role="row">
               <span role="cell">런던 숙소</span>
               <span role="cell">The Tower Hotel</span>
-              <span role="cell">예약 완료</span>
+              <span role="cell">숙박 완료</span>
             </div>
             <div role="row">
               <span role="cell">파리 숙소</span>
               <span role="cell">Hyatt Regency Paris Étoile</span>
-              <span role="cell">예약 완료</span>
+              <span role="cell">숙박 완료</span>
             </div>
             <div role="row">
-              <span role="cell">공항 샌딩</span>
-              <span role="cell">8월 7일 16:30</span>
-              <span role="cell">확인 필요</span>
+              <span role="cell">파리 공항 이동</span>
+              <span role="cell">Hyatt Regency Paris Étoile → 샤를드골공항 · 택시</span>
+              <span role="cell">이용 완료</span>
             </div>
           </div>
         </div>
@@ -124,11 +125,11 @@
               </div>
               <div class="restaurant-options">
                 <article class="restaurant-card" id="restaurant-dickens-inn">
-                  <h4><span class="restaurant-rank">예약/후보</span>The Dickens Inn</h4>
-                  <p>타워 호텔 도보권 저녁 후보입니다.</p>
+                  <h4><span class="restaurant-rank">방문 완료</span>Slug &amp; Lettuce Tower Bridge</h4>
+                  <p>피쉬 앤 칩스와 맥주를 먹었습니다.</p>
                   <div class="restaurant-actions">
-                    <a href="https://www.dickensinn.co.uk/" target="_blank" rel="noopener">공식/예약</a>
-                    <a href="https://www.google.com/maps/search/?api=1&query=The%20Dickens%20Inn%20St%20Katharine%20Docks%20London" target="_blank" rel="noopener">지도</a>
+                    <a href="https://www.slugandlettuce.co.uk/tower-bridge" target="_blank" rel="noopener">공식</a>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Slug%20and%20Lettuce%20Tower%20Bridge%20London" target="_blank" rel="noopener">지도</a>
                   </div>
                 </article>
               </div>
@@ -140,16 +141,16 @@
               </div>
               <div class="restaurant-options">
                 <article class="restaurant-card" id="restaurant-lobos">
-                  <h4><span class="restaurant-rank">점심 후보</span>Lobos Meat and Tapas</h4>
-                  <p>버로우 마켓 근처 점심 후보입니다. 시장 음식으로 대체 가능.</p>
+                  <h4><span class="restaurant-rank">브런치</span>WatchHouse Tower Bridge</h4>
+                  <p>사워도우 토스트, 바나나 브레드와 커피를 먹었습니다.</p>
                   <div class="restaurant-actions">
-                    <a href="https://www.lobosmeatandtapas.com/" target="_blank" rel="noopener">공식/예약</a>
-                    <a href="https://www.google.com/maps/search/?api=1&query=Lobos%20Meat%20and%20Tapas%20Borough%20London" target="_blank" rel="noopener">지도</a>
+                    <a href="https://watchhouse.com/" target="_blank" rel="noopener">공식</a>
+                    <a href="https://www.google.com/maps/search/?api=1&query=WatchHouse%20Tower%20Bridge%20London" target="_blank" rel="noopener">지도</a>
                   </div>
                 </article>
                 <article class="restaurant-card" id="restaurant-dishoom-shoreditch">
-                  <h4><span class="restaurant-rank">예약 완료</span>Dishoom Shoreditch</h4>
-                  <p>17:15 저녁 예약 기준입니다.</p>
+                  <h4><span class="restaurant-rank">방문 완료</span>Dishoom Shoreditch</h4>
+                  <p>치킨 루비, 하우스 블랙달과 갈릭 난을 먹었습니다.</p>
                   <div class="restaurant-actions">
                     <a href="https://www.dishoom.com/shoreditch/" target="_blank" rel="noopener">공식/예약</a>
                     <a href="https://www.google.com/maps/search/?api=1&query=Dishoom%20Shoreditch%20London" target="_blank" rel="noopener">지도</a>
@@ -164,8 +165,8 @@
               </div>
               <div class="restaurant-options">
                 <article class="restaurant-card" id="restaurant-burger-lobster">
-                  <h4><span class="restaurant-rank">점심 후보</span>Burger & Lobster Soho</h4>
-                  <p>소호 쪽 랍스터 점심 후보입니다.</p>
+                  <h4><span class="restaurant-rank">방문 완료</span>Burger &amp; Lobster Bond Street</h4>
+                  <p>랍스터 2개, 라거 2잔과 콜라 2잔을 먹었습니다.</p>
                   <div class="restaurant-actions">
                     <a href="https://www.burgerandlobster.com/" target="_blank" rel="noopener">공식/예약</a>
                     <a href="https://www.google.com/maps/search/?api=1&query=Burger%20and%20Lobster%20Soho%20London" target="_blank" rel="noopener">지도</a>
@@ -173,7 +174,7 @@
                 </article>
                 <article class="restaurant-card" id="restaurant-duck-waffle">
                   <h4><span class="restaurant-rank">예약 완료</span>Duck & Waffle</h4>
-                  <p>19:00 저녁 예약 기준입니다.</p>
+                  <p>저녁으로 콘립 등을 먹었습니다.</p>
                   <div class="restaurant-actions">
                     <a href="https://duckandwaffle.com/" target="_blank" rel="noopener">공식/예약</a>
                     <a href="https://www.google.com/maps/search/?api=1&query=Duck%20and%20Waffle%20London" target="_blank" rel="noopener">지도</a>
@@ -188,11 +189,11 @@
               </div>
               <div class="restaurant-options">
                 <article class="restaurant-card" id="restaurant-les-cocottes">
-                  <h4><span class="restaurant-rank">예약 완료</span>Les Cocottes</h4>
-                  <p>에펠탑 외관 후 19:00 저녁 예약 기준입니다.</p>
+                  <h4><span class="restaurant-rank">실제 기록</span>별도 식당 기록 없음</h4>
+                  <p>센강 주변 산책과 에펠탑 조명쇼를 즐겼습니다.</p>
                   <div class="restaurant-actions">
-                    <a href="https://www.maisonconstant.com/les-cocottes-tour-eiffel/" target="_blank" rel="noopener">공식/예약</a>
-                    <a href="https://www.google.com/maps/search/?api=1&query=Les%20Cocottes%20Paris" target="_blank" rel="noopener">지도</a>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Eiffel%20Tower%20Paris" target="_blank" rel="noopener">에펠탑 지도</a>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Trocadero%20Paris" target="_blank" rel="noopener">트로카데로 지도</a>
                   </div>
                 </article>
               </div>
@@ -205,18 +206,18 @@
               <div class="restaurant-options">
                 <article class="restaurant-card" id="restaurant-pink-mamma">
                   <h4><span class="restaurant-rank">점심</span>Pink Mamma</h4>
-                  <p>몽마르트 오전 일정 후 점심 후보입니다.</p>
+                  <p>피자, 트러플 파스타와 페로니 맥주를 먹었습니다.</p>
                   <div class="restaurant-actions">
                     <a href="https://www.bigmammagroup.com/italian-restaurants/pink-mamma" target="_blank" rel="noopener">공식/예약</a>
                     <a href="https://www.google.com/maps/search/?api=1&query=Pink%20Mamma%20Paris" target="_blank" rel="noopener">지도</a>
                   </div>
                 </article>
                 <article class="restaurant-card" id="restaurant-sanukiya">
-                  <h4><span class="restaurant-rank">저녁 후보</span>Sanukiya 또는 쌀국수</h4>
-                  <p>일정 후반에 부담 적은 저녁 후보입니다.</p>
+                  <h4><span class="restaurant-rank">방문 완료</span>Pho Banh Cuon 14</h4>
+                  <p>저녁으로 쌀국수를 먹었습니다.</p>
                   <div class="restaurant-actions">
-                    <a href="https://www.google.com/maps/search/?api=1&query=Sanukiya%20Paris" target="_blank" rel="noopener">공식/예약</a>
-                    <a href="https://www.google.com/maps/search/?api=1&query=Sanukiya%20Paris" target="_blank" rel="noopener">지도</a>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Pho%20Banh%20Cuon%2014%20Paris" target="_blank" rel="noopener">식당 검색</a>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Pho%20Banh%20Cuon%2014%20Paris" target="_blank" rel="noopener">지도</a>
                   </div>
                 </article>
               </div>
@@ -228,8 +229,8 @@
               </div>
               <div class="restaurant-options">
                 <article class="restaurant-card" id="restaurant-soon-chez-janou">
-                  <h4><span class="restaurant-rank">점심 후보</span>Soon Grill 또는 Chez Janou</h4>
-                  <p>마레 동선에서 선택하는 점심 후보입니다.</p>
+                  <h4><span class="restaurant-rank">방문 완료</span>Soon Grill Marais</h4>
+                  <p>점심 식사 후 에스프레소를 마셨습니다.</p>
                   <div class="restaurant-actions">
                     <a href="https://www.soongrill.fr/" target="_blank" rel="noopener">공식/예약</a>
                     <a href="https://www.google.com/maps/search/?api=1&query=Soon%20Grill%20Le%20Marais%20Paris" target="_blank" rel="noopener">지도</a>
@@ -237,7 +238,7 @@
                 </article>
                 <article class="restaurant-card" id="restaurant-les-ombres">
                   <h4><span class="restaurant-rank">저녁</span>Les Ombres</h4>
-                  <p>에펠탑 전망 저녁 후보입니다.</p>
+                  <p>에펠탑 전망과 함께 저녁 식사와 샴페인을 즐겼습니다.</p>
                   <div class="restaurant-actions">
                     <a href="https://www.lesombres-restaurant.com/" target="_blank" rel="noopener">공식/예약</a>
                     <a href="https://www.google.com/maps/search/?api=1&query=Les%20Ombres%20Paris" target="_blank" rel="noopener">지도</a>
@@ -252,32 +253,27 @@
       <section class="todo-band" id="todo" aria-labelledby="todo-title">
         <div class="section-head">
           <p class="eyebrow">To Check</p>
-          <h2 id="todo-title">예약 체크리스트</h2>
+          <h2 id="todo-title">주요 이용 기록</h2>
         </div>
         <ul class="check-list" id="bookingChecklist">
-          <li>☑ 항공 KE907 / KE902</li>
-          <li>□ 8월 1일 공항 리무진 06:15</li>
+          <li>☑ 대한항공 런던행 / 인천행</li>
           <li>☑ 런던 숙소 The Tower Hotel</li>
-          <li>□ The Tower Hotel 픽업비용 메모</li>
           <li>☑ 파리 숙소 Hyatt Regency Paris Étoile</li>
-          <li>☑ Eurostar 8월 4일 12:01</li>
-          <li>□ 8월 1일 The Dickens Inn</li>
-          <li>☑ 8월 2일 Dishoom Shoreditch 17:15</li>
-          <li>□ 8월 3일 Buckingham Palace 11:00</li>
-          <li>☑ 8월 3일 Duck & Waffle 19:00</li>
-          <li>☑ 8월 4일 Les Cocottes 19:00</li>
-          <li>□ 8월 5일 Pink Mamma 점심</li>
-          <li>□ 8월 5일 Opéra Garnier 선택</li>
-          <li>□ 8월 5일 Pinault Collection 선택</li>
-          <li>□ 8월 6일 Les Ombres 저녁</li>
-          <li>□ 8월 7일 공항 샌딩 16:30</li>
+          <li>☑ Eurostar 8월 4일 12:00</li>
+          <li>☑ 8월 1일 Slug &amp; Lettuce Tower Bridge</li>
+          <li>☑ 8월 2일 Dishoom Shoreditch</li>
+          <li>☑ 8월 3일 Duck &amp; Waffle</li>
+          <li>☑ 8월 5일 Pink Mamma</li>
+          <li>☑ 8월 6일 Les Ombres 19:00</li>
+          <li>☑ 8월 6일 개선문 전망대 21:30</li>
+          <li>☑ 8월 7일 샤를드골공항 이동</li>
         </ul>
       </section>
     </main>
 
     <footer class="footer">
       <a href="#top">맨 위로</a>
-      <span>런던·파리 2026 여행 일정</span>
+      <span>런던·파리 2026 실제 여행 기록</span>
     </footer>
   </body>
 </html>

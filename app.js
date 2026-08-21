@@ -1,4 +1,4 @@
-const fallbackSchedule = [
+const fallbackSchedule = window.ACTUAL_TRIP_SCHEDULE || [
   {
     "date": "2026-08-01",
     "dateLabel": "8월 1일 토요일",
@@ -956,16 +956,16 @@ const runningRoutePoints = [
 const restaurantLinks = [
   {
     "match": [
-      "The Dickens Inn",
-      "더 디킨스 인"
+      "Slug & Lettuce Tower Bridge",
+      "Slug & Lettuce"
     ],
     "targetId": "restaurant-dickens-inn",
     "label": "식당 예약"
   },
   {
     "match": [
-      "Lobos Meat and Tapas",
-      "Lobos"
+      "WatchHouse Tower Bridge",
+      "WatchHouse"
     ],
     "targetId": "restaurant-lobos",
     "label": "식당 예약"
@@ -1012,7 +1012,7 @@ const restaurantLinks = [
   },
   {
     "match": [
-      "Sanukiya",
+      "Pho Banh Cuon 14",
       "쌀국수"
     ],
     "targetId": "restaurant-sanukiya",
@@ -1021,7 +1021,7 @@ const restaurantLinks = [
   {
     "match": [
       "Soon Grill",
-      "Chez Janou"
+      "Soon Grill Marais"
     ],
     "targetId": "restaurant-soon-chez-janou",
     "label": "식당 예약"
@@ -1036,7 +1036,7 @@ const restaurantLinks = [
   }
 ];
 
-const defaultChecklist = [
+const defaultChecklist = window.ACTUAL_TRIP_CHECKLIST || [
   {
     "id": "flight",
     "label": "항공 KE907 / KE902",
