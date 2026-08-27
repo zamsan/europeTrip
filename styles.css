@@ -206,6 +206,13 @@ p {
   background: #edf1f5;
 }
 
+.route-map.is-photo-local-playback {
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0.78)),
+    repeating-linear-gradient(0deg, transparent 0 39px, rgba(15, 118, 110, 0.12) 39px 40px),
+    repeating-linear-gradient(90deg, #eef4f3 0 39px, rgba(15, 118, 110, 0.12) 39px 40px);
+}
+
 .route-map-error {
   min-height: 430px;
   display: grid;

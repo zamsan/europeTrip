@@ -53,3 +53,30 @@ test("guards stale photo loads and revokes stale previews", () => {
   assert.match(body, /if \(loadToken !== photoRouteState\.loadToken\)/);
   assert.match(body, /revokePhotoPreviewUrls\(photos\)/);
 });
+
+test("removes remote map tiles before photo-derived viewport changes", () => {
+  const renderBody = functionBody("renderRouteMap");
+  const loadBody = functionBody("loadPhotoRouteFiles");
+  const removeIndex = loadBody.indexOf("suspendPlannedRouteTilesForPhotoPlayback()");
+  const fitIndex = loadBody.indexOf("renderRouteMap.map.fitBounds");
+
+  assert.match(renderBody, /renderRouteMap\.tileLayer\s*=/);
+  assert.match(app, /function suspendPlannedRouteTilesForPhotoPlayback/);
+  assert.match(app, /function restorePlannedRouteTilesAfterPhotoPlayback/);
+  assert.ok(removeIndex >= 0, "photo loading must suspend remote tiles");
+  assert.ok(fitIndex >= 0, "photo loading should still fit local photo bounds");
+  assert.ok(removeIndex < fitIndex, "remote tiles must be removed before photo fitBounds");
+});
+
+test("restores planned map tiles only outside immediate photo reloads", () => {
+  const disposeBody = functionBody("disposePhotoRoutePlayback");
+  const loadBody = functionBody("loadPhotoRouteFiles");
+  const wireBody = functionBody("wirePhotoRoutePlayback");
+
+  assert.match(disposeBody, /restorePlannedTiles\s*=\s*true/);
+  assert.match(disposeBody, /if \(restorePlannedTiles\)/);
+  assert.match(disposeBody, /restorePlannedRouteTilesAfterPhotoPlayback\(\)/);
+  assert.match(loadBody, /restorePlannedTiles:\s*false/);
+  assert.match(loadBody, /if \(!window\.PhotoRoute \|\| !window\.exifr\) \{\s*restorePlannedRouteTilesAfterPhotoPlayback\(\)/);
+  assert.match(wireBody, /beforeunload[\s\S]*restorePlannedTiles:\s*false/);
+});

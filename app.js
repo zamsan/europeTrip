@@ -527,7 +527,8 @@ const photoRouteState = {
   layer: null,
   path: null,
   marker: null,
-  loadToken: 0
+  loadToken: 0,
+  localPlaybackActive: false
 };
 
 const routePoints = [
@@ -1650,10 +1651,18 @@ function renderRouteMap(filter = "all") {
       scrollWheelZoom: false
     });
 
-    window.L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    renderRouteMap.tileLayer = window.L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    }).addTo(renderRouteMap.map);
+    });
+  }
+
+  if (
+    renderRouteMap.tileLayer
+    && !photoRouteState.localPlaybackActive
+    && !renderRouteMap.map.hasLayer(renderRouteMap.tileLayer)
+  ) {
+    renderRouteMap.tileLayer.addTo(renderRouteMap.map);
   }
 
   if (renderRouteMap.layer) {
@@ -1711,6 +1720,37 @@ function renderRouteMap(filter = "all") {
       maxZoom: filter === "all" ? 6 : 14
     });
   }
+}
+
+function suspendPlannedRouteTilesForPhotoPlayback() {
+  photoRouteState.localPlaybackActive = true;
+  routeMapEl?.classList.add("is-photo-local-playback");
+
+  if (
+    renderRouteMap.map
+    && renderRouteMap.tileLayer
+    && renderRouteMap.map.hasLayer(renderRouteMap.tileLayer)
+  ) {
+    renderRouteMap.map.removeLayer(renderRouteMap.tileLayer);
+  }
+}
+
+function restorePlannedRouteTilesAfterPhotoPlayback() {
+  photoRouteState.localPlaybackActive = false;
+  routeMapEl?.classList.remove("is-photo-local-playback");
+
+  if (!renderRouteMap.map) {
+    return;
+  }
+
+  if (
+    renderRouteMap.tileLayer
+    && !renderRouteMap.map.hasLayer(renderRouteMap.tileLayer)
+  ) {
+    renderRouteMap.tileLayer.addTo(renderRouteMap.map);
+  }
+
+  renderRouteMap(activeRouteFilter);
 }
 
 function setPhotoRouteStatus(message) {
@@ -1895,7 +1935,7 @@ function revokePhotoPreviewUrls(photos) {
 }
 
 function disposePhotoRoutePlayback(options = {}) {
-  const { resetFileInput = true, invalidateLoads = true } = options;
+  const { resetFileInput = true, invalidateLoads = true, restorePlannedTiles = true } = options;
   if (invalidateLoads) {
     photoRouteState.loadToken += 1;
   }
@@ -1936,20 +1976,26 @@ function disposePhotoRoutePlayback(options = {}) {
   if (resetFileInput && photoRouteFilesEl) {
     photoRouteFilesEl.value = "";
   }
+
+  if (restorePlannedTiles) {
+    restorePlannedRouteTilesAfterPhotoPlayback();
+  }
 }
 
 async function loadPhotoRouteFiles(files) {
   const loadToken = ++photoRouteState.loadToken;
   const selectedFiles = Array.from(files || []);
-  disposePhotoRoutePlayback({ resetFileInput: false, invalidateLoads: false });
+  disposePhotoRoutePlayback({ resetFileInput: false, invalidateLoads: false, restorePlannedTiles: false });
   setPhotoRouteStatus("사진을 분석하는 중입니다…");
 
   if (!selectedFiles.length) {
+    restorePlannedRouteTilesAfterPhotoPlayback();
     setPhotoRouteStatus("사진을 선택해 주세요.");
     return;
   }
 
   if (!window.PhotoRoute || !window.exifr) {
+    restorePlannedRouteTilesAfterPhotoPlayback();
     setPhotoRouteStatus("사진 분석 도구를 불러오지 못했습니다.");
     return;
   }
@@ -1977,6 +2023,7 @@ async function loadPhotoRouteFiles(files) {
     photoRouteState.photos = timeline.photos;
 
     if (!timeline.photos.length) {
+      restorePlannedRouteTilesAfterPhotoPlayback();
       setPhotoRouteStatus("촬영 시각과 위치가 포함된 사진이 없습니다.");
       return;
     }
@@ -1985,6 +2032,7 @@ async function loadPhotoRouteFiles(files) {
       photoRoutePanelEl.hidden = false;
     }
 
+    suspendPlannedRouteTilesForPhotoPlayback();
     ensurePhotoRouteLayer();
     const bounds = window.L && timeline.photos.map((photo) => [photo.lat, photo.lng]);
     if (bounds?.length && renderRouteMap.map) {
@@ -2060,7 +2108,9 @@ function wirePhotoRoutePlayback() {
     photoRouteState.speed = nextSpeed;
   });
 
-  window.addEventListener("beforeunload", disposePhotoRoutePlayback);
+  window.addEventListener("beforeunload", () => {
+    disposePhotoRoutePlayback({ restorePlannedTiles: false });
+  });
 }
 
 function wireRouteMap() {
