@@ -85,24 +85,20 @@ test("uses a person marker and restores the planned route after playback", () =>
   assert.match(wireBody, /beforeunload[\s\S]*restorePlannedRoute:\s*false/);
 });
 
-test("automatically follows the person marker with distance-based zoom", () => {
+test("follows the person marker at one fixed zoom level", () => {
   const cameraBody = functionBody("updatePhotoRouteCamera");
-  const zoomBody = functionBody("getPhotoRouteZoomForDistance");
   const renderBody = functionBody("renderPhotoRouteFrame");
 
-  assert.match(zoomBody, /distanceMeters/);
-  assert.match(zoomBody, /return 17/);
-  assert.match(zoomBody, /return 6/);
-  assert.match(cameraBody, /map\.distance/);
-  assert.match(cameraBody, /photoRouteState\.timeline\.photos\[frame\.photoIndex \+ 1\]/);
-  assert.match(cameraBody, /setView/);
+  assert.match(cameraBody, /photoRouteState\.cameraZoom/);
+  assert.match(cameraBody, /map\.setView\(currentLatLng, photoRouteState\.cameraZoom/);
   assert.match(cameraBody, /panTo/);
+  assert.doesNotMatch(cameraBody, /map\.distance|nextPhoto|targetZoom/);
   assert.match(renderBody, /updatePhotoRouteCamera\(frame\)/);
 });
 
 test("cache-busts the deployed app bundle", () => {
   assert.match(html, /photo-route\.js\?v=2/);
-  assert.match(html, /app\.js\?v=37/);
+  assert.match(html, /app\.js\?v=38/);
 });
 
 test("shows live progress while reading many photos", () => {

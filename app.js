@@ -526,7 +526,8 @@ const photoRouteState = {
   marker: null,
   loadToken: 0,
   active: false,
-  cameraPhotoIndex: -1,
+  cameraInitialized: false,
+  cameraZoom: 14,
   mapInteractionSnapshot: null
 };
 
@@ -1894,7 +1895,7 @@ function startPhotoRoutePlayback() {
   }
 
   photoRouteState.playing = true;
-  photoRouteState.cameraPhotoIndex = -1;
+  photoRouteState.cameraInitialized = false;
   setPhotoRouteMapInteractionLocked(true);
   photoRouteState.startedAt = performance.now() - photoRouteState.elapsedMs / photoRouteState.speed;
   if (photoRoutePlayEl) {
@@ -1936,7 +1937,7 @@ function disposePhotoRoutePlayback(options = {}) {
   photoRouteState.layer = null;
   photoRouteState.path = null;
   photoRouteState.marker = null;
-  photoRouteState.cameraPhotoIndex = -1;
+  photoRouteState.cameraInitialized = false;
 
   if (photoRoutePanelEl) {
     photoRoutePanelEl.hidden = true;
@@ -1993,15 +1994,6 @@ function setPhotoRouteMapInteractionLocked(locked) {
   photoRouteState.mapInteractionSnapshot = null;
 }
 
-function getPhotoRouteZoomForDistance(distanceMeters) {
-  if (distanceMeters < 200) return 17;
-  if (distanceMeters < 1000) return 15;
-  if (distanceMeters < 5000) return 13;
-  if (distanceMeters < 20000) return 11;
-  if (distanceMeters < 100000) return 9;
-  return 6;
-}
-
 function updatePhotoRouteCamera(frame) {
   const map = renderRouteMap.map;
   if (!photoRouteState.playing || !map || !photoRouteState.timeline) {
@@ -2009,15 +2001,9 @@ function updatePhotoRouteCamera(frame) {
   }
 
   const currentLatLng = [frame.lat, frame.lng];
-  const nextPhoto = photoRouteState.timeline.photos[frame.photoIndex + 1]
-    || photoRouteState.timeline.photos[frame.photoIndex];
-  const nextLatLng = nextPhoto ? [nextPhoto.lat, nextPhoto.lng] : currentLatLng;
-  const distanceMeters = map.distance(currentLatLng, nextLatLng);
-  const targetZoom = getPhotoRouteZoomForDistance(distanceMeters);
-
-  if (photoRouteState.cameraPhotoIndex !== frame.photoIndex) {
-    photoRouteState.cameraPhotoIndex = frame.photoIndex;
-    map.setView(currentLatLng, targetZoom, { animate: true, duration: 0.45 });
+  if (!photoRouteState.cameraInitialized) {
+    photoRouteState.cameraInitialized = true;
+    map.setView(currentLatLng, photoRouteState.cameraZoom, { animate: true, duration: 0.45 });
     return;
   }
 
