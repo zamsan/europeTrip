@@ -525,7 +525,9 @@ const photoRouteState = {
   path: null,
   marker: null,
   loadToken: 0,
-  active: false
+  active: false,
+  cameraPhotoIndex: -1,
+  mapInteractionSnapshot: null
 };
 
 const routePoints = [
@@ -1808,6 +1810,7 @@ function renderPhotoRouteFrame(frame) {
   ensurePhotoRouteLayer();
   photoRouteState.path?.setLatLngs(frame.visitedPoints);
   photoRouteState.marker?.setLatLng([frame.lat, frame.lng]);
+  updatePhotoRouteCamera(frame);
 
   if (photoRouteProgressEl) {
     photoRouteProgressEl.value = String(Math.round(frame.progress * 1000));
@@ -1847,6 +1850,7 @@ function pausePhotoRoutePlayback() {
   }
 
   photoRouteState.playing = false;
+  setPhotoRouteMapInteractionLocked(false);
   if (photoRoutePlayEl) {
     photoRoutePlayEl.textContent = "재생";
   }
@@ -1890,6 +1894,8 @@ function startPhotoRoutePlayback() {
   }
 
   photoRouteState.playing = true;
+  photoRouteState.cameraPhotoIndex = -1;
+  setPhotoRouteMapInteractionLocked(true);
   photoRouteState.startedAt = performance.now() - photoRouteState.elapsedMs / photoRouteState.speed;
   if (photoRoutePlayEl) {
     photoRoutePlayEl.textContent = "일시정지";
@@ -1930,6 +1936,7 @@ function disposePhotoRoutePlayback(options = {}) {
   photoRouteState.layer = null;
   photoRouteState.path = null;
   photoRouteState.marker = null;
+  photoRouteState.cameraPhotoIndex = -1;
 
   if (photoRoutePanelEl) {
     photoRoutePanelEl.hidden = true;
@@ -1946,6 +1953,75 @@ function disposePhotoRoutePlayback(options = {}) {
   if (restorePlannedRoute) {
     restorePlannedRouteAfterPhotoPlayback();
   }
+}
+
+function setPhotoRouteMapInteractionLocked(locked) {
+  const map = renderRouteMap.map;
+  if (!map) {
+    return;
+  }
+
+  const handlers = [
+    map.dragging,
+    map.touchZoom,
+    map.scrollWheelZoom,
+    map.doubleClickZoom,
+    map.boxZoom,
+    map.keyboard,
+    map.tap
+  ].filter(Boolean);
+
+  if (locked) {
+    if (photoRouteState.mapInteractionSnapshot) {
+      return;
+    }
+    photoRouteState.mapInteractionSnapshot = handlers.map((handler) => ({
+      handler,
+      wasEnabled: handler.enabled()
+    }));
+    photoRouteState.mapInteractionSnapshot.forEach(({ handler }) => handler.disable());
+    return;
+  }
+
+  (photoRouteState.mapInteractionSnapshot || []).forEach(({ handler, wasEnabled }) => {
+    if (wasEnabled) {
+      handler.enable();
+    } else {
+      handler.disable();
+    }
+  });
+  photoRouteState.mapInteractionSnapshot = null;
+}
+
+function getPhotoRouteZoomForDistance(distanceMeters) {
+  if (distanceMeters < 200) return 17;
+  if (distanceMeters < 1000) return 15;
+  if (distanceMeters < 5000) return 13;
+  if (distanceMeters < 20000) return 11;
+  if (distanceMeters < 100000) return 9;
+  return 6;
+}
+
+function updatePhotoRouteCamera(frame) {
+  const map = renderRouteMap.map;
+  if (!photoRouteState.playing || !map || !photoRouteState.timeline) {
+    return;
+  }
+
+  const currentLatLng = [frame.lat, frame.lng];
+  const nextPhoto = photoRouteState.timeline.photos[frame.photoIndex + 1]
+    || photoRouteState.timeline.photos[frame.photoIndex];
+  const nextLatLng = nextPhoto ? [nextPhoto.lat, nextPhoto.lng] : currentLatLng;
+  const distanceMeters = map.distance(currentLatLng, nextLatLng);
+  const targetZoom = getPhotoRouteZoomForDistance(distanceMeters);
+
+  if (photoRouteState.cameraPhotoIndex !== frame.photoIndex) {
+    photoRouteState.cameraPhotoIndex = frame.photoIndex;
+    map.setView(currentLatLng, targetZoom, { animate: true, duration: 0.45 });
+    return;
+  }
+
+  map.panTo(currentLatLng, { animate: false, noMoveStart: true });
 }
 
 async function loadPhotoRouteFiles(files) {

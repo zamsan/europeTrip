@@ -84,3 +84,37 @@ test("uses a person marker and restores the planned route after playback", () =>
   assert.match(loadBody, /restorePlannedRoute:\s*false/);
   assert.match(wireBody, /beforeunload[\s\S]*restorePlannedRoute:\s*false/);
 });
+
+test("automatically follows the person marker with distance-based zoom", () => {
+  const cameraBody = functionBody("updatePhotoRouteCamera");
+  const zoomBody = functionBody("getPhotoRouteZoomForDistance");
+  const renderBody = functionBody("renderPhotoRouteFrame");
+
+  assert.match(zoomBody, /distanceMeters/);
+  assert.match(zoomBody, /return 17/);
+  assert.match(zoomBody, /return 6/);
+  assert.match(cameraBody, /map\.distance/);
+  assert.match(cameraBody, /photoRouteState\.timeline\.photos\[frame\.photoIndex \+ 1\]/);
+  assert.match(cameraBody, /setView/);
+  assert.match(cameraBody, /panTo/);
+  assert.match(renderBody, /updatePhotoRouteCamera\(frame\)/);
+});
+
+test("cache-busts the deployed app bundle", () => {
+  assert.match(html, /app\.js\?v=36/);
+});
+
+test("locks map interaction only while playback is running", () => {
+  const lockBody = functionBody("setPhotoRouteMapInteractionLocked");
+  const startBody = functionBody("startPhotoRoutePlayback");
+  const pauseBody = functionBody("pausePhotoRoutePlayback");
+
+  for (const handler of ["dragging", "touchZoom", "scrollWheelZoom", "doubleClickZoom", "boxZoom", "keyboard"]) {
+    assert.match(lockBody, new RegExp(`map\\.${handler}`));
+  }
+  assert.match(lockBody, /handler\.enabled\(\)/);
+  assert.match(lockBody, /handler\.disable\(\)/);
+  assert.match(lockBody, /handler\.enable\(\)/);
+  assert.match(startBody, /setPhotoRouteMapInteractionLocked\(true\)/);
+  assert.match(pauseBody, /setPhotoRouteMapInteractionLocked\(false\)/);
+});
