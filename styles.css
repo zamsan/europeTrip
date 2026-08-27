@@ -206,12 +206,154 @@ p {
   background: #edf1f5;
 }
 
+.route-map.is-photo-local-playback {
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0.78)),
+    repeating-linear-gradient(0deg, transparent 0 39px, rgba(15, 118, 110, 0.12) 39px 40px),
+    repeating-linear-gradient(90deg, #eef4f3 0 39px, rgba(15, 118, 110, 0.12) 39px 40px);
+}
+
 .route-map-error {
   min-height: 430px;
   display: grid;
   place-items: center;
   color: var(--muted);
   font-weight: 800;
+}
+
+.photo-route-player {
+  display: grid;
+  gap: 16px;
+  margin: 18px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+
+.photo-route-picker {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+}
+
+.photo-route-picker p,
+.photo-route-status {
+  color: var(--muted);
+}
+
+.photo-route-file-button,
+.photo-route-buttons button {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 16px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--green);
+  color: #fff;
+  font: inherit;
+  font-weight: 800;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+#photoRouteFiles {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.photo-route-picker:focus-within .photo-route-file-button,
+.photo-route-buttons button:focus-visible,
+.photo-route-buttons select:focus-visible,
+#photoRouteProgress:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.35);
+  outline-offset: 3px;
+}
+
+.photo-route-status {
+  font-size: 0.94rem;
+  font-weight: 800;
+}
+
+.photo-route-panel {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.95fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: stretch;
+}
+
+#photoRoutePreview {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #edf1f5;
+  object-fit: cover;
+}
+
+.photo-route-details {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
+#photoRouteTimestamp {
+  color: var(--gold);
+  font-weight: 900;
+}
+
+#photoRoutePosition {
+  color: var(--muted);
+  font-size: 0.94rem;
+}
+
+.photo-route-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.photo-route-buttons button:nth-child(2) {
+  border: 1px solid var(--green);
+  background: #fff;
+  color: var(--green);
+}
+
+.photo-route-buttons label,
+.photo-route-progress-label {
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.photo-route-buttons label {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.photo-route-buttons select {
+  min-height: 40px;
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+}
+
+#photoRouteProgress {
+  width: 100%;
+  accent-color: var(--green);
 }
 
 .route-marker-number {
@@ -998,6 +1140,20 @@ p {
   .footer span {
     display: block;
     margin-top: 10px;
+  }
+}
+
+@media (max-width: 720px) {
+  .photo-route-picker,
+  .photo-route-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .photo-route-file-button,
+  .photo-route-buttons button,
+  .photo-route-buttons label,
+  .photo-route-buttons select {
+    width: 100%;
   }
 }
 

@@ -6,11 +6,13 @@
     <meta name="description" content="2026년 8월 런던·파리 유럽 여행 일정">
     <title>런던·파리 2026 여행 일정</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-    <link rel="stylesheet" href="styles.css?v=30">
+    <link rel="stylesheet" href="styles.css?v=31">
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
     <script src="config.js?v=31" defer></script>
     <script src="schedule-data.js?v=32" defer></script>
-    <script src="app.js?v=33" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/exifr@7.1.3/dist/lite.umd.js" defer></script>
+    <script src="photo-route.js?v=1" defer></script>
+    <script src="app.js?v=34" defer></script>
   </head>
   <body>
     <header class="hero" id="top">
@@ -41,6 +43,37 @@
             <button type="button" class="route-filter" data-route-filter="running">러닝</button>
           </div>
           <div id="routeMap" class="route-map" role="img" aria-label="런던과 파리 여행 동선 지도"></div>
+          <section class="photo-route-player" aria-labelledby="photo-route-title">
+            <div class="photo-route-picker">
+              <div>
+                <h3 id="photo-route-title">사진 이동 경로 재생</h3>
+                <p>사진은 이 기기에서만 처리되며 서버에 저장되지 않습니다.</p>
+              </div>
+              <label class="photo-route-file-button" for="photoRouteFiles">사진 선택</label>
+              <input id="photoRouteFiles" type="file" accept="image/*" multiple>
+            </div>
+            <p id="photoRouteStatus" class="photo-route-status" aria-live="polite">사진을 선택해 주세요.</p>
+            <div id="photoRoutePanel" class="photo-route-panel" hidden>
+              <img id="photoRoutePreview" alt="현재 위치에서 촬영한 사진">
+              <div class="photo-route-details">
+                <time id="photoRouteTimestamp"></time>
+                <span id="photoRoutePosition"></span>
+                <div class="photo-route-buttons">
+                  <button id="photoRoutePlay" type="button">재생</button>
+                  <button id="photoRouteReset" type="button">처음부터</button>
+                  <label>속도
+                    <select id="photoRouteSpeed">
+                      <option value="0.5">0.5×</option>
+                      <option value="1" selected>1×</option>
+                      <option value="2">2×</option>
+                    </select>
+                  </label>
+                </div>
+                <label class="photo-route-progress-label" for="photoRouteProgress">재생 위치</label>
+                <input id="photoRouteProgress" type="range" min="0" max="1000" value="0">
+              </div>
+            </div>
+          </section>
         </div>
       </section>
 

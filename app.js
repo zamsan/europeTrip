@@ -505,6 +505,31 @@ const bookingTabEls = Array.from(document.querySelectorAll("[data-booking-tab]")
 const bookingPanelEls = Array.from(document.querySelectorAll("[data-booking-panel]"));
 const routeMapEl = document.querySelector("#routeMap");
 const routeFilterEls = Array.from(document.querySelectorAll("[data-route-filter]"));
+const photoRouteFilesEl = document.querySelector("#photoRouteFiles");
+const photoRouteStatusEl = document.querySelector("#photoRouteStatus");
+const photoRoutePanelEl = document.querySelector("#photoRoutePanel");
+const photoRoutePreviewEl = document.querySelector("#photoRoutePreview");
+const photoRouteTimestampEl = document.querySelector("#photoRouteTimestamp");
+const photoRoutePositionEl = document.querySelector("#photoRoutePosition");
+const photoRoutePlayEl = document.querySelector("#photoRoutePlay");
+const photoRouteResetEl = document.querySelector("#photoRouteReset");
+const photoRouteProgressEl = document.querySelector("#photoRouteProgress");
+const photoRouteSpeedEl = document.querySelector("#photoRouteSpeed");
+
+const photoRouteState = {
+  photos: [],
+  timeline: null,
+  elapsedMs: 0,
+  speed: 1,
+  playing: false,
+  startedAt: 0,
+  frameId: 0,
+  layer: null,
+  path: null,
+  marker: null,
+  loadToken: 0,
+  localPlaybackActive: false
+};
 
 const routePoints = [
   {
@@ -1635,10 +1660,18 @@ function renderRouteMap(filter = "all") {
       scrollWheelZoom: false
     });
 
-    window.L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    renderRouteMap.tileLayer = window.L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    }).addTo(renderRouteMap.map);
+    });
+  }
+
+  if (
+    renderRouteMap.tileLayer
+    && !photoRouteState.localPlaybackActive
+    && !renderRouteMap.map.hasLayer(renderRouteMap.tileLayer)
+  ) {
+    renderRouteMap.tileLayer.addTo(renderRouteMap.map);
   }
 
   if (renderRouteMap.layer) {
@@ -1696,6 +1729,397 @@ function renderRouteMap(filter = "all") {
       maxZoom: filter === "all" ? 6 : 14
     });
   }
+}
+
+function suspendPlannedRouteTilesForPhotoPlayback() {
+  photoRouteState.localPlaybackActive = true;
+  routeMapEl?.classList.add("is-photo-local-playback");
+
+  if (
+    renderRouteMap.map
+    && renderRouteMap.tileLayer
+    && renderRouteMap.map.hasLayer(renderRouteMap.tileLayer)
+  ) {
+    renderRouteMap.map.removeLayer(renderRouteMap.tileLayer);
+  }
+}
+
+function restorePlannedRouteTilesAfterPhotoPlayback() {
+  photoRouteState.localPlaybackActive = false;
+  routeMapEl?.classList.remove("is-photo-local-playback");
+
+  if (!renderRouteMap.map) {
+    return;
+  }
+
+  if (
+    renderRouteMap.tileLayer
+    && !renderRouteMap.map.hasLayer(renderRouteMap.tileLayer)
+  ) {
+    renderRouteMap.tileLayer.addTo(renderRouteMap.map);
+  }
+
+  renderRouteMap(activeRouteFilter);
+}
+
+function setPhotoRouteStatus(message) {
+  if (photoRouteStatusEl) {
+    photoRouteStatusEl.textContent = message;
+  }
+}
+
+function setPhotoRouteControlsEnabled(enabled) {
+  const disabled = !enabled;
+  if (photoRoutePlayEl) {
+    photoRoutePlayEl.disabled = disabled;
+    photoRoutePlayEl.textContent = photoRouteState.playing ? "일시정지" : "재생";
+  }
+  if (photoRouteResetEl) {
+    photoRouteResetEl.disabled = disabled;
+  }
+  if (photoRouteProgressEl) {
+    photoRouteProgressEl.disabled = disabled;
+  }
+}
+
+function ensurePhotoRouteLayer() {
+  if (!routeMapEl || !window.L) {
+    return null;
+  }
+
+  if (!renderRouteMap.map) {
+    renderRouteMap(activeRouteFilter);
+  }
+
+  if (!renderRouteMap.map) {
+    return null;
+  }
+
+  if (!photoRouteState.layer) {
+    photoRouteState.layer = window.L.layerGroup().addTo(renderRouteMap.map);
+    photoRouteState.path = window.L.polyline([], {
+      color: "#14b8a6",
+      weight: 5,
+      opacity: 0.9
+    }).addTo(photoRouteState.layer);
+    photoRouteState.marker = window.L.circleMarker([0, 0], {
+      radius: 9,
+      color: "#ffffff",
+      weight: 3,
+      fillColor: "#7c3aed",
+      fillOpacity: 1
+    }).addTo(photoRouteState.layer);
+  }
+
+  return photoRouteState.layer;
+}
+
+function formatPhotoRouteTimestamp(value) {
+  return new Intl.DateTimeFormat("ko-KR", {
+    dateStyle: "medium",
+    timeStyle: "medium"
+  }).format(value);
+}
+
+function renderPhotoRouteFrame(frame) {
+  const photo = photoRouteState.timeline.photos[frame.photoIndex] || photoRouteState.timeline.photos[0];
+
+  if (!photo || frame.lat === null || frame.lng === null) {
+    return;
+  }
+
+  ensurePhotoRouteLayer();
+  photoRouteState.path?.setLatLngs(frame.visitedPoints);
+  photoRouteState.marker?.setLatLng([frame.lat, frame.lng]);
+
+  if (photoRoutePreviewEl) {
+    photoRoutePreviewEl.src = photo.previewUrl;
+  }
+  if (photoRouteTimestampEl) {
+    photoRouteTimestampEl.textContent = formatPhotoRouteTimestamp(photo.capturedAt);
+    photoRouteTimestampEl.dateTime = photo.capturedAt.toISOString();
+  }
+  if (photoRoutePositionEl) {
+    photoRoutePositionEl.textContent = `현재 사진 ${frame.photoIndex + 1} / ${photoRouteState.timeline.photos.length}`;
+  }
+  if (photoRouteProgressEl) {
+    photoRouteProgressEl.value = String(Math.round(frame.progress * 1000));
+  }
+}
+
+function getCurrentPhotoRouteFrame() {
+  if (!photoRouteState.timeline || !window.PhotoRoute?.getPlaybackFrame) {
+    return null;
+  }
+
+  return window.PhotoRoute.getPlaybackFrame(photoRouteState.timeline, photoRouteState.elapsedMs);
+}
+
+function seekPhotoRoutePlayback(elapsedMs) {
+  if (!photoRouteState.timeline) {
+    return;
+  }
+
+  const durationMs = photoRouteState.timeline.durationMs || 0;
+  photoRouteState.elapsedMs = Math.max(0, Math.min(durationMs, Number(elapsedMs) || 0));
+
+  if (photoRouteState.playing) {
+    photoRouteState.startedAt = performance.now() - photoRouteState.elapsedMs / photoRouteState.speed;
+  }
+
+  const frame = getCurrentPhotoRouteFrame();
+  if (frame) {
+    renderPhotoRouteFrame(frame);
+  }
+}
+
+function pausePhotoRoutePlayback() {
+  if (photoRouteState.frameId) {
+    cancelAnimationFrame(photoRouteState.frameId);
+    photoRouteState.frameId = 0;
+  }
+
+  photoRouteState.playing = false;
+  if (photoRoutePlayEl) {
+    photoRoutePlayEl.textContent = "재생";
+  }
+}
+
+function animatePhotoRoutePlayback(now) {
+  if (!photoRouteState.playing || !photoRouteState.timeline) {
+    return;
+  }
+
+  const durationMs = photoRouteState.timeline.durationMs || 0;
+  photoRouteState.elapsedMs = Math.min(
+    durationMs,
+    (now - photoRouteState.startedAt) * photoRouteState.speed
+  );
+
+  const frame = getCurrentPhotoRouteFrame();
+  if (frame) {
+    renderPhotoRouteFrame(frame);
+  }
+
+  if (frame?.done || photoRouteState.elapsedMs >= durationMs) {
+    pausePhotoRoutePlayback();
+    return;
+  }
+
+  photoRouteState.frameId = requestAnimationFrame(animatePhotoRoutePlayback);
+}
+
+function startPhotoRoutePlayback() {
+  if (!photoRouteState.timeline || photoRouteState.photos.length < 2) {
+    return;
+  }
+
+  if (photoRouteState.elapsedMs >= photoRouteState.timeline.durationMs) {
+    photoRouteState.elapsedMs = 0;
+  }
+
+  if (photoRouteState.frameId) {
+    cancelAnimationFrame(photoRouteState.frameId);
+  }
+
+  photoRouteState.playing = true;
+  photoRouteState.startedAt = performance.now() - photoRouteState.elapsedMs / photoRouteState.speed;
+  if (photoRoutePlayEl) {
+    photoRoutePlayEl.textContent = "일시정지";
+  }
+  photoRouteState.frameId = requestAnimationFrame(animatePhotoRoutePlayback);
+}
+
+function resetPhotoRoutePlayback() {
+  pausePhotoRoutePlayback();
+  seekPhotoRoutePlayback(0);
+}
+
+function revokePhotoPreviewUrls(photos) {
+  photos.forEach((photo) => {
+    if (photo.previewUrl) {
+      URL.revokeObjectURL(photo.previewUrl);
+    }
+  });
+}
+
+function disposePhotoRoutePlayback(options = {}) {
+  const { resetFileInput = true, invalidateLoads = true, restorePlannedTiles = true } = options;
+  if (invalidateLoads) {
+    photoRouteState.loadToken += 1;
+  }
+
+  pausePhotoRoutePlayback();
+
+  if (photoRouteState.layer) {
+    photoRouteState.layer.remove();
+  }
+
+  revokePhotoPreviewUrls(photoRouteState.photos);
+
+  photoRouteState.photos = [];
+  photoRouteState.timeline = null;
+  photoRouteState.elapsedMs = 0;
+  photoRouteState.layer = null;
+  photoRouteState.path = null;
+  photoRouteState.marker = null;
+
+  if (photoRoutePanelEl) {
+    photoRoutePanelEl.hidden = true;
+  }
+  if (photoRoutePreviewEl) {
+    photoRoutePreviewEl.removeAttribute("src");
+  }
+  if (photoRouteTimestampEl) {
+    photoRouteTimestampEl.textContent = "";
+    photoRouteTimestampEl.removeAttribute("datetime");
+  }
+  if (photoRoutePositionEl) {
+    photoRoutePositionEl.textContent = "";
+  }
+  if (photoRouteProgressEl) {
+    photoRouteProgressEl.value = "0";
+  }
+  setPhotoRouteControlsEnabled(false);
+
+  if (resetFileInput && photoRouteFilesEl) {
+    photoRouteFilesEl.value = "";
+  }
+
+  if (restorePlannedTiles) {
+    restorePlannedRouteTilesAfterPhotoPlayback();
+  }
+}
+
+async function loadPhotoRouteFiles(files) {
+  const loadToken = ++photoRouteState.loadToken;
+  const selectedFiles = Array.from(files || []);
+  disposePhotoRoutePlayback({ resetFileInput: false, invalidateLoads: false, restorePlannedTiles: false });
+  setPhotoRouteStatus("사진을 분석하는 중입니다…");
+
+  if (!selectedFiles.length) {
+    restorePlannedRouteTilesAfterPhotoPlayback();
+    setPhotoRouteStatus("사진을 선택해 주세요.");
+    return;
+  }
+
+  if (!window.PhotoRoute || !window.exifr) {
+    restorePlannedRouteTilesAfterPhotoPlayback();
+    setPhotoRouteStatus("사진 분석 도구를 불러오지 못했습니다.");
+    return;
+  }
+
+  try {
+    const photos = await window.PhotoRoute.analyzePhotoFiles(selectedFiles, {
+      parseMetadata: (file) => window.exifr.parse(file, {
+        ifd0: false,
+        exif: { pick: ["DateTimeOriginal"] },
+        gps: true
+      }),
+      createObjectURL: (file) => URL.createObjectURL(file)
+    });
+
+    if (loadToken !== photoRouteState.loadToken) {
+      revokePhotoPreviewUrls(photos);
+      return;
+    }
+
+    const timeline = window.PhotoRoute.buildPlaybackTimeline(photos, {
+      targetDurationMs: Math.min(45_000, Math.max(12_000, photos.length * 1_500)),
+      maxSourceGapMs: 30 * 60 * 1000
+    });
+    photoRouteState.timeline = timeline;
+    photoRouteState.photos = timeline.photos;
+
+    if (!timeline.photos.length) {
+      restorePlannedRouteTilesAfterPhotoPlayback();
+      setPhotoRouteStatus("촬영 시각과 위치가 포함된 사진이 없습니다.");
+      return;
+    }
+
+    if (photoRoutePanelEl) {
+      photoRoutePanelEl.hidden = false;
+    }
+
+    suspendPlannedRouteTilesForPhotoPlayback();
+    ensurePhotoRouteLayer();
+    const bounds = window.L && timeline.photos.map((photo) => [photo.lat, photo.lng]);
+    if (bounds?.length && renderRouteMap.map) {
+      renderRouteMap.map.fitBounds(window.L.latLngBounds(bounds), {
+        padding: [28, 28],
+        maxZoom: timeline.photos.length === 1 ? 16 : 14
+      });
+    }
+
+    setPhotoRouteControlsEnabled(timeline.photos.length > 1);
+    seekPhotoRoutePlayback(0);
+
+    if (timeline.photos.length === 1) {
+      setPhotoRouteStatus("이동 경로를 재생하려면 위치 정보가 있는 사진이 두 장 이상 필요합니다.");
+      return;
+    }
+
+    setPhotoRouteStatus("재생 준비가 완료되었습니다.");
+  } catch (error) {
+    if (loadToken !== photoRouteState.loadToken) {
+      return;
+    }
+
+    console.warn(error);
+    disposePhotoRoutePlayback({ resetFileInput: false, invalidateLoads: false });
+    setPhotoRouteStatus("사진을 분석하지 못했습니다.");
+  }
+}
+
+function wirePhotoRoutePlayback() {
+  if (!photoRouteFilesEl) {
+    return;
+  }
+
+  setPhotoRouteControlsEnabled(false);
+
+  photoRouteFilesEl.addEventListener("change", () => {
+    loadPhotoRouteFiles(photoRouteFilesEl.files);
+  });
+
+  photoRoutePlayEl?.addEventListener("click", () => {
+    if (photoRouteState.playing) {
+      pausePhotoRoutePlayback();
+    } else {
+      startPhotoRoutePlayback();
+    }
+  });
+
+  photoRouteResetEl?.addEventListener("click", resetPhotoRoutePlayback);
+
+  photoRouteProgressEl?.addEventListener("input", () => {
+    if (!photoRouteState.timeline) {
+      return;
+    }
+
+    const progress = Number(photoRouteProgressEl.value) / 1000;
+    seekPhotoRoutePlayback(photoRouteState.timeline.durationMs * progress);
+  });
+
+  photoRouteSpeedEl?.addEventListener("change", () => {
+    const nextSpeed = Number(photoRouteSpeedEl.value) || 1;
+    if (photoRouteState.playing) {
+      const now = performance.now();
+      photoRouteState.elapsedMs = Math.min(
+        photoRouteState.timeline?.durationMs || 0,
+        (now - photoRouteState.startedAt) * photoRouteState.speed
+      );
+      photoRouteState.speed = nextSpeed;
+      photoRouteState.startedAt = now - photoRouteState.elapsedMs / photoRouteState.speed;
+      return;
+    }
+
+    photoRouteState.speed = nextSpeed;
+  });
+
+  window.addEventListener("beforeunload", () => {
+    disposePhotoRoutePlayback({ restorePlannedTiles: false });
+  });
 }
 
 function wireRouteMap() {
@@ -2413,4 +2837,12 @@ async function loadSchedule() {
 renderChecklist(defaultChecklist);
 wireBookingTabs();
 wireRouteMap();
+wirePhotoRoutePlayback();
 loadSchedule();
+
+window.loadPhotoRouteFiles = loadPhotoRouteFiles;
+window.startPhotoRoutePlayback = startPhotoRoutePlayback;
+window.pausePhotoRoutePlayback = pausePhotoRoutePlayback;
+window.seekPhotoRoutePlayback = seekPhotoRoutePlayback;
+window.resetPhotoRoutePlayback = resetPhotoRoutePlayback;
+window.disposePhotoRoutePlayback = disposePhotoRoutePlayback;
