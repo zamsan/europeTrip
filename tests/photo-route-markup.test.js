@@ -99,7 +99,7 @@ test("zooms out only for city-to-city gaps while following the person marker", (
 
 test("cache-busts the deployed app bundle", () => {
   assert.match(html, /photo-route\.js\?v=4/);
-  assert.match(html, /app\.js\?v=41/);
+  assert.match(html, /app\.js\?v=42/);
 });
 
 test("shows live progress while reading many photos", () => {
@@ -148,4 +148,16 @@ test("locks map interaction only while playback is running", () => {
   assert.match(lockBody, /handler\.enable\(\)/);
   assert.match(startBody, /setPhotoRouteMapInteractionLocked\(true\)/);
   assert.match(pauseBody, /setPhotoRouteMapInteractionLocked\(false\)/);
+});
+
+test("fits the full photo route only when playback finishes naturally", () => {
+  const finishBody = functionBody("finishPhotoRoutePlayback");
+  const animateBody = functionBody("animatePhotoRoutePlayback");
+  const pauseBody = functionBody("pausePhotoRoutePlayback");
+
+  assert.match(finishBody, /pausePhotoRoutePlayback\(\)/);
+  assert.match(finishBody, /map\.fitBounds/);
+  assert.match(finishBody, /timeline\?\.photos\.map/);
+  assert.match(animateBody, /finishPhotoRoutePlayback\(\)/);
+  assert.doesNotMatch(pauseBody, /fitBounds/);
 });

@@ -1861,6 +1861,24 @@ function pausePhotoRoutePlayback() {
   }
 }
 
+function finishPhotoRoutePlayback() {
+  const map = renderRouteMap.map;
+  const timeline = photoRouteState.timeline;
+  pausePhotoRoutePlayback();
+
+  const points = timeline?.photos.map((photo) => [photo.lat, photo.lng]) || [];
+  if (!map || !window.L || points.length < 2) {
+    return;
+  }
+
+  map.fitBounds(window.L.latLngBounds(points), {
+    padding: [28, 28],
+    maxZoom: 14,
+    animate: true,
+    duration: 0.6
+  });
+}
+
 function animatePhotoRoutePlayback(now) {
   if (!photoRouteState.playing || !photoRouteState.timeline) {
     return;
@@ -1878,7 +1896,7 @@ function animatePhotoRoutePlayback(now) {
   }
 
   if (frame?.done || photoRouteState.elapsedMs >= durationMs) {
-    pausePhotoRoutePlayback();
+    finishPhotoRoutePlayback();
     return;
   }
 
