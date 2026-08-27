@@ -2010,6 +2010,14 @@ function updatePhotoRouteCamera(frame) {
   map.panTo(currentLatLng, { animate: false, noMoveStart: true });
 }
 
+function waitForPhotoPickerToClose() {
+  return new Promise((resolve) => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => setTimeout(resolve, 0));
+    });
+  });
+}
+
 async function loadPhotoRouteFiles(files) {
   const loadToken = ++photoRouteState.loadToken;
   const selectedFiles = Array.from(files || []);
@@ -2028,6 +2036,11 @@ async function loadPhotoRouteFiles(files) {
   }
 
   setPhotoRouteStatus(window.PhotoRoute.formatPhotoAnalysisProgress(0, selectedFiles.length));
+  await waitForPhotoPickerToClose();
+
+  if (loadToken !== photoRouteState.loadToken) {
+    return;
+  }
 
   try {
     const photos = await window.PhotoRoute.analyzePhotoFiles(selectedFiles, {
