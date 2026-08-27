@@ -1401,21 +1401,6 @@ function readItemTime(row) {
   return `${(hour || "00").padStart(2, "0")}:${(minute || "00").padStart(2, "0")}`;
 }
 
-function sortEditorRowsByTime(itemList) {
-  const rows = Array.from(itemList.querySelectorAll("[data-item-row]"));
-  rows
-    .map((row, index) => ({
-      row,
-      index,
-      time: readItemTime(row)
-    }))
-    .sort((left, right) => {
-      const diff = getItemSortMinutes({ time: left.time }) - getItemSortMinutes({ time: right.time });
-      return diff || left.index - right.index;
-    })
-    .forEach(({ row }) => itemList.append(row));
-}
-
 function cloneDay(day) {
   return {
     date: day.date || "",
@@ -2297,17 +2282,6 @@ function wireTimelineEditing() {
     await saveSelectedDay(Number.parseInt(form.dataset.editorIndex, 10), form);
   });
 
-  timelineEl.addEventListener("change", (event) => {
-    const timeSelect = event.target.closest('[name="itemHour"], [name="itemMinute"]');
-    if (!timeSelect) {
-      return;
-    }
-
-    const itemList = timeSelect.closest("[data-item-list]");
-    if (itemList) {
-      sortEditorRowsByTime(itemList);
-    }
-  });
 }
 
 async function initFirestoreSchedule() {

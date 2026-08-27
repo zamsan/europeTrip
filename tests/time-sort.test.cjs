@@ -32,4 +32,10 @@ assert.deepEqual(
   { hour: "11", minute: "00" }
 );
 
+assert.doesNotMatch(
+  source,
+  /timelineEl\.addEventListener\("change"[\s\S]*?sortEditorRowsByTime\(itemList\);[\s\S]*?\n\s*}\);/,
+  "시간 변경 중에는 행을 재배치하지 않고 저장할 때만 정렬해야 합니다."
+);
+
 console.log("time-sort tests passed");
