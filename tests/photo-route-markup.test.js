@@ -22,10 +22,12 @@ test("loads pinned EXIF and playback scripts before app.js", () => {
 
 test("contains accessible local photo playback controls", () => {
   for (const id of [
-    "photoRouteFiles", "photoRouteStatus", "photoRoutePanel", "photoRoutePreview",
-    "photoRouteTimestamp", "photoRoutePosition", "photoRoutePlay", "photoRouteReset",
+    "photoRouteFiles", "photoRouteStatus", "photoRoutePanel", "photoRoutePlay", "photoRouteReset",
     "photoRouteProgress", "photoRouteSpeed"
   ]) assert.match(html, new RegExp(`id=["']${id}["']`));
+  for (const id of ["photoRoutePreview", "photoRouteTimestamp", "photoRoutePosition"]) {
+    assert.doesNotMatch(html, new RegExp(`id=["']${id}["']`));
+  }
   assert.match(html, /accept=["']image\/\*["']/);
   assert.match(html, /multiple/);
   assert.match(html, /사진은 이 기기에서만 처리/);
@@ -40,10 +42,10 @@ test("wires local EXIF parsing and animation without Firebase writes", () => {
   assert.doesNotMatch(app, /uploadBytes|FirebaseStorage|getStorage/);
 });
 
-test("renders photo UI from the sorted playback timeline", () => {
+test("renders only route progress without photo details", () => {
   const body = functionBody("renderPhotoRouteFrame");
-  assert.match(body, /photoRouteState\.timeline\.photos\[frame\.photoIndex\]/);
-  assert.doesNotMatch(body, /photoRouteState\.photos\[frame\.photoIndex\]/);
+  assert.doesNotMatch(body, /photoRoutePreview|photoRouteTimestamp|photoRoutePosition/);
+  assert.match(body, /photoRouteProgressEl\.value/);
 });
 
 test("guards stale photo loads and revokes stale previews", () => {
@@ -54,29 +56,31 @@ test("guards stale photo loads and revokes stale previews", () => {
   assert.match(body, /revokePhotoPreviewUrls\(photos\)/);
 });
 
-test("removes remote map tiles before photo-derived viewport changes", () => {
+test("keeps map tiles but hides the planned route during photo playback", () => {
   const renderBody = functionBody("renderRouteMap");
   const loadBody = functionBody("loadPhotoRouteFiles");
-  const removeIndex = loadBody.indexOf("suspendPlannedRouteTilesForPhotoPlayback()");
+  const activateIndex = loadBody.indexOf("activatePhotoRouteMode()");
   const fitIndex = loadBody.indexOf("renderRouteMap.map.fitBounds");
 
   assert.match(renderBody, /renderRouteMap\.tileLayer\s*=/);
-  assert.match(app, /function suspendPlannedRouteTilesForPhotoPlayback/);
-  assert.match(app, /function restorePlannedRouteTilesAfterPhotoPlayback/);
-  assert.ok(removeIndex >= 0, "photo loading must suspend remote tiles");
+  assert.match(app, /function activatePhotoRouteMode/);
+  assert.match(app, /function restorePlannedRouteAfterPhotoPlayback/);
+  assert.match(functionBody("activatePhotoRouteMode"), /renderRouteMap\.layer\.remove\(\)/);
+  assert.doesNotMatch(functionBody("activatePhotoRouteMode"), /tileLayer|removeLayer/);
+  assert.ok(activateIndex >= 0, "photo loading must hide the planned route");
   assert.ok(fitIndex >= 0, "photo loading should still fit local photo bounds");
-  assert.ok(removeIndex < fitIndex, "remote tiles must be removed before photo fitBounds");
+  assert.ok(activateIndex < fitIndex, "planned route must be hidden before photo fitBounds");
 });
 
-test("restores planned map tiles only outside immediate photo reloads", () => {
+test("uses a person marker and restores the planned route after playback", () => {
   const disposeBody = functionBody("disposePhotoRoutePlayback");
   const loadBody = functionBody("loadPhotoRouteFiles");
   const wireBody = functionBody("wirePhotoRoutePlayback");
 
-  assert.match(disposeBody, /restorePlannedTiles\s*=\s*true/);
-  assert.match(disposeBody, /if \(restorePlannedTiles\)/);
-  assert.match(disposeBody, /restorePlannedRouteTilesAfterPhotoPlayback\(\)/);
-  assert.match(loadBody, /restorePlannedTiles:\s*false/);
-  assert.match(loadBody, /if \(!window\.PhotoRoute \|\| !window\.exifr\) \{\s*restorePlannedRouteTilesAfterPhotoPlayback\(\)/);
-  assert.match(wireBody, /beforeunload[\s\S]*restorePlannedTiles:\s*false/);
+  assert.match(app, /window\.L\.divIcon/);
+  assert.match(app, /photo-route-person-marker/);
+  assert.match(disposeBody, /restorePlannedRoute\s*=\s*true/);
+  assert.match(disposeBody, /restorePlannedRouteAfterPhotoPlayback\(\)/);
+  assert.match(loadBody, /restorePlannedRoute:\s*false/);
+  assert.match(wireBody, /beforeunload[\s\S]*restorePlannedRoute:\s*false/);
 });

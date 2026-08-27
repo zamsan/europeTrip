@@ -206,13 +206,6 @@ p {
   background: #edf1f5;
 }
 
-.route-map.is-photo-local-playback {
-  background:
-    linear-gradient(rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0.78)),
-    repeating-linear-gradient(0deg, transparent 0 39px, rgba(15, 118, 110, 0.12) 39px 40px),
-    repeating-linear-gradient(90deg, #eef4f3 0 39px, rgba(15, 118, 110, 0.12) 39px 40px);
-}
-
 .route-map-error {
   min-height: 430px;
   display: grid;
@@ -285,34 +278,13 @@ p {
 
 .photo-route-panel {
   display: grid;
-  grid-template-columns: minmax(220px, 0.95fr) minmax(0, 1fr);
-  gap: 16px;
-  align-items: stretch;
-}
-
-#photoRoutePreview {
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: #edf1f5;
-  object-fit: cover;
+  gap: 12px;
 }
 
 .photo-route-details {
   display: grid;
   gap: 12px;
   align-content: start;
-}
-
-#photoRouteTimestamp {
-  color: var(--gold);
-  font-weight: 900;
-}
-
-#photoRoutePosition {
-  color: var(--muted);
-  font-size: 0.94rem;
 }
 
 .photo-route-buttons {
@@ -354,6 +326,17 @@ p {
 #photoRouteProgress {
   width: 100%;
   accent-color: var(--green);
+}
+
+.photo-route-person-marker {
+  display: grid;
+  place-items: center;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.35);
+  font-size: 1.45rem;
+  line-height: 1;
 }
 
 .route-marker-number {
