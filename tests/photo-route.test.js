@@ -5,7 +5,8 @@ const {
   getPlaybackFrame,
   analyzePhotoFiles,
   formatPhotoAnalysisProgress,
-  getPhotoRouteZoom
+  getPhotoRouteZoom,
+  getPhotoPickerInterruptionMessage
 } = require("../photo-route.js");
 
 test("sorts photos by capture time and caps long gaps before normalization", () => {
@@ -121,4 +122,13 @@ test("zooms out only for city-to-city photo gaps", () => {
   assert.equal(getPhotoRouteZoom(49_999), 14);
   assert.equal(getPhotoRouteZoom(50_000), 8);
   assert.equal(getPhotoRouteZoom(350_000), 8);
+});
+
+test("distinguishes a page restart while the mobile photo picker was open", () => {
+  assert.equal(getPhotoPickerInterruptionMessage(null, "new-page"), null);
+  assert.equal(getPhotoPickerInterruptionMessage({ pageId: "same-page" }, "same-page"), null);
+  assert.equal(
+    getPhotoPickerInterruptionMessage({ pageId: "old-page" }, "new-page"),
+    "사진 선택 중 Safari 페이지가 다시 시작되었습니다. 많은 사진으로 인한 메모리 부족일 가능성이 있습니다."
+  );
 });

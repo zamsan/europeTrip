@@ -98,8 +98,8 @@ test("zooms out only for city-to-city gaps while following the person marker", (
 });
 
 test("cache-busts the deployed app bundle", () => {
-  assert.match(html, /photo-route\.js\?v=3/);
-  assert.match(html, /app\.js\?v=40/);
+  assert.match(html, /photo-route\.js\?v=4/);
+  assert.match(html, /app\.js\?v=41/);
 });
 
 test("shows live progress while reading many photos", () => {
@@ -122,6 +122,17 @@ test("lets the mobile photo picker close and paints progress before analysis", (
   assert.match(waitBody, /setTimeout/);
   assert.ok(statusIndex >= 0 && statusIndex < waitIndex);
   assert.ok(waitIndex < analyzeIndex);
+});
+
+test("keeps local diagnostics for picker delivery failures and page restarts", () => {
+  const wireBody = functionBody("wirePhotoRoutePlayback");
+
+  assert.match(app, /sessionStorage/);
+  assert.match(app, /getPhotoPickerInterruptionMessage/);
+  assert.match(wireBody, /photoRouteFilesEl\.addEventListener\("click"/);
+  assert.match(wireBody, /photoRouteFilesEl\.addEventListener\("cancel"/);
+  assert.match(wireBody, /window\.addEventListener\("focus"/);
+  assert.match(wireBody, /사진 선택 창은 닫혔지만 사진이 앱에 전달되지 않았습니다/);
 });
 
 test("locks map interaction only while playback is running", () => {

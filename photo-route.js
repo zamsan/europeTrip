@@ -93,6 +93,11 @@
     return Number(distanceMeters) >= 50_000 ? 8 : 14;
   }
 
+  function getPhotoPickerInterruptionMessage(pendingSelection, currentPageId) {
+    if (!pendingSelection || pendingSelection.pageId === currentPageId) return null;
+    return "사진 선택 중 Safari 페이지가 다시 시작되었습니다. 많은 사진으로 인한 메모리 부족일 가능성이 있습니다.";
+  }
+
   async function analyzePhotoFiles(files, dependencies) {
     const selectedFiles = Array.from(files);
     const results = [];
@@ -127,6 +132,7 @@
     getPlaybackFrame,
     formatPhotoAnalysisProgress,
     getPhotoRouteZoom,
+    getPhotoPickerInterruptionMessage,
     analyzePhotoFiles
   };
 });
