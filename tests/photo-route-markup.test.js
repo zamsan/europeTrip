@@ -98,7 +98,7 @@ test("follows the person marker at one fixed zoom level", () => {
 
 test("cache-busts the deployed app bundle", () => {
   assert.match(html, /photo-route\.js\?v=2/);
-  assert.match(html, /app\.js\?v=38/);
+  assert.match(html, /app\.js\?v=39/);
 });
 
 test("shows live progress while reading many photos", () => {
@@ -108,6 +108,19 @@ test("shows live progress while reading many photos", () => {
   assert.match(loadBody, /onProgress:\s*\(completed, total\)/);
   assert.match(loadBody, /formatPhotoAnalysisProgress\(completed, total\)/);
   assert.match(loadBody, /yieldControl/);
+});
+
+test("lets the mobile photo picker close and paints progress before analysis", () => {
+  const waitBody = functionBody("waitForPhotoPickerToClose");
+  const loadBody = functionBody("loadPhotoRouteFiles");
+  const statusIndex = loadBody.indexOf("formatPhotoAnalysisProgress(0, selectedFiles.length)");
+  const waitIndex = loadBody.indexOf("await waitForPhotoPickerToClose()");
+  const analyzeIndex = loadBody.indexOf("analyzePhotoFiles");
+
+  assert.match(waitBody, /requestAnimationFrame/);
+  assert.match(waitBody, /setTimeout/);
+  assert.ok(statusIndex >= 0 && statusIndex < waitIndex);
+  assert.ok(waitIndex < analyzeIndex);
 });
 
 test("locks map interaction only while playback is running", () => {
