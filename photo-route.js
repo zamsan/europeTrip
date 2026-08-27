@@ -38,6 +38,27 @@
   }
 
   function getPlaybackFrame(timeline, elapsedMs) {
+    if (!timeline.segments.length) {
+      const photo = timeline.photos[0];
+      if (!photo) {
+        return {
+          progress: 0,
+          photoIndex: -1,
+          lat: null,
+          lng: null,
+          visitedPoints: [],
+          done: true
+        };
+      }
+      return {
+        progress: 1,
+        photoIndex: 0,
+        lat: photo.lat,
+        lng: photo.lng,
+        visitedPoints: [[photo.lat, photo.lng]],
+        done: true
+      };
+    }
     const elapsed = Math.max(0, Math.min(timeline.durationMs, elapsedMs));
     const segment = timeline.segments.find((item) => elapsed <= item.endMs)
       || timeline.segments[timeline.segments.length - 1];
