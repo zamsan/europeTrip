@@ -512,6 +512,11 @@ const photoRoutePlayEl = document.querySelector("#photoRoutePlay");
 const photoRouteResetEl = document.querySelector("#photoRouteReset");
 const photoRouteProgressEl = document.querySelector("#photoRouteProgress");
 const photoRouteSpeedEl = document.querySelector("#photoRouteSpeed");
+const PHOTO_PICKER_DIAGNOSTIC_KEY = "photoRoutePickerPending";
+const photoPickerPageId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+let photoPickerAwaitingDelivery = false;
+let photoPickerChangeReceived = false;
+let photoPickerFocusTimer = 0;
 
 const photoRouteState = {
   photos: [],
@@ -2123,8 +2128,56 @@ function wirePhotoRoutePlayback() {
 
   setPhotoRouteControlsEnabled(false);
 
+  try {
+    const pendingSelection = JSON.parse(sessionStorage.getItem(PHOTO_PICKER_DIAGNOSTIC_KEY) || "null");
+    const interruptionMessage = window.PhotoRoute?.getPhotoPickerInterruptionMessage(
+      pendingSelection,
+      photoPickerPageId
+    );
+    if (interruptionMessage) {
+      setPhotoRouteStatus(interruptionMessage);
+      sessionStorage.removeItem(PHOTO_PICKER_DIAGNOSTIC_KEY);
+    }
+  } catch (_) {
+    sessionStorage.removeItem(PHOTO_PICKER_DIAGNOSTIC_KEY);
+  }
+
+  photoRouteFilesEl.addEventListener("click", () => {
+    photoPickerAwaitingDelivery = true;
+    photoPickerChangeReceived = false;
+    try {
+      sessionStorage.setItem(PHOTO_PICKER_DIAGNOSTIC_KEY, JSON.stringify({
+        pageId: photoPickerPageId,
+        startedAt: Date.now()
+      }));
+    } catch (_) {
+      // Local diagnostics are best-effort and never block photo selection.
+    }
+  });
+
   photoRouteFilesEl.addEventListener("change", () => {
+    photoPickerAwaitingDelivery = false;
+    photoPickerChangeReceived = true;
+    clearTimeout(photoPickerFocusTimer);
+    sessionStorage.removeItem(PHOTO_PICKER_DIAGNOSTIC_KEY);
     loadPhotoRouteFiles(photoRouteFilesEl.files);
+  });
+
+  photoRouteFilesEl.addEventListener("cancel", () => {
+    photoPickerAwaitingDelivery = false;
+    clearTimeout(photoPickerFocusTimer);
+    sessionStorage.removeItem(PHOTO_PICKER_DIAGNOSTIC_KEY);
+  });
+
+  window.addEventListener("focus", () => {
+    if (!photoPickerAwaitingDelivery) return;
+    clearTimeout(photoPickerFocusTimer);
+    photoPickerFocusTimer = window.setTimeout(() => {
+      if (!photoPickerAwaitingDelivery || photoPickerChangeReceived) return;
+      photoPickerAwaitingDelivery = false;
+      sessionStorage.removeItem(PHOTO_PICKER_DIAGNOSTIC_KEY);
+      setPhotoRouteStatus("사진 선택 창은 닫혔지만 사진이 앱에 전달되지 않았습니다. 사진 수를 줄여 다시 선택해 주세요.");
+    }, 1200);
   });
 
   photoRoutePlayEl?.addEventListener("click", () => {
