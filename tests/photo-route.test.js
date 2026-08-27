@@ -3,7 +3,8 @@ const assert = require("node:assert/strict");
 const {
   buildPlaybackTimeline,
   getPlaybackFrame,
-  analyzePhotoFiles
+  analyzePhotoFiles,
+  formatPhotoAnalysisProgress
 } = require("../photo-route.js");
 
 test("sorts photos by capture time and caps long gaps before normalization", () => {
@@ -86,4 +87,31 @@ test("silently skips unusable metadata and preserves generated preview urls", as
   assert.equal(result.length, 1);
   assert.equal(result[0].previewUrl, "blob:good.jpg");
   assert.equal(result[0].lat, 48.8);
+});
+
+test("reports progress for every selected photo and yields between large batches", async () => {
+  const files = Array.from({ length: 100 }, (_, index) => ({ name: `${index}.jpg` }));
+  const progress = [];
+  let yields = 0;
+
+  const result = await analyzePhotoFiles(files, {
+    parseMetadata: async (file) => file.name === "50.jpg"
+      ? Promise.reject(new Error("unreadable"))
+      : { DateTimeOriginal: "2026:08:01 12:00:00", latitude: 48.8, longitude: 2.3 },
+    createObjectURL: () => "",
+    onProgress: (completed, total) => progress.push([completed, total]),
+    yieldControl: async () => { yields += 1; }
+  });
+
+  assert.equal(result.length, 99);
+  assert.deepEqual(progress[0], [1, 100]);
+  assert.deepEqual(progress.at(-1), [100, 100]);
+  assert.equal(progress.length, 100);
+  assert.equal(yields, 100);
+});
+
+test("formats a visible photo analysis count and percentage", () => {
+  assert.equal(formatPhotoAnalysisProgress(0, 100), "사진 정보 읽는 중… 0 / 100 (0%)");
+  assert.equal(formatPhotoAnalysisProgress(37, 100), "사진 정보 읽는 중… 37 / 100 (37%)");
+  assert.equal(formatPhotoAnalysisProgress(1, 3), "사진 정보 읽는 중… 1 / 3 (33%)");
 });

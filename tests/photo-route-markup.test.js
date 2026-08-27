@@ -101,7 +101,17 @@ test("automatically follows the person marker with distance-based zoom", () => {
 });
 
 test("cache-busts the deployed app bundle", () => {
-  assert.match(html, /app\.js\?v=36/);
+  assert.match(html, /photo-route\.js\?v=2/);
+  assert.match(html, /app\.js\?v=37/);
+});
+
+test("shows live progress while reading many photos", () => {
+  const loadBody = functionBody("loadPhotoRouteFiles");
+
+  assert.match(loadBody, /formatPhotoAnalysisProgress\(0, selectedFiles\.length\)/);
+  assert.match(loadBody, /onProgress:\s*\(completed, total\)/);
+  assert.match(loadBody, /formatPhotoAnalysisProgress\(completed, total\)/);
+  assert.match(loadBody, /yieldControl/);
 });
 
 test("locks map interaction only while playback is running", () => {
