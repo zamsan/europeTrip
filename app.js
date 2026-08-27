@@ -508,9 +508,6 @@ const routeFilterEls = Array.from(document.querySelectorAll("[data-route-filter]
 const photoRouteFilesEl = document.querySelector("#photoRouteFiles");
 const photoRouteStatusEl = document.querySelector("#photoRouteStatus");
 const photoRoutePanelEl = document.querySelector("#photoRoutePanel");
-const photoRoutePreviewEl = document.querySelector("#photoRoutePreview");
-const photoRouteTimestampEl = document.querySelector("#photoRouteTimestamp");
-const photoRoutePositionEl = document.querySelector("#photoRoutePosition");
 const photoRoutePlayEl = document.querySelector("#photoRoutePlay");
 const photoRouteResetEl = document.querySelector("#photoRouteReset");
 const photoRouteProgressEl = document.querySelector("#photoRouteProgress");
@@ -528,7 +525,7 @@ const photoRouteState = {
   path: null,
   marker: null,
   loadToken: 0,
-  localPlaybackActive: false
+  active: false
 };
 
 const routePoints = [
@@ -1668,7 +1665,6 @@ function renderRouteMap(filter = "all") {
 
   if (
     renderRouteMap.tileLayer
-    && !photoRouteState.localPlaybackActive
     && !renderRouteMap.map.hasLayer(renderRouteMap.tileLayer)
   ) {
     renderRouteMap.tileLayer.addTo(renderRouteMap.map);
@@ -1676,6 +1672,11 @@ function renderRouteMap(filter = "all") {
 
   if (renderRouteMap.layer) {
     renderRouteMap.layer.remove();
+  }
+
+  if (photoRouteState.active) {
+    renderRouteMap.layer = null;
+    return;
   }
 
   const visiblePoints = getVisibleRoutePoints(filter);
@@ -1731,34 +1732,19 @@ function renderRouteMap(filter = "all") {
   }
 }
 
-function suspendPlannedRouteTilesForPhotoPlayback() {
-  photoRouteState.localPlaybackActive = true;
-  routeMapEl?.classList.add("is-photo-local-playback");
-
-  if (
-    renderRouteMap.map
-    && renderRouteMap.tileLayer
-    && renderRouteMap.map.hasLayer(renderRouteMap.tileLayer)
-  ) {
-    renderRouteMap.map.removeLayer(renderRouteMap.tileLayer);
+function activatePhotoRouteMode() {
+  photoRouteState.active = true;
+  if (renderRouteMap.layer) {
+    renderRouteMap.layer.remove();
+    renderRouteMap.layer = null;
   }
 }
 
-function restorePlannedRouteTilesAfterPhotoPlayback() {
-  photoRouteState.localPlaybackActive = false;
-  routeMapEl?.classList.remove("is-photo-local-playback");
-
+function restorePlannedRouteAfterPhotoPlayback() {
+  photoRouteState.active = false;
   if (!renderRouteMap.map) {
     return;
   }
-
-  if (
-    renderRouteMap.tileLayer
-    && !renderRouteMap.map.hasLayer(renderRouteMap.tileLayer)
-  ) {
-    renderRouteMap.tileLayer.addTo(renderRouteMap.map);
-  }
-
   renderRouteMap(activeRouteFilter);
 }
 
@@ -1802,29 +1788,20 @@ function ensurePhotoRouteLayer() {
       weight: 5,
       opacity: 0.9
     }).addTo(photoRouteState.layer);
-    photoRouteState.marker = window.L.circleMarker([0, 0], {
-      radius: 9,
-      color: "#ffffff",
-      weight: 3,
-      fillColor: "#7c3aed",
-      fillOpacity: 1
-    }).addTo(photoRouteState.layer);
+    const personIcon = window.L.divIcon({
+      className: "photo-route-person-marker",
+      html: '<span aria-hidden="true">🚶</span>',
+      iconSize: [40, 40],
+      iconAnchor: [20, 20]
+    });
+    photoRouteState.marker = window.L.marker([0, 0], { icon: personIcon }).addTo(photoRouteState.layer);
   }
 
   return photoRouteState.layer;
 }
 
-function formatPhotoRouteTimestamp(value) {
-  return new Intl.DateTimeFormat("ko-KR", {
-    dateStyle: "medium",
-    timeStyle: "medium"
-  }).format(value);
-}
-
 function renderPhotoRouteFrame(frame) {
-  const photo = photoRouteState.timeline.photos[frame.photoIndex] || photoRouteState.timeline.photos[0];
-
-  if (!photo || frame.lat === null || frame.lng === null) {
+  if (frame.lat === null || frame.lng === null) {
     return;
   }
 
@@ -1832,16 +1809,6 @@ function renderPhotoRouteFrame(frame) {
   photoRouteState.path?.setLatLngs(frame.visitedPoints);
   photoRouteState.marker?.setLatLng([frame.lat, frame.lng]);
 
-  if (photoRoutePreviewEl) {
-    photoRoutePreviewEl.src = photo.previewUrl;
-  }
-  if (photoRouteTimestampEl) {
-    photoRouteTimestampEl.textContent = formatPhotoRouteTimestamp(photo.capturedAt);
-    photoRouteTimestampEl.dateTime = photo.capturedAt.toISOString();
-  }
-  if (photoRoutePositionEl) {
-    photoRoutePositionEl.textContent = `현재 사진 ${frame.photoIndex + 1} / ${photoRouteState.timeline.photos.length}`;
-  }
   if (photoRouteProgressEl) {
     photoRouteProgressEl.value = String(Math.round(frame.progress * 1000));
   }
@@ -1944,7 +1911,7 @@ function revokePhotoPreviewUrls(photos) {
 }
 
 function disposePhotoRoutePlayback(options = {}) {
-  const { resetFileInput = true, invalidateLoads = true, restorePlannedTiles = true } = options;
+  const { resetFileInput = true, invalidateLoads = true, restorePlannedRoute = true } = options;
   if (invalidateLoads) {
     photoRouteState.loadToken += 1;
   }
@@ -1967,16 +1934,6 @@ function disposePhotoRoutePlayback(options = {}) {
   if (photoRoutePanelEl) {
     photoRoutePanelEl.hidden = true;
   }
-  if (photoRoutePreviewEl) {
-    photoRoutePreviewEl.removeAttribute("src");
-  }
-  if (photoRouteTimestampEl) {
-    photoRouteTimestampEl.textContent = "";
-    photoRouteTimestampEl.removeAttribute("datetime");
-  }
-  if (photoRoutePositionEl) {
-    photoRoutePositionEl.textContent = "";
-  }
   if (photoRouteProgressEl) {
     photoRouteProgressEl.value = "0";
   }
@@ -1986,25 +1943,25 @@ function disposePhotoRoutePlayback(options = {}) {
     photoRouteFilesEl.value = "";
   }
 
-  if (restorePlannedTiles) {
-    restorePlannedRouteTilesAfterPhotoPlayback();
+  if (restorePlannedRoute) {
+    restorePlannedRouteAfterPhotoPlayback();
   }
 }
 
 async function loadPhotoRouteFiles(files) {
   const loadToken = ++photoRouteState.loadToken;
   const selectedFiles = Array.from(files || []);
-  disposePhotoRoutePlayback({ resetFileInput: false, invalidateLoads: false, restorePlannedTiles: false });
+  disposePhotoRoutePlayback({ resetFileInput: false, invalidateLoads: false, restorePlannedRoute: false });
   setPhotoRouteStatus("사진을 분석하는 중입니다…");
 
   if (!selectedFiles.length) {
-    restorePlannedRouteTilesAfterPhotoPlayback();
+    restorePlannedRouteAfterPhotoPlayback();
     setPhotoRouteStatus("사진을 선택해 주세요.");
     return;
   }
 
   if (!window.PhotoRoute || !window.exifr) {
-    restorePlannedRouteTilesAfterPhotoPlayback();
+    restorePlannedRouteAfterPhotoPlayback();
     setPhotoRouteStatus("사진 분석 도구를 불러오지 못했습니다.");
     return;
   }
@@ -2016,7 +1973,7 @@ async function loadPhotoRouteFiles(files) {
         exif: { pick: ["DateTimeOriginal"] },
         gps: true
       }),
-      createObjectURL: (file) => URL.createObjectURL(file)
+      createObjectURL: () => ""
     });
 
     if (loadToken !== photoRouteState.loadToken) {
@@ -2032,7 +1989,7 @@ async function loadPhotoRouteFiles(files) {
     photoRouteState.photos = timeline.photos;
 
     if (!timeline.photos.length) {
-      restorePlannedRouteTilesAfterPhotoPlayback();
+      restorePlannedRouteAfterPhotoPlayback();
       setPhotoRouteStatus("촬영 시각과 위치가 포함된 사진이 없습니다.");
       return;
     }
@@ -2041,7 +1998,7 @@ async function loadPhotoRouteFiles(files) {
       photoRoutePanelEl.hidden = false;
     }
 
-    suspendPlannedRouteTilesForPhotoPlayback();
+    activatePhotoRouteMode();
     ensurePhotoRouteLayer();
     const bounds = window.L && timeline.photos.map((photo) => [photo.lat, photo.lng]);
     if (bounds?.length && renderRouteMap.map) {
@@ -2118,7 +2075,7 @@ function wirePhotoRoutePlayback() {
   });
 
   window.addEventListener("beforeunload", () => {
-    disposePhotoRoutePlayback({ restorePlannedTiles: false });
+    disposePhotoRoutePlayback({ restorePlannedRoute: false });
   });
 }
 
