@@ -82,9 +82,17 @@
     };
   }
 
+  function formatPhotoAnalysisProgress(completed, total) {
+    const safeTotal = Math.max(0, Number(total) || 0);
+    const safeCompleted = Math.max(0, Math.min(safeTotal, Number(completed) || 0));
+    const percent = safeTotal ? Math.floor(safeCompleted / safeTotal * 100) : 0;
+    return `사진 정보 읽는 중… ${safeCompleted} / ${safeTotal} (${percent}%)`;
+  }
+
   async function analyzePhotoFiles(files, dependencies) {
+    const selectedFiles = Array.from(files);
     const results = [];
-    for (const [index, file] of Array.from(files).entries()) {
+    for (const [index, file] of selectedFiles.entries()) {
       try {
         const metadata = await dependencies.parseMetadata(file);
         const capturedAt = normalizeCapturedAt(metadata?.DateTimeOriginal);
@@ -101,10 +109,19 @@
         });
       } catch (_) {
         // An unreadable file does not prevent the remaining local files from loading.
+      } finally {
+        dependencies.onProgress?.(index + 1, selectedFiles.length);
+        await dependencies.yieldControl?.();
       }
     }
     return results;
   }
 
-  return { normalizeCapturedAt, buildPlaybackTimeline, getPlaybackFrame, analyzePhotoFiles };
+  return {
+    normalizeCapturedAt,
+    buildPlaybackTimeline,
+    getPlaybackFrame,
+    formatPhotoAnalysisProgress,
+    analyzePhotoFiles
+  };
 });

@@ -2028,7 +2028,6 @@ async function loadPhotoRouteFiles(files) {
   const loadToken = ++photoRouteState.loadToken;
   const selectedFiles = Array.from(files || []);
   disposePhotoRoutePlayback({ resetFileInput: false, invalidateLoads: false, restorePlannedRoute: false });
-  setPhotoRouteStatus("사진을 분석하는 중입니다…");
 
   if (!selectedFiles.length) {
     restorePlannedRouteAfterPhotoPlayback();
@@ -2042,6 +2041,8 @@ async function loadPhotoRouteFiles(files) {
     return;
   }
 
+  setPhotoRouteStatus(window.PhotoRoute.formatPhotoAnalysisProgress(0, selectedFiles.length));
+
   try {
     const photos = await window.PhotoRoute.analyzePhotoFiles(selectedFiles, {
       parseMetadata: (file) => window.exifr.parse(file, {
@@ -2049,7 +2050,13 @@ async function loadPhotoRouteFiles(files) {
         exif: { pick: ["DateTimeOriginal"] },
         gps: true
       }),
-      createObjectURL: () => ""
+      createObjectURL: () => "",
+      onProgress: (completed, total) => {
+        if (loadToken === photoRouteState.loadToken) {
+          setPhotoRouteStatus(window.PhotoRoute.formatPhotoAnalysisProgress(completed, total));
+        }
+      },
+      yieldControl: () => new Promise((resolve) => setTimeout(resolve, 0))
     });
 
     if (loadToken !== photoRouteState.loadToken) {
