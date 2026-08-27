@@ -526,7 +526,8 @@ const photoRouteState = {
   frameId: 0,
   layer: null,
   path: null,
-  marker: null
+  marker: null,
+  loadToken: 0
 };
 
 const routePoints = [
@@ -1772,7 +1773,7 @@ function formatPhotoRouteTimestamp(value) {
 }
 
 function renderPhotoRouteFrame(frame) {
-  const photo = photoRouteState.photos[frame.photoIndex] || photoRouteState.photos[0];
+  const photo = photoRouteState.timeline.photos[frame.photoIndex] || photoRouteState.timeline.photos[0];
 
   if (!photo || frame.lat === null || frame.lng === null) {
     return;
@@ -1790,7 +1791,7 @@ function renderPhotoRouteFrame(frame) {
     photoRouteTimestampEl.dateTime = photo.capturedAt.toISOString();
   }
   if (photoRoutePositionEl) {
-    photoRoutePositionEl.textContent = `현재 사진 ${frame.photoIndex + 1} / ${photoRouteState.photos.length}`;
+    photoRoutePositionEl.textContent = `현재 사진 ${frame.photoIndex + 1} / ${photoRouteState.timeline.photos.length}`;
   }
   if (photoRouteProgressEl) {
     photoRouteProgressEl.value = String(Math.round(frame.progress * 1000));
@@ -1885,19 +1886,27 @@ function resetPhotoRoutePlayback() {
   seekPhotoRoutePlayback(0);
 }
 
+function revokePhotoPreviewUrls(photos) {
+  photos.forEach((photo) => {
+    if (photo.previewUrl) {
+      URL.revokeObjectURL(photo.previewUrl);
+    }
+  });
+}
+
 function disposePhotoRoutePlayback(options = {}) {
-  const { resetFileInput = true } = options;
+  const { resetFileInput = true, invalidateLoads = true } = options;
+  if (invalidateLoads) {
+    photoRouteState.loadToken += 1;
+  }
+
   pausePhotoRoutePlayback();
 
   if (photoRouteState.layer) {
     photoRouteState.layer.remove();
   }
 
-  photoRouteState.photos.forEach((photo) => {
-    if (photo.previewUrl) {
-      URL.revokeObjectURL(photo.previewUrl);
-    }
-  });
+  revokePhotoPreviewUrls(photoRouteState.photos);
 
   photoRouteState.photos = [];
   photoRouteState.timeline = null;
@@ -1930,8 +1939,9 @@ function disposePhotoRoutePlayback(options = {}) {
 }
 
 async function loadPhotoRouteFiles(files) {
+  const loadToken = ++photoRouteState.loadToken;
   const selectedFiles = Array.from(files || []);
-  disposePhotoRoutePlayback({ resetFileInput: false });
+  disposePhotoRoutePlayback({ resetFileInput: false, invalidateLoads: false });
   setPhotoRouteStatus("사진을 분석하는 중입니다…");
 
   if (!selectedFiles.length) {
@@ -1954,13 +1964,19 @@ async function loadPhotoRouteFiles(files) {
       createObjectURL: (file) => URL.createObjectURL(file)
     });
 
-    photoRouteState.photos = photos;
-    photoRouteState.timeline = window.PhotoRoute.buildPlaybackTimeline(photos, {
+    if (loadToken !== photoRouteState.loadToken) {
+      revokePhotoPreviewUrls(photos);
+      return;
+    }
+
+    const timeline = window.PhotoRoute.buildPlaybackTimeline(photos, {
       targetDurationMs: Math.min(45_000, Math.max(12_000, photos.length * 1_500)),
       maxSourceGapMs: 30 * 60 * 1000
     });
+    photoRouteState.timeline = timeline;
+    photoRouteState.photos = timeline.photos;
 
-    if (!photos.length) {
+    if (!timeline.photos.length) {
       setPhotoRouteStatus("촬영 시각과 위치가 포함된 사진이 없습니다.");
       return;
     }
@@ -1970,26 +1986,30 @@ async function loadPhotoRouteFiles(files) {
     }
 
     ensurePhotoRouteLayer();
-    const bounds = window.L && photos.map((photo) => [photo.lat, photo.lng]);
+    const bounds = window.L && timeline.photos.map((photo) => [photo.lat, photo.lng]);
     if (bounds?.length && renderRouteMap.map) {
       renderRouteMap.map.fitBounds(window.L.latLngBounds(bounds), {
         padding: [28, 28],
-        maxZoom: photos.length === 1 ? 16 : 14
+        maxZoom: timeline.photos.length === 1 ? 16 : 14
       });
     }
 
-    setPhotoRouteControlsEnabled(photos.length > 1);
+    setPhotoRouteControlsEnabled(timeline.photos.length > 1);
     seekPhotoRoutePlayback(0);
 
-    if (photos.length === 1) {
+    if (timeline.photos.length === 1) {
       setPhotoRouteStatus("이동 경로를 재생하려면 위치 정보가 있는 사진이 두 장 이상 필요합니다.");
       return;
     }
 
     setPhotoRouteStatus("재생 준비가 완료되었습니다.");
   } catch (error) {
+    if (loadToken !== photoRouteState.loadToken) {
+      return;
+    }
+
     console.warn(error);
-    disposePhotoRoutePlayback({ resetFileInput: false });
+    disposePhotoRoutePlayback({ resetFileInput: false, invalidateLoads: false });
     setPhotoRouteStatus("사진을 분석하지 못했습니다.");
   }
 }

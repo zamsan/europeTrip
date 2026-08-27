@@ -6,6 +6,13 @@ const path = require("node:path");
 const html = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");
 const app = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
 
+function functionBody(name) {
+  const start = app.indexOf(`function ${name}`);
+  assert.notEqual(start, -1, `missing ${name}`);
+  const next = app.indexOf("\nfunction ", start + 1);
+  return app.slice(start, next === -1 ? undefined : next);
+}
+
 test("loads pinned EXIF and playback scripts before app.js", () => {
   const exifr = html.indexOf("exifr@7.1.3/dist/lite.umd.js");
   const core = html.indexOf("photo-route.js");
@@ -31,4 +38,18 @@ test("wires local EXIF parsing and animation without Firebase writes", () => {
   assert.match(app, /URL\.revokeObjectURL/);
   assert.doesNotMatch(app, /setDoc\([^)]*photo/i);
   assert.doesNotMatch(app, /uploadBytes|FirebaseStorage|getStorage/);
+});
+
+test("renders photo UI from the sorted playback timeline", () => {
+  const body = functionBody("renderPhotoRouteFrame");
+  assert.match(body, /photoRouteState\.timeline\.photos\[frame\.photoIndex\]/);
+  assert.doesNotMatch(body, /photoRouteState\.photos\[frame\.photoIndex\]/);
+});
+
+test("guards stale photo loads and revokes stale previews", () => {
+  const body = functionBody("loadPhotoRouteFiles");
+  assert.match(app, /loadToken/);
+  assert.match(body, /const loadToken = \+{2}photoRouteState\.loadToken/);
+  assert.match(body, /if \(loadToken !== photoRouteState\.loadToken\)/);
+  assert.match(body, /revokePhotoPreviewUrls\(photos\)/);
 });
