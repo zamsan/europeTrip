@@ -1,6 +1,13 @@
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
+if (!process.argv.includes("--force-full-replace")) {
+  throw new Error(
+    "Refusing to replace the full Firestore schedule. " +
+    "Use --force-full-replace only after backing up the live document."
+  );
+}
+
 const projectId = "europetrip-eb435";
 const documentPath = `projects/${projectId}/databases/(default)/documents/trips/europe-2026`;
 const documentUrl = `https://firestore.googleapis.com/v1/${documentPath}`;

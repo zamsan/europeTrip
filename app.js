@@ -1266,12 +1266,23 @@ function normalizeItems(items) {
 }
 
 function getItemSortMinutes(item) {
-  const match = String(item?.time || "").match(/^(\d{1,2}):(\d{2})$/);
-  if (!match) {
-    return Number.POSITIVE_INFINITY;
+  const time = String(item?.time || "").trim();
+  const match = time.match(/^(\d{1,2}):(\d{2})\s*경?$/);
+  if (match) {
+    return Number.parseInt(match[1], 10) * 60 + Number.parseInt(match[2], 10);
   }
 
-  return Number.parseInt(match[1], 10) * 60 + Number.parseInt(match[2], 10);
+  const periodMinutes = {
+    "새벽": 5 * 60,
+    "아침": 8 * 60,
+    "오전": 9 * 60,
+    "점심": 12 * 60,
+    "오후": 14 * 60,
+    "저녁": 18 * 60,
+    "밤": 22 * 60
+  };
+
+  return periodMinutes[time] ?? Number.POSITIVE_INFINITY;
 }
 
 function sortItemsByTime(items) {
@@ -1353,7 +1364,13 @@ function focusRestaurantCard(targetId) {
 }
 
 function splitTime(value) {
-  const match = String(value || "").match(/^(\d{1,2}):(\d{2})$/);
+  const time = String(value || "").trim();
+  const periodLabels = ["새벽", "아침", "오전", "점심", "오후", "저녁", "밤"];
+  if (periodLabels.includes(time)) {
+    return { hour: time, minute: "" };
+  }
+
+  const match = time.match(/^(\d{1,2}):(\d{2})\s*경?$/);
   if (!match) {
     return { hour: "", minute: "" };
   }
@@ -1376,7 +1393,10 @@ function renderSelectOptions(values, selectedValue, emptyLabel) {
 
 function renderTimePicker(value) {
   const { hour, minute } = splitTime(value);
-  const hours = Array.from({ length: 24 }, (_, index) => String(index).padStart(2, "0"));
+  const hours = [
+    "새벽", "아침", "오전", "점심", "오후", "저녁", "밤",
+    ...Array.from({ length: 24 }, (_, index) => String(index).padStart(2, "0"))
+  ];
   const minutes = Array.from({ length: 12 }, (_, index) => String(index * 5).padStart(2, "0"));
 
   return `
@@ -1399,22 +1419,11 @@ function readItemTime(row) {
     return "";
   }
 
-  return `${(hour || "00").padStart(2, "0")}:${(minute || "00").padStart(2, "0")}`;
-}
+  if (hour && !/^\d{1,2}$/.test(hour)) {
+    return hour;
+  }
 
-function sortEditorRowsByTime(itemList) {
-  const rows = Array.from(itemList.querySelectorAll("[data-item-row]"));
-  rows
-    .map((row, index) => ({
-      row,
-      index,
-      time: readItemTime(row)
-    }))
-    .sort((left, right) => {
-      const diff = getItemSortMinutes({ time: left.time }) - getItemSortMinutes({ time: right.time });
-      return diff || left.index - right.index;
-    })
-    .forEach(({ row }) => itemList.append(row));
+  return `${(hour || "00").padStart(2, "0")}:${(minute || "00").padStart(2, "0")}`;
 }
 
 function cloneDay(day) {
@@ -2697,17 +2706,6 @@ function wireTimelineEditing() {
     await saveSelectedDay(Number.parseInt(form.dataset.editorIndex, 10), form);
   });
 
-  timelineEl.addEventListener("change", (event) => {
-    const timeSelect = event.target.closest('[name="itemHour"], [name="itemMinute"]');
-    if (!timeSelect) {
-      return;
-    }
-
-    const itemList = timeSelect.closest("[data-item-list]");
-    if (itemList) {
-      sortEditorRowsByTime(itemList);
-    }
-  });
 }
 
 async function initFirestoreSchedule() {

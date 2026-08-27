@@ -68,7 +68,7 @@ window.ACTUAL_TRIP_SCHEDULE = [
     city: "런던 → 파리",
     title: "유로스타 이동 · 에펠탑 야경",
     type: "transfer",
-    note: "The Tower Hotel에서 체크아웃해 유로스타로 파리로 이동한 뒤, 센강 주변을 산책하고 에펠탑 조명쇼를 봤습니다.",
+    note: "The Tower Hotel에서 체크아웃해 유로스타로 파리로 이동한 뒤, 센강 주변을 산책하고 Les Cocottes에서 저녁 식사 후 에펠탑 조명쇼를 봤습니다.",
     items: [
       { time: "09:00", text: "🏨 The Tower Hotel 체크아웃", mapUrl: "The Tower Hotel London", lat: "51.5077", lng: "-0.0733" },
       { time: "오전", text: "🚖 세인트 판크라스역 이동", mapUrl: "St Pancras International London", lat: "51.5315", lng: "-0.1263" },
@@ -79,6 +79,7 @@ window.ACTUAL_TRIP_SCHEDULE = [
       { time: "저녁", text: "🌉 알렉상드르 3세 다리", mapUrl: "Pont Alexandre III Paris", lat: "48.8639", lng: "2.3136" },
       { time: "저녁", text: "🌉 알마 다리", mapUrl: "Pont de l'Alma Paris", lat: "48.8634", lng: "2.3018" },
       { time: "저녁", text: "🌳 마르스 광장", mapUrl: "Champ de Mars Paris", lat: "48.8556", lng: "2.2986" },
+      { time: "저녁", text: "🍽 Les Cocottes 방문 · 저녁 식사", mapUrl: "Les Cocottes Paris", lat: "48.8587", lng: "2.3078" },
       { time: "밤", text: "🗼 에펠탑 야경과 조명쇼 관람", mapUrl: "Eiffel Tower Paris", lat: "48.8584", lng: "2.2945" },
       { time: "밤", text: "✨ 트로카데로 주변 산책 후 호텔 복귀", mapUrl: "Trocadéro Paris", lat: "48.8629", lng: "2.2870" }
     ]
@@ -158,6 +159,7 @@ window.ACTUAL_TRIP_CHECKLIST = [
   { id: "hyatt-paris", label: "파리 숙소 Hyatt Regency Paris Étoile", checked: true, url: "https://www.hyatt.com/hyatt-regency/en-US/parhr-hyatt-regency-paris-etoile", note: "3박 이용 완료" },
   { id: "dishoom", label: "8월 2일 Dishoom Shoreditch", checked: true, url: "https://www.dishoom.com/shoreditch/", note: "방문 완료" },
   { id: "duck-waffle", label: "8월 3일 Duck & Waffle", checked: true, url: "https://duckandwaffle.com/", note: "방문 완료" },
+  { id: "les-cocottes", label: "8월 4일 Les Cocottes", checked: true, url: "https://www.maisonconstant.com/les-cocottes-tour-eiffel/", note: "방문 완료" },
   { id: "pink-mamma", label: "8월 5일 Pink Mamma", checked: true, url: "https://www.bigmammagroup.com/italian-restaurants/pink-mamma", note: "방문 완료" },
   { id: "les-ombres", label: "8월 6일 19:00 Les Ombres", checked: true, url: "https://www.lesombres-restaurant.com/", note: "방문 완료" },
   { id: "arc", label: "8월 6일 21:30 개선문 전망대", checked: true, url: "https://www.paris-arc-de-triomphe.fr/", note: "관람 완료" },
