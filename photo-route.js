@@ -89,6 +89,10 @@
     return `사진 정보 읽는 중… ${safeCompleted} / ${safeTotal} (${percent}%)`;
   }
 
+  function getPhotoRouteZoom(distanceMeters) {
+    return Number(distanceMeters) >= 50_000 ? 8 : 14;
+  }
+
   async function analyzePhotoFiles(files, dependencies) {
     const selectedFiles = Array.from(files);
     const results = [];
@@ -122,6 +126,7 @@
     buildPlaybackTimeline,
     getPlaybackFrame,
     formatPhotoAnalysisProgress,
+    getPhotoRouteZoom,
     analyzePhotoFiles
   };
 });

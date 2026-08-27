@@ -85,20 +85,21 @@ test("uses a person marker and restores the planned route after playback", () =>
   assert.match(wireBody, /beforeunload[\s\S]*restorePlannedRoute:\s*false/);
 });
 
-test("follows the person marker at one fixed zoom level", () => {
+test("zooms out only for city-to-city gaps while following the person marker", () => {
   const cameraBody = functionBody("updatePhotoRouteCamera");
   const renderBody = functionBody("renderPhotoRouteFrame");
 
-  assert.match(cameraBody, /photoRouteState\.cameraZoom/);
-  assert.match(cameraBody, /map\.setView\(currentLatLng, photoRouteState\.cameraZoom/);
+  assert.match(cameraBody, /map\.distance/);
+  assert.match(cameraBody, /window\.PhotoRoute\.getPhotoRouteZoom/);
+  assert.match(cameraBody, /photoRouteState\.cameraZoom !== targetZoom/);
+  assert.match(cameraBody, /map\.setView\(currentLatLng, targetZoom/);
   assert.match(cameraBody, /panTo/);
-  assert.doesNotMatch(cameraBody, /map\.distance|nextPhoto|targetZoom/);
   assert.match(renderBody, /updatePhotoRouteCamera\(frame\)/);
 });
 
 test("cache-busts the deployed app bundle", () => {
-  assert.match(html, /photo-route\.js\?v=2/);
-  assert.match(html, /app\.js\?v=39/);
+  assert.match(html, /photo-route\.js\?v=3/);
+  assert.match(html, /app\.js\?v=40/);
 });
 
 test("shows live progress while reading many photos", () => {
