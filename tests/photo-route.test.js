@@ -4,7 +4,8 @@ const {
   buildPlaybackTimeline,
   getPlaybackFrame,
   analyzePhotoFiles,
-  formatPhotoAnalysisProgress
+  formatPhotoAnalysisProgress,
+  getPhotoRouteZoom
 } = require("../photo-route.js");
 
 test("sorts photos by capture time and caps long gaps before normalization", () => {
@@ -114,4 +115,10 @@ test("formats a visible photo analysis count and percentage", () => {
   assert.equal(formatPhotoAnalysisProgress(0, 100), "사진 정보 읽는 중… 0 / 100 (0%)");
   assert.equal(formatPhotoAnalysisProgress(37, 100), "사진 정보 읽는 중… 37 / 100 (37%)");
   assert.equal(formatPhotoAnalysisProgress(1, 3), "사진 정보 읽는 중… 1 / 3 (33%)");
+});
+
+test("zooms out only for city-to-city photo gaps", () => {
+  assert.equal(getPhotoRouteZoom(49_999), 14);
+  assert.equal(getPhotoRouteZoom(50_000), 8);
+  assert.equal(getPhotoRouteZoom(350_000), 8);
 });

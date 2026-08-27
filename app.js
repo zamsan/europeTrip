@@ -526,8 +526,7 @@ const photoRouteState = {
   marker: null,
   loadToken: 0,
   active: false,
-  cameraInitialized: false,
-  cameraZoom: 14,
+  cameraZoom: null,
   mapInteractionSnapshot: null
 };
 
@@ -1895,7 +1894,7 @@ function startPhotoRoutePlayback() {
   }
 
   photoRouteState.playing = true;
-  photoRouteState.cameraInitialized = false;
+  photoRouteState.cameraZoom = null;
   setPhotoRouteMapInteractionLocked(true);
   photoRouteState.startedAt = performance.now() - photoRouteState.elapsedMs / photoRouteState.speed;
   if (photoRoutePlayEl) {
@@ -1937,7 +1936,7 @@ function disposePhotoRoutePlayback(options = {}) {
   photoRouteState.layer = null;
   photoRouteState.path = null;
   photoRouteState.marker = null;
-  photoRouteState.cameraInitialized = false;
+  photoRouteState.cameraZoom = null;
 
   if (photoRoutePanelEl) {
     photoRoutePanelEl.hidden = true;
@@ -2001,9 +2000,16 @@ function updatePhotoRouteCamera(frame) {
   }
 
   const currentLatLng = [frame.lat, frame.lng];
-  if (!photoRouteState.cameraInitialized) {
-    photoRouteState.cameraInitialized = true;
-    map.setView(currentLatLng, photoRouteState.cameraZoom, { animate: true, duration: 0.45 });
+  const currentPhoto = photoRouteState.timeline.photos[frame.photoIndex];
+  const nextPhoto = photoRouteState.timeline.photos[frame.photoIndex + 1] || currentPhoto;
+  const segmentDistance = currentPhoto && nextPhoto
+    ? map.distance([currentPhoto.lat, currentPhoto.lng], [nextPhoto.lat, nextPhoto.lng])
+    : 0;
+  const targetZoom = window.PhotoRoute.getPhotoRouteZoom(segmentDistance);
+
+  if (photoRouteState.cameraZoom !== targetZoom) {
+    photoRouteState.cameraZoom = targetZoom;
+    map.setView(currentLatLng, targetZoom, { animate: true, duration: 0.45 });
     return;
   }
 
